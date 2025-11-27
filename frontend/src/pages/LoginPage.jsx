@@ -1,0 +1,138 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import { login, clearError } from '../store/slices/authSlice';
+
+const LoginPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoading, error } = useSelector((state) => state.auth);
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const from = location.state?.from?.pathname || '/';
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const result = await dispatch(login(formData));
+    
+    if (login.fulfilled.match(result)) {
+      toast.success('Welcome back!');
+      navigate(from, { replace: true });
+    }
+  };
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to your account to continue</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="input"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="input pr-10"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </button>
+              </div>
+              <div className="text-right mt-2">
+                <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn-primary w-full py-3"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+                Sign up
+              </Link>
+            </p>
+          </div>
+
+          {/* Demo Accounts */}
+          <div className="mt-8 pt-6 border-t">
+            <p className="text-sm text-gray-500 text-center mb-4">Demo Accounts</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between bg-gray-50 px-3 py-2 rounded">
+                <span>Admin:</span>
+                <span className="text-gray-600">admin@example.com / admin123</span>
+              </div>
+              <div className="flex justify-between bg-gray-50 px-3 py-2 rounded">
+                <span>Customer:</span>
+                <span className="text-gray-600">john@example.com / john123</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;

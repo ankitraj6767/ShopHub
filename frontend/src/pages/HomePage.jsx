@@ -1,0 +1,169 @@
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { FiArrowRight, FiTruck, FiShield, FiHeadphones } from 'react-icons/fi';
+import { fetchFeaturedProducts, fetchCategories } from '../store/slices/productSlice';
+import ProductCard from '../components/ui/ProductCard';
+import Spinner from '../components/ui/Spinner';
+
+const HomePage = () => {
+  const dispatch = useDispatch();
+  const productsState = useSelector((state) => state.products) || {};
+  const { featuredProducts = [], categories = [], isLoading = false } = productsState;
+
+  useEffect(() => {
+    dispatch(fetchFeaturedProducts(8));
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  const features = [
+    {
+      icon: FiTruck,
+      title: 'Free Shipping',
+      description: 'Free shipping on orders over $100',
+    },
+    {
+      icon: FiShield,
+      title: 'Secure Payment',
+      description: '100% secure payment processing',
+    },
+    {
+      icon: FiHeadphones,
+      title: '24/7 Support',
+      description: 'Dedicated support team ready to help',
+    },
+  ];
+
+  return (
+    <div>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-primary-600 to-primary-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              Discover Amazing Products
+            </h1>
+            <p className="text-lg md:text-xl text-primary-100 mb-8">
+              Shop the latest trends with exclusive deals. Quality products at unbeatable prices.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link to="/products" className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3">
+                Shop Now
+              </Link>
+              <Link to="/products?featured=true" className="btn border-2 border-white text-white hover:bg-white/10 px-8 py-3">
+                Featured Products
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent" />
+      </section>
+
+      {/* Features */}
+      <section className="py-12 bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                  <feature.icon className="w-6 h-6 text-primary-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{feature.title}</h3>
+                  <p className="text-sm text-gray-500">{feature.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Shop by Category</h2>
+            <Link to="/products" className="text-primary-600 hover:text-primary-700 flex items-center">
+              View All <FiArrowRight className="ml-2" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {(categories || []).slice(0, 5).map((category) => (
+              <Link
+                key={category}
+                to={`/products?category=${encodeURIComponent(category)}`}
+                className="group p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition text-center"
+              >
+                <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center group-hover:bg-primary-600 transition">
+                  <span className="text-2xl group-hover:scale-110 transition">
+                    {category === 'Electronics' && '📱'}
+                    {category === 'Clothing' && '👕'}
+                    {category === 'Home & Garden' && '🏠'}
+                    {category === 'Sports & Outdoors' && '⚽'}
+                    {category === 'Books' && '📚'}
+                    {category === 'Toys & Games' && '🎮'}
+                    {category === 'Health & Beauty' && '💄'}
+                    {category === 'Automotive' && '🚗'}
+                    {category === 'Food & Grocery' && '🍎'}
+                    {category === 'Other' && '📦'}
+                  </span>
+                </div>
+                <h3 className="font-medium text-gray-900 group-hover:text-primary-600 transition">
+                  {category}
+                </h3>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products */}
+      <section className="py-16 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Featured Products</h2>
+            <Link to="/products?featured=true" className="text-primary-600 hover:text-primary-700 flex items-center">
+              View All <FiArrowRight className="ml-2" />
+            </Link>
+          </div>
+          
+          {isLoading ? (
+            <Spinner size="lg" className="py-12" />
+          ) : featuredProducts && featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                product && <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-12">No featured products available</p>
+          )}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-primary-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Join Our Newsletter
+          </h2>
+          <p className="text-primary-100 mb-8 max-w-2xl mx-auto">
+            Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
+          </p>
+          <form className="max-w-md mx-auto flex gap-4">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+            <button type="submit" className="btn bg-white text-primary-600 hover:bg-gray-100 px-6">
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default HomePage;
