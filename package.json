@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Full-stack E-commerce application with React and Node.js",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "cd backend && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd backend && npm run dev",
+    "server:prod": "cd backend && npm start",
     "client": "cd frontend && npm run dev",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm install && npm run build"
@@ -19,7 +20,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "concurrently": "^8.2.2"
   }
 }
