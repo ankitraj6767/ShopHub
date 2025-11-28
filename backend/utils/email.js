@@ -4,7 +4,46 @@ import nodemailer from 'nodemailer';
 let cachedTransporter = null;
 let transporterInitialized = false;
 
-// Create transporter with connection pooling
+// Check if Resend is configured (preferred for cloud platforms)
+const useResend = () => {
+  return !!process.env.RESEND_API_KEY;
+};
+
+// Send email via Resend HTTP API
+const sendViaResend = async ({ to, subject, html, text }) => {
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  const fromName = process.env.SMTP_FROM_NAME || 'ShopHub';
+  
+  console.log('📧 Sending email via Resend to:', to, '| Subject:', subject);
+  
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: `${fromName} <${fromEmail}>`,
+      to: [to],
+      subject,
+      html,
+      text: text || html?.replace(/<[^>]*>/g, ''),
+    }),
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    console.error('❌ Resend error:', data);
+    throw new Error(data.message || 'Failed to send email via Resend');
+  }
+  
+  console.log('✅ Email sent via Resend:', { id: data.id, to });
+  return { messageId: data.id };
+};
+
+// Create transporter with connection pooling (SMTP fallback)
 const getTransporter = () => {
   // Return cached transporter if available
   if (transporterInitialized) {
@@ -15,13 +54,13 @@ const getTransporter = () => {
   // Remove spaces from password (Gmail App Passwords are shown with spaces but should be entered without)
   const smtpPassword = process.env.SMTP_PASSWORD?.replace(/\s+/g, '');
   const smtpHost = process.env.SMTP_HOST?.trim() || 'smtp.gmail.com';
-  const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
+  const smtpPort = parseInt(process.env.SMTP_PORT) || 465;
   
   // Log configuration status once (without exposing credentials)
   console.log('📧 Email Config Initialized:', {
+    useResend: useResend(),
     hasSmtpUser: !!smtpUser,
     hasSmtpPassword: !!smtpPassword,
-    passwordLength: smtpPassword?.length,
     smtpHost,
     smtpPort,
     nodeEnv: process.env.NODE_ENV
@@ -96,6 +135,11 @@ const getTransporter = () => {
 // Send email helper
 export const sendEmail = async ({ to, subject, html, text }) => {
   try {
+    // Use Resend if configured (recommended for cloud platforms like Railway)
+    if (useResend()) {
+      return await sendViaResend({ to, subject, html, text });
+    }
+    
     const transporter = getTransporter();
     
     // If no transporter, log email to console (dev fallback)
