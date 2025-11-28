@@ -43,7 +43,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: true, // Allow all origins in production (credentials still required)
   credentials: true,
 }));
 
