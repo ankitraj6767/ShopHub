@@ -7,11 +7,9 @@ export const createOrder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await api.post('/orders', orderData);
-      // Return the full response data including loyalty points and wallet info
+      // Return the order data (loyalty points are processed in background now)
       return {
         order: response.data.data,
-        loyaltyPoints: response.data.loyaltyPoints,
-        referralCompleted: response.data.referralCompleted,
         walletUsed: response.data.walletUsed,
       };
     } catch (error) {

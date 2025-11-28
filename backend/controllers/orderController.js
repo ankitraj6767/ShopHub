@@ -288,31 +288,35 @@ export const createOrder = asyncHandler(async (req, res) => {
     });
   }
 
-  // Add loyalty points for this order
-  const loyaltyResult = await addLoyaltyPointsForOrder(req.user._id, itemsPrice, order._id);
-  
-  // Complete referral if this is user's first purchase
-  const referralResult = await completeReferralOnFirstPurchase(req.user._id, order._id);
-
-  // Send order confirmation email
-  try {
-    const emailContent = emailTemplates.orderConfirmation(order, req.user);
-    await sendEmail({
-      to: req.user.email,
-      subject: emailContent.subject,
-      html: emailContent.html,
-    });
-  } catch (emailError) {
-    console.error('Failed to send order confirmation email:', emailError);
-    // Don't fail the order if email fails
-  }
-
+  // Send response immediately
   res.status(201).json({
     success: true,
     data: order,
-    loyaltyPoints: loyaltyResult,
-    referralCompleted: referralResult,
-    walletUsed: walletUsed,
+    walletUsed: walletUsed > 0 ? { amount: walletUsed } : null,
+  });
+
+  // Process these in background (don't await)
+  // Add loyalty points for this order
+  addLoyaltyPointsForOrder(req.user._id, itemsPrice, order._id)
+    .then((loyaltyResult) => {
+      if (loyaltyResult) {
+        console.log(`Loyalty points added for order ${order._id}`);
+      }
+    })
+    .catch((err) => console.error('Loyalty points error:', err));
+  
+  // Complete referral if this is user's first purchase
+  completeReferralOnFirstPurchase(req.user._id, order._id)
+    .catch((err) => console.error('Referral completion error:', err));
+
+  // Send order confirmation email in background
+  const emailContent = emailTemplates.orderConfirmation(order, req.user);
+  sendEmail({
+    to: req.user.email,
+    subject: emailContent.subject,
+    html: emailContent.html,
+  }).catch((emailError) => {
+    console.error('Failed to send order confirmation email:', emailError);
   });
 });
 

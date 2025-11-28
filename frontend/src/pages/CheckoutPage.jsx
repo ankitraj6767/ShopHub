@@ -544,7 +544,7 @@ const CheckoutPage = () => {
 
     const result = await dispatch(createOrder(orderData));
     if (createOrder.fulfilled.match(result)) {
-      const { order: createdOrder, loyaltyPoints, walletUsed } = result.payload;
+      const { order: createdOrder, walletUsed } = result.payload;
       setCreatedOrderId(createdOrder._id);
       
       // Show wallet notification
@@ -554,15 +554,6 @@ const CheckoutPage = () => {
         });
         // Refresh wallet balance
         dispatch(fetchWallet());
-      }
-      
-      // Show loyalty points notification
-      if (loyaltyPoints) {
-        setTimeout(() => {
-          toast.success(`🎉 You earned ${loyaltyPoints.totalPoints} loyalty points!`, {
-            duration: 5000,
-          });
-        }, 1000);
       }
       
       return createdOrder;
