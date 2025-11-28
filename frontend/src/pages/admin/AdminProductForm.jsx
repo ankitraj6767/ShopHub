@@ -248,15 +248,15 @@ const AdminProductForm = () => {
         <FiArrowLeft className="mr-2" /> Back to Products
       </button>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
         {isEditing ? 'Edit Product' : 'Add New Product'}
       </h1>
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 space-y-6">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Product Name
             </label>
             <input
@@ -273,7 +273,7 @@ const AdminProductForm = () => {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
@@ -291,7 +291,7 @@ const AdminProductForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Price */}
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Price ($)
               </label>
               <input
@@ -310,7 +310,7 @@ const AdminProductForm = () => {
 
             {/* Stock */}
             <div>
-              <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="stock" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Stock Quantity
               </label>
               <input
@@ -331,7 +331,7 @@ const AdminProductForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Category */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Category
               </label>
               <select
@@ -351,7 +351,7 @@ const AdminProductForm = () => {
 
             {/* Brand */}
             <div>
-              <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Brand
               </label>
               <input
@@ -369,7 +369,7 @@ const AdminProductForm = () => {
 
           {/* Images */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Product Images
             </label>
             
@@ -381,7 +381,7 @@ const AdminProductForm = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
                   imageInputType === 'upload'
                     ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
                 }`}
               >
                 <FiUpload /> Upload Images
@@ -392,7 +392,7 @@ const AdminProductForm = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
                   imageInputType === 'url'
                     ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
                 }`}
               >
                 <FiImage /> Add URL
@@ -404,18 +404,18 @@ const AdminProductForm = () => {
               <div className="mb-4">
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary-500 transition-colors"
+                  className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary-500 transition-colors"
                 >
                   {uploading ? (
                     <div className="flex flex-col items-center">
                       <Spinner size="md" />
-                      <p className="mt-2 text-gray-600">Uploading...</p>
+                      <p className="mt-2 text-gray-600 dark:text-gray-400">Uploading...</p>
                     </div>
                   ) : (
                     <>
-                      <FiUpload className="w-10 h-10 mx-auto text-gray-400 mb-3" />
-                      <p className="text-gray-600">Click to upload images</p>
-                      <p className="text-sm text-gray-400 mt-1">PNG, JPG, WEBP up to 5MB (max 5 images)</p>
+                      <FiUpload className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+                      <p className="text-gray-600 dark:text-gray-400">Click to upload images</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, WEBP up to 5MB (max 5 images)</p>
                     </>
                   )}
                 </div>
@@ -433,7 +433,7 @@ const AdminProductForm = () => {
             {/* Uploaded Images Preview */}
             {uploadedImages.length > 0 && (
               <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">Uploaded Images:</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Uploaded Images:</p>
                 <div className="flex flex-wrap gap-3">
                   {uploadedImages.map((image, index) => (
                     <div key={index} className="relative group">

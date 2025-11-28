@@ -104,32 +104,32 @@ const AdminTicketDetail = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'open':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300';
       case 'in-progress':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300';
       case 'waiting-customer':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300';
       case 'resolved':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300';
       case 'closed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300';
       case 'high':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300';
       case 'urgent':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
@@ -144,8 +144,8 @@ const AdminTicketDetail = () => {
   if (!ticket) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Ticket Not Found</h2>
-        <p className="text-gray-600 mb-6">The ticket you're looking for doesn't exist.</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Ticket Not Found</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">The ticket you're looking for doesn't exist.</p>
         <Link to="/admin/support" className="btn btn-primary">Back to Support</Link>
       </div>
     );
@@ -159,13 +159,13 @@ const AdminTicketDetail = () => {
       <div className="mb-6">
         <Link
           to="/admin/support"
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
         >
           <FiArrowLeft className="mr-2" /> Back to Support Tickets
         </Link>
 
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Ticket #{ticket.ticketNumber}
           </h1>
           <div className="flex items-center gap-2">
@@ -189,10 +189,10 @@ const AdminTicketDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content - Messages */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="p-4 border-b">
-              <h2 className="font-semibold text-gray-900">{ticket.subject}</h2>
-              <p className="text-sm text-gray-500 capitalize">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div className="p-4 border-b dark:border-gray-700">
+              <h2 className="font-semibold text-gray-900 dark:text-white">{ticket.subject}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
                 Category: {ticket.category?.replace('-', ' ')}
               </p>
             </div>
@@ -215,10 +215,10 @@ const AdminTicketDetail = () => {
                         ) : (
                           <FiUser className="text-gray-400" />
                         )}
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           {isAgentMessage ? 'Support Team' : ticket.user?.name || 'Customer'}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {new Date(msg.createdAt || msg.timestamp).toLocaleString()}
                         </span>
                       </div>
@@ -226,7 +226,7 @@ const AdminTicketDetail = () => {
                         className={`rounded-lg px-4 py-3 ${
                           isAgentMessage
                             ? 'bg-primary-600 text-white'
-                            : 'bg-gray-100 border border-gray-200'
+                            : 'bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-white'
                         }`}
                       >
                         <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -240,7 +240,7 @@ const AdminTicketDetail = () => {
 
             {/* Reply Form */}
             {!isTicketClosed ? (
-              <form onSubmit={handleSendMessage} className="p-4 border-t">
+              <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700">
                 <div className="flex gap-2">
                   <textarea
                     value={message}
@@ -259,7 +259,7 @@ const AdminTicketDetail = () => {
                 </div>
               </form>
             ) : (
-              <div className="p-4 border-t bg-gray-50 text-center text-gray-600">
+              <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-center text-gray-600 dark:text-gray-300">
                 <FiCheckCircle className="inline-block mr-2" />
                 This ticket has been {ticket.status}. You can change the status to reopen it.
               </div>
@@ -270,18 +270,18 @@ const AdminTicketDetail = () => {
         {/* Sidebar - Ticket Info */}
         <div className="lg:col-span-1 space-y-6">
           {/* Customer Info */}
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <FiUser className="mr-2" /> Customer Information
             </h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-500">Name</p>
-                <p className="font-medium">{ticket.user?.name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                <p className="font-medium dark:text-white">{ticket.user?.name}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="font-medium flex items-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                <p className="font-medium flex items-center dark:text-white">
                   <FiMail className="mr-2 text-gray-400" />
                   {ticket.user?.email}
                 </p>
@@ -290,25 +290,25 @@ const AdminTicketDetail = () => {
           </div>
 
           {/* Ticket Details */}
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Ticket Details</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Ticket Details</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-500">Priority</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Priority</p>
                 <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
                   {ticket.priority}
                 </span>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Created</p>
-                <p className="font-medium">{new Date(ticket.createdAt).toLocaleString()}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
+                <p className="font-medium dark:text-white">{new Date(ticket.createdAt).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Last Updated</p>
-                <p className="font-medium">{new Date(ticket.updatedAt).toLocaleString()}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
+                <p className="font-medium dark:text-white">{new Date(ticket.updatedAt).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Assigned To</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Assigned To</p>
                 {ticket.assignedTo ? (
                   <p className="font-medium text-primary-600">{ticket.assignedTo.name}</p>
                 ) : (
@@ -325,13 +325,13 @@ const AdminTicketDetail = () => {
 
           {/* Related Order */}
           {ticket.order && (
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                 <FiPackage className="mr-2" /> Related Order
               </h3>
               <div className="space-y-2">
-                <p className="text-sm">
-                  <span className="text-gray-500">Order #:</span>{' '}
+                <p className="text-sm dark:text-gray-300">
+                  <span className="text-gray-500 dark:text-gray-400">Order #:</span>{' '}
                   <Link
                     to={`/admin/orders/${ticket.order._id}`}
                     className="text-primary-600 hover:text-primary-700"
@@ -339,12 +339,12 @@ const AdminTicketDetail = () => {
                     {ticket.order.orderNumber}
                   </Link>
                 </p>
-                <p className="text-sm">
-                  <span className="text-gray-500">Status:</span>{' '}
+                <p className="text-sm dark:text-gray-300">
+                  <span className="text-gray-500 dark:text-gray-400">Status:</span>{' '}
                   <span className="capitalize">{ticket.order.status}</span>
                 </p>
-                <p className="text-sm">
-                  <span className="text-gray-500">Total:</span>{' '}
+                <p className="text-sm dark:text-gray-300">
+                  <span className="text-gray-500 dark:text-gray-400">Total:</span>{' '}
                   ${ticket.order.totalPrice?.toFixed(2)}
                 </p>
               </div>
@@ -352,8 +352,8 @@ const AdminTicketDetail = () => {
           )}
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
             <div className="space-y-2">
               <button
                 onClick={() => handleStatusChange('in-progress')}
@@ -379,7 +379,7 @@ const AdminTicketDetail = () => {
               <button
                 onClick={() => handleStatusChange('closed')}
                 disabled={ticket.status === 'closed' || statusUpdating}
-                className="w-full text-sm text-gray-600 hover:text-gray-800 py-2"
+                className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white py-2"
               >
                 Close Ticket
               </button>

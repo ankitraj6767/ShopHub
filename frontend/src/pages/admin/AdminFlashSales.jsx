@@ -454,7 +454,7 @@ const AdminFlashSales = () => {
                   <p className="text-gray-500 dark:text-gray-400 mb-2">No products added yet</p>
                   <p className="text-sm text-gray-400 dark:text-gray-500">Select products from the dropdown above to add them to this flash sale</p>
                 </div>
-              )
+              )}
 
               <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
                 <button
