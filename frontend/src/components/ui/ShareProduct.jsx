@@ -62,28 +62,28 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div 
-        className="bg-white rounded-lg max-w-md w-full p-6"
+        className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <FiShare2 /> Share this product
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <FiX className="w-5 h-5" />
           </button>
         </div>
 
         {/* Product Preview */}
-        <div className="flex gap-4 p-4 bg-gray-50 rounded-lg mb-6">
+        <div className="flex gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mb-6">
           <img
             src={product.images?.[0]?.url || 'https://via.placeholder.com/80'}
             alt={product.name}
             className="w-16 h-16 object-cover rounded"
           />
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900 line-clamp-2">{product.name}</h4>
-            <p className="text-sm text-gray-500">${product.price?.toFixed(2)}</p>
+            <h4 className="font-medium text-gray-900 dark:text-white line-clamp-2">{product.name}</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">${product.price?.toFixed(2)}</p>
           </div>
         </div>
 
@@ -107,14 +107,14 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
             type="text"
             value={productUrl}
             readOnly
-            className="flex-1 px-3 py-2 border rounded-lg bg-gray-50 text-sm text-gray-600"
+            className="flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-sm text-gray-600 dark:text-gray-300"
           />
           <button
             onClick={copyToClipboard}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
               copied 
                 ? 'bg-green-500 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'
             }`}
           >
             <FiLink className="w-4 h-4" />

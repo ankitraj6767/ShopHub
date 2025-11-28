@@ -88,17 +88,17 @@ const HomePage = () => {
       </section>
 
       {/* Features */}
-      <section className="py-12 bg-white border-b">
+      <section className="py-12 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
                   <feature.icon className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">{feature.title}</h3>
-                  <p className="text-sm text-gray-500">{feature.description}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{feature.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{feature.description}</p>
                 </div>
               </div>
             ))}
@@ -142,7 +142,7 @@ const HomePage = () => {
                     {category === 'Other' && '📦'}
                   </span>
                 </div>
-                <h3 className="font-medium text-gray-900 group-hover:text-primary-600 transition">
+                <h3 className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 transition">
                   {category}
                 </h3>
               </Link>
@@ -152,10 +152,10 @@ const HomePage = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-gray-100">
+      <section className="py-16 bg-gray-100 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Featured Products</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Featured Products</h2>
             <Link to="/products?featured=true" className="text-primary-600 hover:text-primary-700 flex items-center">
               View All <FiArrowRight className="ml-2" />
             </Link>
@@ -170,7 +170,7 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500 py-12">No featured products available</p>
+            <p className="text-center text-gray-500 dark:text-gray-400 py-12">No featured products available</p>
           )}
         </div>
       </section>

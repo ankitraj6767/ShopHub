@@ -187,10 +187,10 @@ const NotificationsPage = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-4 mb-6">
-        <Link to="/" className="text-gray-500 hover:text-gray-700">
+        <Link to="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
           <FiArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Notifications</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Notifications</h1>
         {unreadCount > 0 && (
           <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
             {unreadCount} new
@@ -206,7 +206,7 @@ const NotificationsPage = () => {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               filter === 'all'
                 ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             All ({notifications.length})
@@ -216,7 +216,7 @@ const NotificationsPage = () => {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               filter === 'unread'
                 ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             Unread ({unreadCount})
@@ -226,7 +226,7 @@ const NotificationsPage = () => {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               filter === 'read'
                 ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             Read ({readCount})
@@ -246,10 +246,10 @@ const NotificationsPage = () => {
 
       {/* Notifications List */}
       {filteredNotifications.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <FiBell className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 text-lg mb-2">No notifications</p>
-          <p className="text-gray-400 text-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center">
+          <FiBell className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 text-lg mb-2">No notifications</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">
             {filter === 'unread' 
               ? "You're all caught up!" 
               : filter === 'read' 
@@ -258,14 +258,14 @@ const NotificationsPage = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm divide-y">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm divide-y dark:divide-gray-700">
           {filteredNotifications.map((notification) => {
             const isRead = notification.read === true || notification.read === 'true';
             return (
               <div
                 key={notification._id || notification.id}
-                className={`p-4 hover:bg-gray-50 transition ${
-                  !isRead ? 'bg-blue-50/50 border-l-4 border-l-primary-500' : ''
+                className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${
+                  !isRead ? 'bg-blue-50/50 dark:bg-blue-900/20 border-l-4 border-l-primary-500' : ''
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -280,18 +280,18 @@ const NotificationsPage = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className={`text-sm ${!isRead ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                        <p className={`text-sm ${!isRead ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                           {notification.title}
                           {!isRead && (
-                            <span className="ml-2 inline-block px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full">
+                            <span className="ml-2 inline-block px-2 py-0.5 text-xs bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full">
                               New
                             </span>
                           )}
                         </p>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-400 mt-2">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                           {formatDateTime(notification.createdAt || notification.time)}
                         </p>
                       </div>

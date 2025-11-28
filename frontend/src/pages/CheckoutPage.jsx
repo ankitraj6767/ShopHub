@@ -613,7 +613,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
 
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-12">
@@ -623,14 +623,14 @@ const CheckoutPage = () => {
               className={`flex items-center justify-center w-10 h-10 rounded-full ${
                 step >= s.number
                   ? 'bg-primary-600 text-white'
-                  : 'bg-gray-200 text-gray-500'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
               }`}
             >
               {step > s.number ? <FiCheck /> : <s.icon />}
             </div>
             <span
               className={`ml-2 font-medium hidden sm:block ${
-                step >= s.number ? 'text-primary-600' : 'text-gray-500'
+                step >= s.number ? 'text-primary-600' : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               {s.title}
@@ -638,7 +638,7 @@ const CheckoutPage = () => {
             {index < steps.length - 1 && (
               <div
                 className={`w-8 sm:w-16 md:w-32 h-1 mx-2 sm:mx-4 ${
-                  step > s.number ? 'bg-primary-600' : 'bg-gray-200'
+                  step > s.number ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
                 }`}
               />
             )}
@@ -652,8 +652,8 @@ const CheckoutPage = () => {
         <div className="lg:col-span-2">
           {/* Step 1: Shipping */}
           {step === 1 && (
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Shipping Address</h2>
               
               {addressLoading ? (
                 <div className="flex justify-center py-8">
@@ -664,7 +664,7 @@ const CheckoutPage = () => {
                   {/* Saved Addresses */}
                   {savedAddresses.length > 0 && !showAddressForm && (
                     <div className="space-y-4 mb-6">
-                      <h3 className="text-sm font-medium text-gray-700">Select a delivery address</h3>
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Select a delivery address</h3>
                       <div className="grid gap-3">
                         {savedAddresses.map((address) => (
                           <div
@@ -672,8 +672,8 @@ const CheckoutPage = () => {
                             onClick={() => handleSelectAddress(address)}
                             className={`relative p-4 border rounded-lg cursor-pointer transition-all ${
                               selectedAddressId === address._id
-                                ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-600'
-                                : 'border-gray-200 hover:border-gray-300'
+                                ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-600'
+                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                             }`}
                           >
                             <div className="flex items-start justify-between">

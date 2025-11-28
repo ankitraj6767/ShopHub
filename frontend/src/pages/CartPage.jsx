@@ -45,9 +45,9 @@ const CartPage = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center">
-          <FiShoppingBag className="w-24 h-24 mx-auto text-gray-300 mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-          <p className="text-gray-500 mb-8">
+          <FiShoppingBag className="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-6" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your cart is empty</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">
             {isAuthenticated 
               ? "Looks like you haven't added any products to your cart yet."
               : "Please login to add items to your cart and view your saved cart."}
@@ -84,7 +84,7 @@ const CartPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">
         Shopping Cart ({itemsCount} {itemsCount === 1 ? 'item' : 'items'})
       </h1>
 
@@ -94,7 +94,7 @@ const CartPage = () => {
           {items.map((item) => (
             <div
               key={item._id}
-              className="bg-white rounded-lg shadow-sm p-4 flex items-center gap-4"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 flex items-center gap-4"
             >
               {/* Image */}
               <Link to={`/products/${item._id}`} className="flex-shrink-0">
@@ -112,7 +112,7 @@ const CartPage = () => {
               <div className="flex-1 min-w-0">
                 <Link
                   to={`/products/${item._id}`}
-                  className="font-semibold text-gray-900 hover:text-primary-600 line-clamp-2"
+                  className="font-semibold text-gray-900 dark:text-white hover:text-primary-600 line-clamp-2"
                 >
                   {item.name}
                 </Link>
@@ -144,15 +144,15 @@ const CartPage = () => {
               </div>
 
               {/* Quantity */}
-              <div className="flex items-center border rounded-lg">
+              <div className="flex items-center border dark:border-gray-600 rounded-lg">
                 <button
                   onClick={() => handleQuantityChange(item._id, item.quantity - 1, item.stock)}
-                  className="p-2 hover:bg-gray-100 transition"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                   disabled={item.quantity <= 1}
                 >
-                  <FiMinus className="w-4 h-4" />
+                  <FiMinus className="w-4 h-4 dark:text-white" />
                 </button>
-                <span className="px-3 py-1 font-medium">{item.quantity}</span>
+                <span className="px-3 py-1 font-medium dark:text-white">{item.quantity}</span>
                 <button
                   onClick={() => {
                     if (item.quantity >= item.stock) {
@@ -161,15 +161,15 @@ const CartPage = () => {
                       handleQuantityChange(item._id, item.quantity + 1, item.stock);
                     }
                   }}
-                  className={`p-2 hover:bg-gray-100 transition ${item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition ${item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <FiPlus className="w-4 h-4" />
+                  <FiPlus className="w-4 h-4 dark:text-white" />
                 </button>
               </div>
 
               {/* Subtotal */}
               <div className="text-right">
-                <p className="font-bold text-gray-900">
+                <p className="font-bold text-gray-900 dark:text-white">
                   {formatPrice(item.price * item.quantity)}
                 </p>
               </div>
@@ -197,34 +197,34 @@ const CartPage = () => {
 
         {/* Order Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sticky top-24">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Order Summary</h2>
             
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium">{formatPrice(subtotal)}</span>
+                <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+                <span className="font-medium dark:text-white">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Shipping</span>
-                <span className="font-medium">
+                <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+                <span className="font-medium dark:text-white">
                   {shipping === 0 ? 'Free' : formatPrice(shipping)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Tax (8%)</span>
-                <span className="font-medium">{formatPrice(tax)}</span>
+                <span className="text-gray-600 dark:text-gray-400">Tax (8%)</span>
+                <span className="font-medium dark:text-white">{formatPrice(tax)}</span>
               </div>
-              <div className="border-t pt-3">
+              <div className="border-t dark:border-gray-700 pt-3">
                 <div className="flex justify-between text-lg font-bold">
-                  <span>Total</span>
+                  <span className="dark:text-white">Total</span>
                   <span className="text-primary-600">{formatPrice(total)}</span>
                 </div>
               </div>
             </div>
 
             {shipping > 0 && (
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
                 Add {formatPrice(100 - subtotal)} more for free shipping!
               </p>
             )}
@@ -246,12 +246,12 @@ const CartPage = () => {
       {/* Saved for Later Section */}
       {savedForLater.length > 0 && (
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
             Saved for Later ({savedForLater.length} {savedForLater.length === 1 ? 'item' : 'items'})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {savedForLater.map((item) => (
-              <div key={item._id} className="bg-white rounded-lg shadow-sm p-4">
+              <div key={item._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
                 <Link to={`/products/${item._id}`}>
                   <img
                     src={item.image}
@@ -264,7 +264,7 @@ const CartPage = () => {
                 </Link>
                 <Link
                   to={`/products/${item._id}`}
-                  className="font-medium text-gray-900 hover:text-primary-600 line-clamp-2 text-sm"
+                  className="font-medium text-gray-900 dark:text-white hover:text-primary-600 line-clamp-2 text-sm"
                 >
                   {item.name}
                 </Link>
@@ -279,7 +279,7 @@ const CartPage = () => {
                   </button>
                   <button
                     onClick={() => handleRemoveFromSaved(item._id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition border rounded-lg"
+                    className="p-2 text-gray-400 hover:text-red-500 transition border dark:border-gray-600 rounded-lg"
                   >
                     <FiTrash2 className="w-4 h-4" />
                   </button>
@@ -292,10 +292,10 @@ const CartPage = () => {
 
       {/* Empty Cart but has Saved Items */}
       {items.length === 0 && savedForLater.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center mb-8">
-          <FiShoppingBag className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
-          <p className="text-gray-500 mb-4">Move items from your saved list to cart or continue shopping.</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 text-center mb-8">
+          <FiShoppingBag className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Move items from your saved list to cart or continue shopping.</p>
           <Link to="/products" className="btn-primary">
             Continue Shopping
           </Link>

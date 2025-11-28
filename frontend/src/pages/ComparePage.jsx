@@ -28,8 +28,8 @@ const ComparePage = () => {
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Compare Products</h1>
-        <p className="text-gray-600 mb-8">You haven't added any products to compare yet.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Compare Products</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-8">You haven't added any products to compare yet.</p>
         <Link
           to="/products"
           className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700"
@@ -68,7 +68,7 @@ const ComparePage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Compare Products ({items.length})</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Compare Products ({items.length})</h1>
         <div className="flex gap-4">
           <button
             onClick={() => dispatch(clearCompare())}
@@ -86,15 +86,15 @@ const ComparePage = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="p-4 text-left bg-gray-50 font-medium text-gray-600 w-40">
+              <th className="p-4 text-left bg-gray-50 dark:bg-gray-700 font-medium text-gray-600 dark:text-gray-300 w-40">
                 Product
               </th>
               {items.map((item) => (
-                <th key={item._id} className="p-4 text-center min-w-[200px] border-l">
+                <th key={item._id} className="p-4 text-center min-w-[200px] border-l dark:border-gray-700">
                   <div className="relative">
                     <button
                       onClick={() => dispatch(removeFromCompare(item._id))}
-                      className="absolute -top-2 -right-2 p-1 bg-white rounded-full shadow hover:bg-red-50 text-gray-400 hover:text-red-600"
+                      className="absolute -top-2 -right-2 p-1 bg-white dark:bg-gray-800 rounded-full shadow hover:bg-red-50 dark:hover:bg-red-900 text-gray-400 hover:text-red-600"
                     >
                       <FiX className="w-4 h-4" />
                     </button>
@@ -107,7 +107,7 @@ const ComparePage = () => {
                           e.target.src = 'https://via.placeholder.com/150?text=Product';
                         }}
                       />
-                      <h3 className="font-medium text-gray-900 hover:text-primary-600 line-clamp-2">
+                      <h3 className="font-medium text-gray-900 dark:text-white hover:text-primary-600 line-clamp-2">
                         {item.name}
                       </h3>
                     </Link>
@@ -116,7 +116,7 @@ const ComparePage = () => {
               ))}
               {/* Empty slots */}
               {Array.from({ length: Math.max(0, 4 - items.length) }).map((_, i) => (
-                <th key={`empty-${i}`} className="p-4 text-center min-w-[200px] border-l bg-gray-50">
+                <th key={`empty-${i}`} className="p-4 text-center min-w-[200px] border-l dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                   <Link
                     to="/products"
                     className="flex flex-col items-center justify-center h-40 text-gray-400 hover:text-primary-600"
@@ -132,10 +132,10 @@ const ComparePage = () => {
           </thead>
           <tbody>
             {/* Action Row */}
-            <tr className="border-t">
-              <td className="p-4 bg-gray-50 font-medium text-gray-600">Actions</td>
+            <tr className="border-t dark:border-gray-700">
+              <td className="p-4 bg-gray-50 dark:bg-gray-700 font-medium text-gray-600 dark:text-gray-300">Actions</td>
               {items.map((item) => (
-                <td key={item._id} className="p-4 text-center border-l">
+                <td key={item._id} className="p-4 text-center border-l dark:border-gray-700">
                   <div className="flex flex-col gap-2">
                     <button
                       onClick={() => handleAddToCart(item)}
@@ -147,7 +147,7 @@ const ComparePage = () => {
                     </button>
                     <button
                       onClick={() => handleAddToWishlist(item)}
-                      className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm"
+                      className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
                     >
                       <FiHeart className="w-4 h-4" />
                       Wishlist
@@ -156,21 +156,21 @@ const ComparePage = () => {
                 </td>
               ))}
               {Array.from({ length: Math.max(0, 4 - items.length) }).map((_, i) => (
-                <td key={`empty-action-${i}`} className="p-4 border-l bg-gray-50"></td>
+                <td key={`empty-action-${i}`} className="p-4 border-l dark:border-gray-700 bg-gray-50 dark:bg-gray-700"></td>
               ))}
             </tr>
 
             {/* Spec Rows */}
             {specs.map((spec) => (
-              <tr key={spec.key} className="border-t">
-                <td className="p-4 bg-gray-50 font-medium text-gray-600">{spec.label}</td>
+              <tr key={spec.key} className="border-t dark:border-gray-700">
+                <td className="p-4 bg-gray-50 dark:bg-gray-700 font-medium text-gray-600 dark:text-gray-300">{spec.label}</td>
                 {items.map((item) => (
-                  <td key={item._id} className="p-4 text-center border-l">
+                  <td key={item._id} className="p-4 text-center border-l dark:border-gray-700 dark:text-gray-300">
                     {spec.render(item)}
                   </td>
                 ))}
                 {Array.from({ length: Math.max(0, 4 - items.length) }).map((_, i) => (
-                  <td key={`empty-${spec.key}-${i}`} className="p-4 border-l bg-gray-50">
+                  <td key={`empty-${spec.key}-${i}`} className="p-4 border-l dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                     <FiMinus className="w-4 h-4 mx-auto text-gray-300" />
                   </td>
                 ))}

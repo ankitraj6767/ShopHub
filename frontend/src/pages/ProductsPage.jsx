@@ -79,10 +79,10 @@ const ProductsPage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
             {keyword ? `Search results for "${keyword}"` : 'All Products'}
           </h1>
-          <p className="text-gray-500 mt-1">{total} products found</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">{total} products found</p>
         </div>
 
         <div className="flex items-center gap-4">

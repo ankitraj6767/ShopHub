@@ -175,25 +175,25 @@ const LoyaltyPage = () => {
         <div className="lg:col-span-2 space-y-8">
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl p-4 shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md">
               <FiStar className="w-6 h-6 text-yellow-500 mb-2" />
-              <p className="text-2xl font-bold">{loyalty?.lifetimePoints.toLocaleString()}</p>
-              <p className="text-sm text-gray-500">Lifetime Points</p>
+              <p className="text-2xl font-bold dark:text-white">{loyalty?.lifetimePoints.toLocaleString()}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Lifetime Points</p>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md">
               <FiTrendingUp className="w-6 h-6 text-green-500 mb-2" />
-              <p className="text-2xl font-bold">{loyalty?.benefits?.pointsMultiplier}x</p>
-              <p className="text-sm text-gray-500">Points Multiplier</p>
+              <p className="text-2xl font-bold dark:text-white">{loyalty?.benefits?.pointsMultiplier}x</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Points Multiplier</p>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md">
               <FiGift className="w-6 h-6 text-purple-500 mb-2" />
-              <p className="text-2xl font-bold">{loyalty?.benefits?.birthdayBonus || 0}</p>
-              <p className="text-sm text-gray-500">Birthday Bonus</p>
+              <p className="text-2xl font-bold dark:text-white">{loyalty?.benefits?.birthdayBonus || 0}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Birthday Bonus</p>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md">
               <FiTruck className="w-6 h-6 text-blue-500 mb-2" />
-              <p className="text-2xl font-bold">{loyalty?.benefits?.freeShipping ? 'Free' : 'Standard'}</p>
-              <p className="text-sm text-gray-500">Shipping</p>
+              <p className="text-2xl font-bold dark:text-white">{loyalty?.benefits?.freeShipping ? 'Free' : 'Standard'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Shipping</p>
             </div>
           </div>
 
@@ -216,12 +216,12 @@ const LoyaltyPage = () => {
           </div>
 
           {/* Redeem Points */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
               <FiPercent className="w-5 h-5 text-primary-600" />
               Redeem Points to Wallet
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Convert your points to wallet balance! 100 points = $1.00. Use wallet balance at checkout.
             </p>
             <div className="flex gap-4">
@@ -231,7 +231,7 @@ const LoyaltyPage = () => {
                   value={redeemAmount}
                   onChange={(e) => setRedeemAmount(e.target.value)}
                   placeholder="Enter points (min 100)"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
                   min="100"
                   step="100"
                 />
@@ -245,7 +245,7 @@ const LoyaltyPage = () => {
               </button>
             </div>
             {redeemAmount && (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 <FiDollarSign className="inline w-4 h-4" />
                 You'll get ${(parseInt(redeemAmount) / 100).toFixed(2)} added to your wallet
               </p>
@@ -253,8 +253,8 @@ const LoyaltyPage = () => {
           </div>
 
           {/* Points History */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
               <FiZap className="w-5 h-5 text-primary-600" />
               Points History
             </h2>
@@ -263,18 +263,18 @@ const LoyaltyPage = () => {
                 loyalty.history.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
                           item.type === 'referral' 
-                            ? 'bg-purple-100 text-purple-600'
+                            ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
                             : item.type === 'bonus'
-                            ? 'bg-yellow-100 text-yellow-600'
+                            ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400'
                             : item.points > 0 
-                            ? 'bg-green-100 text-green-600' 
-                            : 'bg-red-100 text-red-600'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' 
+                            : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
                         }`}
                       >
                         {item.type === 'referral' ? (
@@ -288,11 +288,11 @@ const LoyaltyPage = () => {
                         )}
                       </div>
                       <div>
-                        <p className="font-medium">
+                        <p className="font-medium dark:text-white">
                           {item.type === 'referral' && '🎁 '}
                           {item.description}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {new Date(item.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -300,12 +300,12 @@ const LoyaltyPage = () => {
                     <span
                       className={`font-bold ${
                         item.type === 'referral'
-                          ? 'text-purple-600'
+                          ? 'text-purple-600 dark:text-purple-400'
                           : item.type === 'bonus'
-                          ? 'text-yellow-600'
+                          ? 'text-yellow-600 dark:text-yellow-400'
                           : item.points > 0 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-red-600 dark:text-red-400'
                       }`}
                     >
                       {item.points > 0 ? '+' : ''}{item.points}
@@ -313,14 +313,14 @@ const LoyaltyPage = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-center py-4">No points history yet</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No points history yet</p>
               )}
             </div>
           </div>
 
           {/* Tier Benefits */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2 dark:text-white">
               <FiShield className="w-5 h-5 text-primary-600" />
               Membership Tiers
             </h2>
@@ -330,8 +330,8 @@ const LoyaltyPage = () => {
                   key={tier.name}
                   className={`p-4 rounded-xl border-2 ${
                     tier.name === loyalty?.tier
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-gray-200'
+                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
+                      : 'border-gray-200 dark:border-gray-700'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -340,16 +340,16 @@ const LoyaltyPage = () => {
                         {tier.name}
                       </span>
                       {tier.name === loyalty?.tier && (
-                        <span className="text-xs text-primary-600 font-medium">Current</span>
+                        <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">Current</span>
                       )}
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {tier.minPoints.toLocaleString()}+ points
                     </span>
                   </div>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
                     {tier.benefits.map((benefit, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                      <li key={i} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <FiChevronRight className="w-4 h-4 text-primary-500" />
                         {benefit}
                       </li>
@@ -364,8 +364,8 @@ const LoyaltyPage = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Leaderboard */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
               <FiUsers className="w-5 h-5 text-primary-600" />
               Top Members
             </h2>
@@ -379,24 +379,24 @@ const LoyaltyPage = () => {
                     <span
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         index === 0
-                          ? 'bg-yellow-100 text-yellow-600'
+                          ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400'
                           : index === 1
-                          ? 'bg-gray-100 text-gray-600'
+                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                           : index === 2
-                          ? 'bg-orange-100 text-orange-600'
-                          : 'bg-gray-50 text-gray-500'
+                          ? 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400'
+                          : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                       }`}
                     >
                       {entry.rank}
                     </span>
                     <div>
-                      <p className="font-medium text-sm">{entry.name}</p>
+                      <p className="font-medium text-sm dark:text-white">{entry.name}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${getTierColor(entry.tier)} text-white`}>
                         {entry.tier}
                       </span>
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                     {entry.points.toLocaleString()}
                   </span>
                 </div>
@@ -405,34 +405,34 @@ const LoyaltyPage = () => {
           </div>
 
           {/* How to Earn */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4">How to Earn</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 dark:text-white">How to Earn</h2>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FiStar className="w-4 h-4 text-primary-600" />
+                <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FiStar className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                 </div>
                 <div>
-                  <p className="font-medium">Shop & Earn</p>
-                  <p className="text-sm text-gray-500">10 points per $1 spent</p>
+                  <p className="font-medium dark:text-white">Shop & Earn</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">10 points per $1 spent</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FiAward className="w-4 h-4 text-green-600" />
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FiAward className="w-4 h-4 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="font-medium">Write Reviews</p>
-                  <p className="text-sm text-gray-500">50 points per review</p>
+                  <p className="font-medium dark:text-white">Write Reviews</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">50 points per review</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FiUsers className="w-4 h-4 text-purple-600" />
+                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FiUsers className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="font-medium">Refer Friends</p>
-                  <p className="text-sm text-gray-500">500 points per referral</p>
+                  <p className="font-medium dark:text-white">Refer Friends</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">500 points per referral</p>
                 </div>
               </div>
             </div>

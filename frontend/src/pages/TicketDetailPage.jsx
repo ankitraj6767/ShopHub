@@ -119,8 +119,8 @@ const TicketDetailPage = () => {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Ticket Not Found</h2>
-          <p className="text-gray-600 mb-6">The ticket you're looking for doesn't exist.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Ticket Not Found</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The ticket you're looking for doesn't exist.</p>
           <Link to="/help" className="btn btn-primary">Go to Help Center</Link>
         </div>
       </div>
@@ -136,16 +136,16 @@ const TicketDetailPage = () => {
       <div className="mb-6">
         <Link
           to="/help"
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
         >
           <FiArrowLeft className="mr-2" /> Back to Help Center
         </Link>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-gray-500">#{ticket.ticketNumber}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">#{ticket.ticketNumber}</span>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
                   {ticket.status}
                 </span>
@@ -153,12 +153,12 @@ const TicketDetailPage = () => {
                   {ticket.priority} priority
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{ticket.subject}</h1>
-              <p className="text-gray-500 capitalize">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{ticket.subject}</h1>
+              <p className="text-gray-500 dark:text-gray-400 capitalize">
                 Category: {ticket.category.replace('-', ' ')}
               </p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               <p>Created: {new Date(ticket.createdAt).toLocaleString()}</p>
               <p>Updated: {new Date(ticket.updatedAt).toLocaleString()}</p>
               {ticket.assignedTo && (
@@ -170,7 +170,7 @@ const TicketDetailPage = () => {
           </div>
 
           {!isTicketClosed && (
-            <div className="mt-4 pt-4 border-t">
+            <div className="mt-4 pt-4 border-t dark:border-gray-700">
               <button
                 onClick={handleCloseTicket}
                 className="text-sm text-red-600 hover:text-red-700"
@@ -183,9 +183,9 @@ const TicketDetailPage = () => {
       </div>
 
       {/* Messages */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="p-4 border-b">
-          <h2 className="font-semibold text-gray-900">Conversation</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div className="p-4 border-b dark:border-gray-700">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Conversation</h2>
         </div>
 
         <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
@@ -205,10 +205,10 @@ const TicketDetailPage = () => {
                     ) : (
                       <FiUser className="text-gray-400" />
                     )}
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {isAgentMessage ? 'Support Team' : 'You'}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(msg.createdAt || msg.timestamp).toLocaleString()}
                     </span>
                   </div>
@@ -216,7 +216,7 @@ const TicketDetailPage = () => {
                     className={`rounded-lg px-4 py-3 ${
                       isUserMessage
                         ? 'bg-primary-600 text-white'
-                        : 'bg-blue-50 border border-blue-200'
+                        : 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -230,7 +230,7 @@ const TicketDetailPage = () => {
 
         {/* Reply Form */}
         {!isTicketClosed ? (
-          <form onSubmit={handleSendMessage} className="p-4 border-t">
+          <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700">
             <div className="flex gap-2">
               <textarea
                 value={message}
@@ -249,7 +249,7 @@ const TicketDetailPage = () => {
             </div>
           </form>
         ) : (
-          <div className="p-4 border-t bg-gray-50 text-center text-gray-600">
+          <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-center text-gray-600 dark:text-gray-300">
             <FiCheckCircle className="inline-block mr-2" />
             This ticket has been {ticket.status}. Create a new ticket if you need further assistance.
           </div>

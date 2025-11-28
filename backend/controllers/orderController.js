@@ -427,23 +427,16 @@ export const getOrders = asyncHandler(async (req, res) => {
     }
   }
 
-  const count = await Order.countDocuments(query);
-  const orders = await Order.find(query)
-    .populate('user', 'name email')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-  // Calculate stats
-  const stats = await Order.aggregate([
-    {
-      $group: {
-        _id: null,
-        totalOrders: { $sum: 1 },
-        totalRevenue: { $sum: '$totalPrice' },
-        avgOrderValue: { $avg: '$totalPrice' },
-      },
-    },
+  // Run count and orders query in parallel for faster loading
+  const [count, orders] = await Promise.all([
+    Order.countDocuments(query),
+    Order.find(query)
+      .select('_id orderNumber user orderItems totalPrice status paymentInfo createdAt')
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean()
   ]);
 
   res.json({
@@ -452,7 +445,6 @@ export const getOrders = asyncHandler(async (req, res) => {
     page,
     pages: Math.ceil(count / limit),
     total: count,
-    stats: stats[0] || { totalOrders: 0, totalRevenue: 0, avgOrderValue: 0 },
   });
 });
 
@@ -465,18 +457,19 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   if (order) {
     const { status, trackingNumber } = req.body;
 
-    if (!['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'].includes(status)) {
+    if (!['Pending', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Return Requested', 'Returned'].includes(status)) {
       res.status(400);
       throw new Error('Invalid status');
     }
 
-    // Handle cancellation - restore stock
+    // Handle cancellation - restore stock (run in background for non-blocking)
     if (status === 'Cancelled' && order.status !== 'Cancelled') {
-      for (const item of order.orderItems) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity },
-        });
-      }
+      // Fire and forget - don't await
+      Promise.all(
+        order.orderItems.map(item =>
+          Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } })
+        )
+      ).catch(err => console.error('Failed to restore stock:', err));
     }
 
     const previousStatus = order.status;
@@ -486,7 +479,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
       order.deliveredAt = Date.now();
     }
 
-    if (status === 'Paid' && order.paymentInfo.status !== 'paid') {
+    if (status === 'Confirmed' && order.paymentInfo.status !== 'paid') {
       order.paymentInfo.status = 'paid';
       order.paymentInfo.paidAt = Date.now();
     }
@@ -497,36 +490,36 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
     const updatedOrder = await order.save();
 
-    // Send notification to user about status change
-    if (status !== previousStatus) {
-      await notifyOrderStatus(order.user._id, order, status);
-    }
-
-    // Send status update emails
-    try {
-      if (status === 'Shipped' && previousStatus !== 'Shipped') {
-        const emailContent = emailTemplates.orderShipped(order, order.user, trackingNumber);
-        await sendEmail({
-          to: order.user.email,
-          subject: emailContent.subject,
-          html: emailContent.html,
-        });
-      } else if (status === 'Delivered' && previousStatus !== 'Delivered') {
-        const emailContent = emailTemplates.orderDelivered(order, order.user);
-        await sendEmail({
-          to: order.user.email,
-          subject: emailContent.subject,
-          html: emailContent.html,
-        });
-      }
-    } catch (emailError) {
-      console.error('Failed to send order status email:', emailError);
-    }
-
+    // Send response immediately - don't wait for notifications/emails
     res.json({
       success: true,
       data: updatedOrder,
     });
+
+    // Run notification and email in background (fire and forget)
+    if (status !== previousStatus) {
+      // Background: Create notification
+      notifyOrderStatus(order.user._id, order, status).catch(err => 
+        console.error('Failed to send notification:', err)
+      );
+
+      // Background: Send emails
+      if (status === 'Shipped' && previousStatus !== 'Shipped') {
+        const emailContent = emailTemplates.orderShipped(order, order.user, trackingNumber);
+        sendEmail({
+          to: order.user.email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }).catch(err => console.error('Failed to send shipped email:', err));
+      } else if (status === 'Delivered' && previousStatus !== 'Delivered') {
+        const emailContent = emailTemplates.orderDelivered(order, order.user);
+        sendEmail({
+          to: order.user.email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }).catch(err => console.error('Failed to send delivered email:', err));
+      }
+    }
   } else {
     res.status(404);
     throw new Error('Order not found');

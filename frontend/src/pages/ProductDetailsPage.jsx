@@ -243,7 +243,7 @@ const ProductDetailsPage = () => {
   if (error || !product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Product Not Found</h2>
         <Link to="/products" className="btn-primary">
           Browse Products
         </Link>
@@ -254,7 +254,7 @@ const ProductDetailsPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
+      <nav className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
         <Link to="/" className="hover:text-primary-600">Home</Link>
         <span>/</span>
         <Link to="/products" className="hover:text-primary-600">Products</Link>
@@ -263,14 +263,14 @@ const ProductDetailsPage = () => {
           {product.category}
         </Link>
         <span>/</span>
-        <span className="text-gray-900">{product.name}</span>
+        <span className="text-gray-900 dark:text-white">{product.name}</span>
       </nav>
 
       {/* Product Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
         {/* Images */}
         <div className="space-y-4">
-          <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden">
+          <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden">
             <img
               src={product.images?.[selectedImage]?.url || '/placeholder.jpg'}
               alt={product.name}
@@ -306,11 +306,11 @@ const ProductDetailsPage = () => {
           <div className="mb-4">
             <span className="text-sm text-primary-600 font-medium">{product.brand}</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{product.name}</h1>
           
           <div className="flex items-center gap-4 mb-6">
             <Rating value={product.rating} />
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-400">
               {product.numReviews} {product.numReviews === 1 ? 'review' : 'reviews'}
             </span>
           </div>
@@ -356,7 +356,7 @@ const ProductDetailsPage = () => {
             )}
           </div>
 
-          <p className="text-gray-600 mb-8 leading-relaxed">{product.description}</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">{product.description}</p>
 
           {/* Stock Status */}
           <div className="mb-6">
@@ -373,10 +373,10 @@ const ProductDetailsPage = () => {
           {/* Quantity & Add to Cart */}
           {product.stock > 0 && (
             <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center border rounded-lg">
+              <div className="flex items-center border dark:border-gray-600 rounded-lg">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-3 hover:bg-gray-100 transition"
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   <FiMinus />
                 </button>

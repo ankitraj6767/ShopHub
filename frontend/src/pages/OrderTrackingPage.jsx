@@ -71,7 +71,7 @@ const OrderTrackingPage = () => {
   if (!order) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Not Found</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Order Not Found</h2>
         <Link to="/orders" className="btn-primary">View All Orders</Link>
       </div>
     );
@@ -81,21 +81,21 @@ const OrderTrackingPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link to="/orders" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+      <Link to="/orders" className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6">
         <FiArrowLeft className="mr-2" /> Back to Orders
       </Link>
 
       {/* Order Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Track Order</h1>
-            <p className="text-gray-500">Order #{order.orderNumber || order._id.slice(-8).toUpperCase()}</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Track Order</h1>
+            <p className="text-gray-500 dark:text-gray-400">Order #{order.orderNumber || order._id.slice(-8).toUpperCase()}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm text-gray-500">Estimated Delivery</p>
-              <p className="font-semibold text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Estimated Delivery</p>
+              <p className="font-semibold text-gray-900 dark:text-white">
                 {order.estimatedDelivery 
                   ? formatDate(order.estimatedDelivery)
                   : formatDate(new Date(new Date(order.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000))}
@@ -109,8 +109,8 @@ const OrderTrackingPage = () => {
       </div>
 
       {/* Tracking Timeline */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-6">Shipment Progress</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Shipment Progress</h2>
         
         <div className="relative">
           {/* Progress Line */}
@@ -136,7 +136,7 @@ const OrderTrackingPage = () => {
                 <div className="flex items-center justify-between">
                   <h3
                     className={`font-medium ${
-                      step.completed ? 'text-gray-900' : 'text-gray-400'
+                      step.completed ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
                     }`}
                   >
                     {step.label}
@@ -147,7 +147,7 @@ const OrderTrackingPage = () => {
                     </span>
                   )}
                 </div>
-                <p className={`text-sm ${step.completed ? 'text-gray-600' : 'text-gray-400'}`}>
+                <p className={`text-sm ${step.completed ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'}`}>
                   {step.description}
                 </p>
               </div>
@@ -158,12 +158,12 @@ const OrderTrackingPage = () => {
 
       {/* Shipping Address */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <FiMapPin /> Shipping Address
           </h2>
-          <div className="text-gray-600">
-            <p className="font-medium text-gray-900">{order.shippingAddress?.fullName}</p>
+          <div className="text-gray-600 dark:text-gray-300">
+            <p className="font-medium text-gray-900 dark:text-white">{order.shippingAddress?.fullName}</p>
             <p>{order.shippingAddress?.street}</p>
             <p>
               {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.postalCode}
@@ -173,25 +173,25 @@ const OrderTrackingPage = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <FiCalendar /> Order Summary
           </h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Order Date</span>
-              <span className="font-medium">{formatDate(order.createdAt)}</span>
+              <span className="text-gray-600 dark:text-gray-400">Order Date</span>
+              <span className="font-medium dark:text-white">{formatDate(order.createdAt)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Items</span>
-              <span className="font-medium">{order.orderItems?.length || 0}</span>
+              <span className="text-gray-600 dark:text-gray-400">Items</span>
+              <span className="font-medium dark:text-white">{order.orderItems?.length || 0}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Total Amount</span>
+              <span className="text-gray-600 dark:text-gray-400">Total Amount</span>
               <span className="font-medium text-primary-600">{formatPrice(order.totalPrice)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Payment Status</span>
+              <span className="text-gray-600 dark:text-gray-400">Payment Status</span>
               <span className={`font-medium ${order.isPaid ? 'text-green-600' : 'text-yellow-600'}`}>
                 {order.isPaid ? 'Paid' : 'Pending'}
               </span>
@@ -201,11 +201,11 @@ const OrderTrackingPage = () => {
       </div>
 
       {/* Order Items */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Order Items</h2>
         <div className="space-y-4">
           {order.orderItems?.map((item, index) => (
-            <div key={index} className="flex gap-4 p-4 border rounded-lg">
+            <div key={index} className="flex gap-4 p-4 border dark:border-gray-700 rounded-lg">
               <img
                 src={item.image || item.product?.images?.[0]?.url || 'https://via.placeholder.com/80'}
                 alt={item.name || item.product?.name}
@@ -214,11 +214,11 @@ const OrderTrackingPage = () => {
               <div className="flex-1">
                 <Link
                   to={`/products/${item.product?._id || item.product}`}
-                  className="font-medium text-gray-900 hover:text-primary-600"
+                  className="font-medium text-gray-900 dark:text-white hover:text-primary-600"
                 >
                   {item.name || item.product?.name}
                 </Link>
-                <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Quantity: {item.quantity}</p>
                 <p className="font-medium text-primary-600">{formatPrice(item.price)}</p>
               </div>
             </div>

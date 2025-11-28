@@ -85,7 +85,7 @@ const ProductQuestions = ({ productId }) => {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold dark:text-white">
           Customer Questions & Answers ({totalQuestions})
         </h2>
         {user && !showQuestionForm && (
@@ -112,13 +112,13 @@ const ProductQuestions = ({ productId }) => {
 
       {/* Ask Question Form */}
       {showQuestionForm && (
-        <form onSubmit={handleAskQuestion} className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-medium mb-3">Ask a Question</h3>
+        <form onSubmit={handleAskQuestion} className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <h3 className="font-medium mb-3 dark:text-white">Ask a Question</h3>
           <textarea
             value={questionText}
             onChange={(e) => setQuestionText(e.target.value)}
             placeholder="What would you like to know about this product?"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400"
             rows="3"
             required
           />
@@ -146,18 +146,18 @@ const ProductQuestions = ({ productId }) => {
 
       {/* Questions List */}
       {safeQuestions.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No questions yet. Be the first to ask!</p>
         </div>
       ) : (
         <div className="space-y-6">
           {safeQuestions.map((question) => (
-            <div key={question._id} className="border-b border-gray-200 pb-6">
+            <div key={question._id} className="border-b border-gray-200 dark:border-gray-700 pb-6">
               {/* Question */}
               <div className="flex items-start gap-3">
-                <span className="font-bold text-lg text-gray-700">Q:</span>
+                <span className="font-bold text-lg text-gray-700 dark:text-gray-300">Q:</span>
                 <div className="flex-1">
-                  <p className="text-gray-900">{question.question}</p>
+                  <p className="text-gray-900 dark:text-white">{question.question}</p>
                   <p className="text-sm text-gray-500 mt-1">
                     Asked by {question.user?.name || 'Anonymous'} •{' '}
                     {formatDistanceToNow(new Date(question.createdAt), { addSuffix: true })}
@@ -172,13 +172,13 @@ const ProductQuestions = ({ productId }) => {
                     <div
                       key={answer._id}
                       className={`p-3 rounded-lg ${
-                        answer.isSeller ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50'
+                        answer.isSeller ? 'bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700' : 'bg-gray-50 dark:bg-gray-700'
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <span className="font-bold text-lg text-gray-700">A:</span>
+                        <span className="font-bold text-lg text-gray-700 dark:text-gray-300">A:</span>
                         <div className="flex-1">
-                          <p className="text-gray-900">{answer.answer}</p>
+                          <p className="text-gray-900 dark:text-white">{answer.answer}</p>
                           <div className="flex items-center justify-between mt-2">
                             <p className="text-sm text-gray-500">
                               {answer.isSeller && (

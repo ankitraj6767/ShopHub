@@ -112,7 +112,7 @@ const SearchAutocomplete = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
         {query && (
@@ -128,7 +128,7 @@ const SearchAutocomplete = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           {/* Loading */}
           {loading && (
             <div className="p-4 text-center text-gray-500">
@@ -139,12 +139,12 @@ const SearchAutocomplete = () => {
           {/* Product Suggestions */}
           {!loading && suggestions.length > 0 && (
             <div className="p-2">
-              <p className="px-3 py-1 text-xs font-medium text-gray-500 uppercase">Products</p>
+              <p className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Products</p>
               {suggestions.map((product) => (
                 <button
                   key={product._id}
                   onClick={() => handleSuggestionClick(product)}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg text-left"
+                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-left"
                 >
                   <img
                     src={product.images?.[0]?.url || '/placeholder.jpg'}
@@ -155,7 +155,7 @@ const SearchAutocomplete = () => {
                     }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.name}</p>
                     <p className="text-sm text-primary-600 font-bold">${product.price}</p>
                   </div>
                 </button>
@@ -168,17 +168,17 @@ const SearchAutocomplete = () => {
             <>
               {/* Recent Searches */}
               {recentSearches.length > 0 && (
-                <div className="p-2 border-b">
-                  <p className="px-3 py-1 text-xs font-medium text-gray-500 uppercase flex items-center gap-1">
+                <div className="p-2 border-b dark:border-gray-700">
+                  <p className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1">
                     <FiClock className="w-3 h-3" /> Recent Searches
                   </p>
                   {recentSearches.map((term) => (
                     <div
                       key={term}
-                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
                       onClick={() => handleRecentClick(term)}
                     >
-                      <span className="text-sm text-gray-700">{term}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
                       <button
                         onClick={(e) => removeRecentSearch(term, e)}
                         className="text-gray-400 hover:text-red-500"
@@ -192,7 +192,7 @@ const SearchAutocomplete = () => {
 
               {/* Popular Searches */}
               <div className="p-2">
-                <p className="px-3 py-1 text-xs font-medium text-gray-500 uppercase flex items-center gap-1">
+                <p className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1">
                   <FiTrendingUp className="w-3 h-3" /> Popular Categories
                 </p>
                 <div className="flex flex-wrap gap-2 px-3 py-2">
@@ -200,7 +200,7 @@ const SearchAutocomplete = () => {
                     <button
                       key={term}
                       onClick={() => handlePopularClick(term)}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-primary-100 hover:text-primary-700 transition"
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300 transition"
                     >
                       {term}
                     </button>
@@ -212,7 +212,7 @@ const SearchAutocomplete = () => {
 
           {/* No results */}
           {!loading && query.length >= 2 && suggestions.length === 0 && (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
               <p>No products found for "{query}"</p>
               <button
                 onClick={handleSearch}

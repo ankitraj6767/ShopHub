@@ -111,10 +111,10 @@ const OrderDetailsPage = () => {
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
             Order #{order._id.slice(-8).toUpperCase()}
           </h1>
-          <p className="text-gray-500">Placed on {formatDateTime(order.createdAt)}</p>
+          <p className="text-gray-500 dark:text-gray-400">Placed on {formatDateTime(order.createdAt)}</p>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -126,7 +126,7 @@ const OrderDetailsPage = () => {
           </Link>
           <button
             onClick={handleDownloadInvoice}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
           >
             <FiDownload className="w-4 h-4" />
             Download Invoice
@@ -139,8 +139,8 @@ const OrderDetailsPage = () => {
 
       {/* Order Progress */}
       {order.status !== 'Cancelled' && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="font-semibold text-gray-900 mb-6">Order Progress</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+          <h2 className="font-semibold text-gray-900 dark:text-white mb-6">Order Progress</h2>
           <div className="relative">
             <div className="flex justify-between">
               {orderSteps.map((step, index) => (
@@ -174,9 +174,9 @@ const OrderDetailsPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Shipping Address */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Shipping Address</h2>
-          <p className="text-gray-600">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Shipping Address</h2>
+          <p className="text-gray-600 dark:text-gray-300">
             {order.shippingAddress.fullName}<br />
             {order.shippingAddress.street}<br />
             {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}<br />
@@ -191,9 +191,9 @@ const OrderDetailsPage = () => {
         </div>
 
         {/* Payment Info */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Payment Information</h2>
-          <p className="text-gray-600 mb-2">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Payment Information</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-2">
             <span className="font-medium">Method:</span> {order.paymentInfo.method}
           </p>
           <p className="text-gray-600 mb-2">

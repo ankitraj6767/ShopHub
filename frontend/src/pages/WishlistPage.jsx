@@ -67,7 +67,7 @@ const WishlistPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Wishlist</h1>
           {items.length > 0 && (
             <div className="flex space-x-4">
               <button
@@ -107,10 +107,10 @@ const WishlistPage = () => {
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            <h2 className="mt-4 text-xl font-semibold text-gray-900">
+            <h2 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
               Your wishlist is empty
             </h2>
-            <p className="mt-2 text-gray-500">
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
               Start adding items you love to your wishlist!
             </p>
             <Link
@@ -129,8 +129,7 @@ const WishlistPage = () => {
               return (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   <Link to={`/products/${product._id}`}>
                     <div className="aspect-w-1 aspect-h-1">
                       <img
@@ -142,7 +141,7 @@ const WishlistPage = () => {
                   </Link>
                   <div className="p-4">
                     <Link to={`/products/${product._id}`}>
-                      <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 truncate">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white hover:text-indigo-600 truncate">
                         {product.name}
                       </h3>
                     </Link>
@@ -159,11 +158,11 @@ const WishlistPage = () => {
                       </span>
                     </div>
                     {item.notes && (
-                      <p className="mt-2 text-sm text-gray-500 truncate">
+                      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 truncate">
                         Note: {item.notes}
                       </p>
                     )}
-                    <div className="mt-2 flex items-center text-xs text-gray-400">
+                    <div className="mt-2 flex items-center text-xs text-gray-400 dark:text-gray-500">
                       <span>
                         Added {new Date(item.addedAt).toLocaleDateString()}
                       </span>

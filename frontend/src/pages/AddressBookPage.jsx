@@ -134,14 +134,14 @@ const AddressBookPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link to="/profile" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
+      <Link to="/profile" className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6">
         <FiArrowLeft className="mr-2" /> Back to Profile
       </Link>
 
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Address Book</h1>
-          <p className="text-gray-600">Manage your shipping addresses</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Address Book</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your shipping addresses</p>
         </div>
         <button
           onClick={() => {
@@ -158,15 +158,15 @@ const AddressBookPage = () => {
       {/* Address Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
               {editingAddress ? 'Edit Address' : 'Add New Address'}
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                   <input
                     type="text"
                     value={formData.fullName}
@@ -176,7 +176,7 @@ const AddressBookPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
                   <input
                     type="tel"
                     value={formData.phone}
@@ -188,7 +188,7 @@ const AddressBookPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address Line 1</label>
                 <input
                   type="text"
                   value={formData.addressLine1}
@@ -200,7 +200,7 @@ const AddressBookPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address Line 2 (Optional)</label>
                 <input
                   type="text"
                   value={formData.addressLine2}
@@ -211,7 +211,7 @@ const AddressBookPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Landmark (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Landmark (Optional)</label>
                 <input
                   type="text"
                   value={formData.landmark}
@@ -223,7 +223,7 @@ const AddressBookPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
                   <input
                     type="text"
                     value={formData.city}
@@ -233,7 +233,7 @@ const AddressBookPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">State</label>
                   <input
                     type="text"
                     value={formData.state}
@@ -246,7 +246,7 @@ const AddressBookPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Postal Code</label>
                   <input
                     type="text"
                     value={formData.postalCode}
@@ -256,7 +256,7 @@ const AddressBookPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
                   <select
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
@@ -299,13 +299,13 @@ const AddressBookPage = () => {
                       className="sr-only"
                     />
                     <FiBriefcase className={formData.addressType === 'work' ? 'text-primary-600' : 'text-gray-400'} />
-                    <span className={formData.addressType === 'work' ? 'text-primary-600 font-medium' : 'text-gray-600'}>Work</span>
+                    <span className={formData.addressType === 'work' ? 'text-primary-600 font-medium' : 'text-gray-600 dark:text-gray-400'}>Work</span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Instructions (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Delivery Instructions (Optional)</label>
                 <textarea
                   value={formData.deliveryInstructions}
                   onChange={(e) => setFormData({ ...formData, deliveryInstructions: e.target.value })}
@@ -320,9 +320,9 @@ const AddressBookPage = () => {
                   type="checkbox"
                   checked={formData.isDefault}
                   onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-                  className="rounded border-gray-300 text-primary-600"
+                  className="rounded border-gray-300 dark:border-gray-600 text-primary-600"
                 />
-                <span className="text-sm text-gray-700">Set as default address</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Set as default address</span>
               </label>
 
               <div className="flex gap-4 pt-4">
@@ -348,10 +348,10 @@ const AddressBookPage = () => {
 
       {/* Address List */}
       {addresses.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-          <FiMapPin className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No addresses saved</h3>
-          <p className="text-gray-500 mb-6">Add your first shipping address to get started</p>
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <FiMapPin className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No addresses saved</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">Add your first shipping address to get started</p>
           <button
             onClick={() => setShowForm(true)}
             className="btn-primary"
@@ -364,7 +364,7 @@ const AddressBookPage = () => {
           {addresses.map((address) => (
             <div
               key={address._id}
-              className={`bg-white rounded-lg shadow-sm p-6 border-2 ${
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border-2 ${
                 address.isDefault ? 'border-primary-500' : 'border-transparent'
               }`}
             >
@@ -375,11 +375,11 @@ const AddressBookPage = () => {
                   ) : (
                     <FiBriefcase className="text-gray-400" />
                   )}
-                  <span className="text-sm font-medium text-gray-500 uppercase">
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase">
                     {address.addressType}
                   </span>
                   {address.isDefault && (
-                    <span className="bg-primary-100 text-primary-700 text-xs px-2 py-0.5 rounded">
+                    <span className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs px-2 py-0.5 rounded">
                       Default
                     </span>
                   )}
@@ -387,21 +387,19 @@ const AddressBookPage = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEdit(address)}
-                    className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded"
-                  >
+                    className="p-2 text-gray-400 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
                     <FiEdit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(address._id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded"
-                  >
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
                     <FiTrash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="text-gray-600">
-                <p className="font-medium text-gray-900">{address.fullName}</p>
+              <div className="text-gray-600 dark:text-gray-400">
+                <p className="font-medium text-gray-900 dark:text-white">{address.fullName}</p>
                 <p>{address.addressLine1}</p>
                 {address.addressLine2 && <p>{address.addressLine2}</p>}
                 {address.landmark && <p className="text-sm">Near: {address.landmark}</p>}

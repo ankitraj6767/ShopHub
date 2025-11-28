@@ -127,15 +127,15 @@ const FeaturedBundles = () => {
   };
 
   return (
-    <section className="py-12 bg-gradient-to-br from-purple-50 to-indigo-50">
+    <section className="py-12 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-4">
             <FiPackage className="w-7 h-7 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Bundle & Save</h2>
-          <p className="text-gray-600">Get more for less with our exclusive product bundles</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Bundle & Save</h2>
+          <p className="text-gray-600 dark:text-gray-400">Get more for less with our exclusive product bundles</p>
         </div>
 
         {/* Bundles Grid */}
@@ -147,7 +147,7 @@ const FeaturedBundles = () => {
             return (
               <div
                 key={bundle._id}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all group"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all group"
               >
                 {/* Savings Badge */}
                 <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 text-center">
@@ -163,7 +163,7 @@ const FeaturedBundles = () => {
                     {bundle.products.slice(0, 3).map((item, index) => (
                       <div
                         key={index}
-                        className="aspect-square bg-gray-100 rounded-lg overflow-hidden"
+                        className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden"
                       >
                         <img
                           src={item.product?.images?.[0]?.url || '/placeholder.png'}
@@ -175,10 +175,10 @@ const FeaturedBundles = () => {
                   </div>
 
                   {/* Bundle Info */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 transition-colors">
                     {bundle.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                     {bundle.description || `${bundle.products.length} products included`}
                   </p>
 

@@ -102,12 +102,12 @@ const FlashSale = () => {
       <div className="bg-red-600 text-white px-3 py-2 rounded-lg min-w-[50px] text-center">
         <span className="text-xl font-bold">{String(value).padStart(2, '0')}</span>
       </div>
-      <span className="text-xs text-gray-500 mt-1">{label}</span>
+      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</span>
     </div>
   );
 
   return (
-    <section className="py-8 bg-gradient-to-r from-red-50 to-orange-50">
+    <section className="py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
@@ -117,10 +117,10 @@ const FlashSale = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-gray-900">{flashSale.name}</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{flashSale.name}</h2>
                 <FiActivity className="w-6 h-6 text-orange-500 animate-bounce" />
               </div>
-              <p className="text-sm text-gray-600">{flashSale.description || 'Limited time offers!'}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{flashSale.description || 'Limited time offers!'}</p>
             </div>
           </div>
 
@@ -128,7 +128,7 @@ const FlashSale = () => {
           {!timeLeft.expired && (
             <div className="flex items-center gap-2">
               <FiClock className="w-5 h-5 text-red-600" />
-              <span className="text-sm font-medium text-gray-700 mr-2">Ends in:</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Ends in:</span>
               <div className="flex gap-2">
                 {timeLeft.days > 0 && <TimeBox value={timeLeft.days} label="Days" />}
                 <TimeBox value={timeLeft.hours} label="Hours" />
@@ -150,7 +150,7 @@ const FlashSale = () => {
             return (
               <div
                 key={item.product._id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all group relative"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all group relative"
               >
                 {/* Discount Badge */}
                 <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
@@ -178,7 +178,7 @@ const FlashSale = () => {
                 {/* Product Info */}
                 <div className="p-3">
                   <Link to={`/products/${item.product._id}`}>
-                    <h3 className="text-sm font-medium text-gray-900 truncate mb-2 hover:text-primary-600">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate mb-2 hover:text-primary-600">
                       {item.product.name}
                     </h3>
                   </Link>

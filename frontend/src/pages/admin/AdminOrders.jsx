@@ -16,7 +16,7 @@ const AdminOrders = () => {
   const [page, setPage] = useState(1);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
 
-  const statuses = ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'];
+  const statuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'];
 
   useEffect(() => {
     const params = { page, limit: 10 };

@@ -27,9 +27,9 @@ const OrdersPage = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center">
-          <FiPackage className="w-24 h-24 mx-auto text-gray-300 mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">No orders yet</h2>
-          <p className="text-gray-500 mb-8">
+          <FiPackage className="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-6" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">No orders yet</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">
             You haven't placed any orders yet. Start shopping now!
           </p>
           <Link to="/products" className="btn-primary">
@@ -42,23 +42,23 @@ const OrdersPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">My Orders</h1>
 
       <div className="space-y-4">
         {orders.map((order) => (
-          <div key={order._id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="p-4 border-b bg-gray-50 flex flex-wrap items-center justify-between gap-4">
+          <div key={order._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+            <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-6">
                 <div>
-                  <p className="text-sm text-gray-500">Order ID</p>
-                  <p className="font-medium">#{order._id.slice(-8).toUpperCase()}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Order ID</p>
+                  <p className="font-medium dark:text-white">#{order._id.slice(-8).toUpperCase()}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Date</p>
-                  <p className="font-medium">{formatDate(order.createdAt)}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
+                  <p className="font-medium dark:text-white">{formatDate(order.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
                   <p className="font-bold text-primary-600">{formatPrice(order.totalPrice)}</p>
                 </div>
               </div>
@@ -87,13 +87,13 @@ const OrdersPage = () => {
                       }}
                     />
                     <div>
-                      <p className="font-medium text-sm line-clamp-1">{item.name}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                      <p className="font-medium text-sm line-clamp-1 dark:text-white">{item.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity}</p>
                     </div>
                   </div>
                 ))}
                 {order.orderItems.length > 3 && (
-                  <p className="text-sm text-gray-500 self-center">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 self-center">
                     +{order.orderItems.length - 3} more items
                   </p>
                 )}

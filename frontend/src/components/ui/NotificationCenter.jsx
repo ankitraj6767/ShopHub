@@ -230,7 +230,7 @@ const NotificationCenter = () => {
             fetchNotifications();
           }
         }}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition"
+        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
       >
         <FiBell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -246,9 +246,9 @@ const NotificationCenter = () => {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">
+          <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
                 Notifications
                 {isLoading && <span className="ml-2 text-xs text-gray-400">(loading...)</span>}
               </h3>
@@ -288,12 +288,12 @@ const NotificationCenter = () => {
                   return (
                     <div
                       key={notifId}
-                      className={`p-4 border-b hover:bg-gray-50 transition ${
-                        !isRead ? 'bg-blue-50' : ''
+                      className={`p-4 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${
+                        !isRead ? 'bg-blue-50 dark:bg-blue-900/30' : ''
                       }`}
                     >
                       <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                        <div className="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
                           {getIcon(notification.type)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -305,13 +305,13 @@ const NotificationCenter = () => {
                             }}
                             className="block"
                           >
-                            <p className={`text-sm ${!isRead ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+                            <p className={`text-sm ${!isRead ? 'font-semibold text-gray-900 dark:text-white' : 'font-medium text-gray-700 dark:text-gray-300'}`}>
                               {notification.title}
                               {!isRead && (
                                 <span className="ml-2 inline-block w-2 h-2 bg-primary-500 rounded-full"></span>
                               )}
                             </p>
-                            <p className="text-sm text-gray-600 line-clamp-2">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
@@ -333,7 +333,7 @@ const NotificationCenter = () => {
             </div>
 
             {notifications.length > 0 && (
-              <div className="p-3 border-t text-center">
+              <div className="p-3 border-t dark:border-gray-700 text-center">
                 <Link
                   to="/notifications"
                   onClick={() => setIsOpen(false)}

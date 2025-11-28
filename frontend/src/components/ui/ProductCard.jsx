@@ -86,7 +86,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <Link to={`/products/${product._id}`} className="card group">
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
+      <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
         <img
           src={product.images?.[0]?.url || '/placeholder.jpg'}
           alt={product.name}
@@ -102,7 +102,7 @@ const ProductCard = ({ product }) => {
           className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
             isInWishlist
               ? 'bg-red-500 text-white'
-              : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-red-500'
           }`}
           title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
@@ -114,7 +114,7 @@ const ProductCard = ({ product }) => {
           className={`absolute top-12 right-2 p-2 rounded-full transition-all ${
             isInCompare
               ? 'bg-blue-500 text-white'
-              : 'bg-white/80 text-gray-600 hover:bg-white hover:text-blue-500'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-blue-500'
           }`}
           title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
         >
@@ -129,7 +129,7 @@ const ProductCard = ({ product }) => {
             e.stopPropagation();
             setShowQuickView(true);
           }}
-          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
           title="Quick View"
         >
           <FiEye className="w-5 h-5" />
@@ -148,8 +148,8 @@ const ProductCard = ({ product }) => {
         )}
       </div>
       <div className="p-4">
-        <p className="text-sm text-gray-500 mb-1">{product.brand}</p>
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-600 transition">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{product.brand}</p>
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 transition">
           {product.name}
         </h3>
         <div className="flex items-center mb-2">
@@ -161,7 +161,7 @@ const ProductCard = ({ product }) => {
               />
             ))}
           </div>
-          <span className="text-sm text-gray-500 ml-2">
+          <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
             ({product.numReviews})
           </span>
         </div>

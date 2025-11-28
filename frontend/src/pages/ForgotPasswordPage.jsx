@@ -152,14 +152,14 @@ const ForgotPasswordPage = () => {
 
   if (passwordResetSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white p-8 rounded-xl shadow-lg">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FiCheck className="w-10 h-10 text-green-600" />
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiCheck className="w-10 h-10 text-green-600 dark:text-green-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Password Reset Successful!</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Password Reset Successful!</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Your password has been reset successfully. Redirecting to login...
             </p>
             <Link to="/login" className="btn-primary inline-block">
@@ -172,42 +172,42 @@ const ForgotPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Progress Indicator */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
               1
             </div>
-            <div className={`w-16 h-1 ${step >= 2 ? 'bg-primary-600' : 'bg-gray-200'}`} />
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-16 h-1 ${step >= 2 ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
               2
             </div>
-            <div className={`w-16 h-1 ${step >= 3 ? 'bg-primary-600' : 'bg-gray-200'}`} />
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-16 h-1 ${step >= 3 ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
               3
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-xl shadow-lg">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
           {/* Step 1: Email Input */}
           {step === 1 && (
             <>
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FiMail className="w-8 h-8 text-primary-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Forgot Password?</h2>
-                <p className="text-gray-600 mt-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Forgot Password?</h2>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
                   Enter your email address and we'll send you an OTP to reset your password.
                 </p>
               </div>
 
               <form onSubmit={handleEmailSubmit}>
                 <div className="mb-6">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -243,18 +243,18 @@ const ForgotPasswordPage = () => {
           {step === 2 && (
             <>
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FiKey className="w-8 h-8 text-primary-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Enter OTP</h2>
-                <p className="text-gray-600 mt-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Enter OTP</h2>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
                   We've sent a 6-digit OTP to <strong>{email}</strong>
                 </p>
               </div>
 
               <form onSubmit={handleVerifyOtp}>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 text-center">
                     Enter 6-digit OTP
                   </label>
                   <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
@@ -268,7 +268,7 @@ const ForgotPasswordPage = () => {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        className="w-12 h-14 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none"
+                        className="w-12 h-14 text-center text-xl font-bold border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none bg-white dark:bg-gray-700 dark:text-white"
                       />
                     ))}
                   </div>
@@ -287,10 +287,10 @@ const ForgotPasswordPage = () => {
                 </button>
 
                 <div className="text-center mt-4">
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-400">
                     Didn't receive OTP?{' '}
                     {resendTimer > 0 ? (
-                      <span className="text-gray-400">Resend in {resendTimer}s</span>
+                      <span className="text-gray-400 dark:text-gray-500">Resend in {resendTimer}s</span>
                     ) : (
                       <button
                         type="button"
@@ -310,7 +310,7 @@ const ForgotPasswordPage = () => {
                   setStep(1);
                   dispatch(clearForgotPasswordState());
                 }}
-                className="w-full mt-4 flex items-center justify-center text-gray-600 hover:text-gray-800"
+                className="w-full mt-4 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               >
                 <FiArrowLeft className="mr-2" /> Change Email
               </button>
@@ -321,18 +321,18 @@ const ForgotPasswordPage = () => {
           {step === 3 && (
             <>
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FiLock className="w-8 h-8 text-primary-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Create New Password</h2>
-                <p className="text-gray-600 mt-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Password</h2>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
                   Your new password must be different from previously used passwords.
                 </p>
               </div>
 
               <form onSubmit={handleResetPassword}>
                 <div className="mb-4">
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     New Password
                   </label>
                   <div className="relative">
@@ -348,11 +348,11 @@ const ForgotPasswordPage = () => {
                       required
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Must be at least 6 characters</p>
                 </div>
 
                 <div className="mb-6">
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -385,7 +385,7 @@ const ForgotPasswordPage = () => {
           )}
 
           {/* Back to Login Link */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200">
+          <div className="text-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <Link to="/login" className="text-primary-600 hover:underline font-medium">
               Back to Login
             </Link>

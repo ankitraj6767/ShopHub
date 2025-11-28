@@ -137,16 +137,16 @@ const ReferralPage = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Referral Link Card */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
               <FiShare2 className="w-5 h-5 text-purple-600" />
               Your Referral Link
             </h2>
 
             {/* Link Box */}
             <div className="flex items-center gap-2 mb-6">
-              <div className="flex-1 bg-gray-100 rounded-xl px-4 py-3 font-mono text-sm overflow-hidden">
-                <span className="truncate block">{referralData?.referralLink}</span>
+              <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 font-mono text-sm overflow-hidden">
+                <span className="truncate block dark:text-gray-200">{referralData?.referralLink}</span>
               </div>
               <button
                 onClick={() => copyToClipboard(referralData?.referralLink)}
@@ -163,9 +163,9 @@ const ReferralPage = () => {
 
             {/* Referral Code */}
             <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-2">Or share your code:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Or share your code:</p>
               <div className="flex items-center gap-2">
-                <code className="bg-gray-100 px-4 py-2 rounded-lg font-bold text-lg">
+                <code className="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg font-bold text-lg dark:text-white">
                   {referralData?.referralCode}
                 </code>
                 <button
@@ -179,7 +179,7 @@ const ReferralPage = () => {
 
             {/* Share Buttons */}
             <div>
-              <p className="text-sm text-gray-600 mb-3">Share via:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Share via:</p>
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => shareVia('whatsapp')}
@@ -214,33 +214,33 @@ const ReferralPage = () => {
           </div>
 
           {/* How It Works */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-6">How It Works</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-6 dark:text-white">How It Works</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FiShare2 className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="font-semibold mb-2">1. Share Link</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold mb-2 dark:text-white">1. Share Link</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Share your unique referral link with friends and family
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FiUsers className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="font-semibold mb-2">2. Friends Sign Up</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold mb-2 dark:text-white">2. Friends Sign Up</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   They create an account and get {referralData?.rewards?.referred} bonus points
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FiGift className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="font-semibold mb-2">3. You Earn</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold mb-2 dark:text-white">3. You Earn</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Get {referralData?.rewards?.referrer} points when they make their first purchase
                 </p>
               </div>
@@ -248,8 +248,8 @@ const ReferralPage = () => {
           </div>
 
           {/* Your Referrals */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
               <FiUsers className="w-5 h-5 text-purple-600" />
               Your Referrals
             </h2>
@@ -258,19 +258,19 @@ const ReferralPage = () => {
                 {referralData.referrals.map((referral, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        referral.status === 'completed' ? 'bg-green-100' : 'bg-yellow-100'
+                        referral.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-yellow-100 dark:bg-yellow-900/30'
                       }`}>
                         <FiUsers className={`w-5 h-5 ${
                           referral.status === 'completed' ? 'text-green-500' : 'text-yellow-500'
                         }`} />
                       </div>
                       <div>
-                        <p className="font-medium">{referral.user}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium dark:text-white">{referral.user}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Joined {new Date(referral.date).toLocaleDateString()}
                         </p>
                       </div>
@@ -309,8 +309,8 @@ const ReferralPage = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Leaderboard */}
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
               <FiTrendingUp className="w-5 h-5 text-purple-600" />
               Top Referrers
             </h2>
@@ -324,21 +324,21 @@ const ReferralPage = () => {
                     <span
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         index === 0
-                          ? 'bg-yellow-100 text-yellow-600'
+                          ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600'
                           : index === 1
-                          ? 'bg-gray-100 text-gray-600'
+                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                           : index === 2
-                          ? 'bg-orange-100 text-orange-600'
-                          : 'bg-gray-50 text-gray-500'
+                          ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600'
+                          : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                       }`}
                     >
                       {entry.rank}
                     </span>
-                    <span className="font-medium">{entry.name}</span>
+                    <span className="font-medium dark:text-white">{entry.name}</span>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-purple-600">{entry.referrals}</p>
-                    <p className="text-xs text-gray-500">{entry.earnings} pts</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{entry.earnings} pts</p>
                   </div>
                 </div>
               ))}

@@ -124,9 +124,9 @@ const BundleDetailsPage = () => {
   if (!bundle) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <FiPackage className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Bundle Not Found</h2>
-        <p className="text-gray-600 mb-6">This bundle may have been removed or doesn't exist.</p>
+        <FiPackage className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Bundle Not Found</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">This bundle may have been removed or doesn't exist.</p>
         <Link to="/bundles" className="btn-primary">
           View All Bundles
         </Link>
@@ -141,38 +141,38 @@ const BundleDetailsPage = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Navigation Breadcrumbs */}
       <div className="flex items-center gap-4 mb-6 text-sm">
-        <Link to="/" className="flex items-center gap-1 text-gray-600 hover:text-primary-600">
+        <Link to="/" className="flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-primary-600">
           <FiHome className="w-4 h-4" />
           Home
         </Link>
-        <span className="text-gray-400">/</span>
-        <Link to="/bundles" className="flex items-center gap-1 text-gray-600 hover:text-primary-600">
+        <span className="text-gray-400 dark:text-gray-500">/</span>
+        <Link to="/bundles" className="flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-primary-600">
           <FiPackage className="w-4 h-4" />
           Bundles
         </Link>
-        <span className="text-gray-400">/</span>
-        <span className="text-gray-900 font-medium">{bundle.name}</span>
+        <span className="text-gray-400 dark:text-gray-500">/</span>
+        <span className="text-gray-900 dark:text-white font-medium">{bundle.name}</span>
       </div>
 
       {/* Quick Navigation */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <Link to="/" className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">
+        <Link to="/" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <FiHome className="inline w-3 h-3 mr-1" /> Home
         </Link>
-        <Link to="/products" className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">
+        <Link to="/products" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <FiGrid className="inline w-3 h-3 mr-1" /> Products
         </Link>
-        <Link to="/bundles" className="px-3 py-1.5 bg-primary-100 hover:bg-primary-200 rounded-full text-sm text-primary-700 transition-colors">
+        <Link to="/bundles" className="px-3 py-1.5 bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/40 rounded-full text-sm text-primary-700 dark:text-primary-300 transition-colors">
           <FiPackage className="inline w-3 h-3 mr-1" /> All Bundles
         </Link>
-        <Link to="/cart" className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">
+        <Link to="/cart" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <FiShoppingCart className="inline w-3 h-3 mr-1" /> Cart
         </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Bundle Image */}
-        <div className="bg-gradient-to-br from-primary-100 to-purple-100 rounded-2xl p-8 flex items-center justify-center">
+        <div className="bg-gradient-to-br from-primary-100 to-purple-100 dark:from-primary-900/30 dark:to-purple-900/30 rounded-2xl p-8 flex items-center justify-center">
           {bundle.image ? (
             <img
               src={bundle.image}
@@ -198,36 +198,36 @@ const BundleDetailsPage = () => {
         <div>
           {/* Badge */}
           <div className="flex items-center gap-2 mb-4">
-            <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+            <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
               <FiPackage className="w-4 h-4" />
               Bundle Deal
             </span>
             {bundle.featured && (
-              <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
+              <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-3 py-1 rounded-full text-sm font-medium">
                 Featured
               </span>
             )}
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{bundle.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{bundle.name}</h1>
           
           {bundle.description && (
-            <p className="text-gray-600 mb-6">{bundle.description}</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{bundle.description}</p>
           )}
 
           {/* Pricing */}
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 mb-6 border border-green-200">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 mb-6 border border-green-200 dark:border-green-800">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Bundle Price</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Bundle Price</p>
                 <p className="text-4xl font-bold text-green-600">{formatPrice(bundle.bundlePrice)}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500 mb-1">Original Price</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Original Price</p>
                 <p className="text-2xl text-gray-400 line-through">{formatPrice(bundle.originalPrice)}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-green-700 bg-green-100 rounded-lg px-4 py-2">
+            <div className="flex items-center gap-2 text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 rounded-lg px-4 py-2">
               <FiPercent className="w-5 h-5" />
               <span className="font-bold">You Save {formatPrice(savings)} ({discountPercent}% off)</span>
             </div>
@@ -235,7 +235,7 @@ const BundleDetailsPage = () => {
 
           {/* Products in Bundle */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">What's Included ({bundle.products.length} items)</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">What's Included ({bundle.products.length} items)</h3>
             <div className="space-y-3">
               {bundle.products.map((item, index) => {
                 const originalItemPrice = item.product?.price * (item.quantity || 1);
@@ -246,7 +246,7 @@ const BundleDetailsPage = () => {
                 const discountedItemPrice = originalItemPrice * (1 - bundleDiscountPercent / 100);
                 
                 return (
-                  <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <img
                       src={item.product?.images?.[0]?.url || '/placeholder.png'}
                       alt={item.product?.name}
@@ -255,11 +255,11 @@ const BundleDetailsPage = () => {
                     <div className="flex-1">
                       <Link 
                         to={`/products/${item.product?._id}`}
-                        className="font-medium text-gray-900 hover:text-primary-600"
+                        className="font-medium text-gray-900 dark:text-white hover:text-primary-600"
                       >
                         {item.product?.name}
                       </Link>
-                      <p className="text-sm text-gray-500">Qty: {item.quantity || 1}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity || 1}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600">{formatPrice(discountedItemPrice)}</p>
@@ -274,19 +274,19 @@ const BundleDetailsPage = () => {
           {/* Features */}
           <div className="mb-8">
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <FiCheck className="w-5 h-5 text-green-500" />
                 <span>Free Shipping</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <FiCheck className="w-5 h-5 text-green-500" />
                 <span>Bundle Discount Applied</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <FiCheck className="w-5 h-5 text-green-500" />
                 <span>All Items Included</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <FiCheck className="w-5 h-5 text-green-500" />
                 <span>Save {discountPercent}%</span>
               </div>
