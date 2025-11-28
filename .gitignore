@@ -4,3 +4,4 @@ node_modules
 .env
 .env.local
 .env.*.local
+# Note: .env.example files ARE committed to help with deployment setup
