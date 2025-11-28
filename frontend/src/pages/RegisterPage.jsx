@@ -44,8 +44,11 @@ const RegisterPage = () => {
     try {
       const { data } = await api.get(`/referrals/validate/${code}`);
       setReferralInfo(data.data);
+      setErrors(prev => ({ ...prev, referralCode: '' }));
     } catch (err) {
+      console.error('Referral validation error:', err);
       setReferralInfo(null);
+      // Only show error if code is long enough to be valid
       if (code.length >= 6) {
         setErrors(prev => ({ ...prev, referralCode: 'Invalid referral code' }));
       }
@@ -111,28 +114,19 @@ const RegisterPage = () => {
     }));
 
     if (register.fulfilled.match(result)) {
-      // Apply referral code if valid
+      toast.success('Account created successfully!');
+      
+      // Apply referral code in background if valid (don't block navigation)
       if (referralInfo && formData.referralCode) {
-        // Retry logic for referral application
-        let applied = false;
-        for (let attempt = 0; attempt < 3 && !applied; attempt++) {
-          try {
-            // Wait a bit longer on each retry to ensure token is ready
-            await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)));
-            const { data } = await api.post('/referrals/apply', { code: formData.referralCode });
-            toast.success(`🎉 Welcome! ${data.message}`, { duration: 5000 });
-            applied = true;
-          } catch (err) {
-            console.error(`Referral apply attempt ${attempt + 1} failed:`, err);
-            if (attempt === 2) {
-              // Final attempt failed
-              toast.success('Account created successfully!');
-            }
-          }
-        }
-      } else {
-        toast.success('Account created successfully!');
+        api.post('/referrals/apply', { code: formData.referralCode })
+          .then(({ data }) => {
+            toast.success(`🎉 ${data.message}`, { duration: 5000 });
+          })
+          .catch((err) => {
+            console.error('Referral apply failed:', err);
+          });
       }
+      
       navigate('/');
     }
   };
@@ -141,14 +135,14 @@ const RegisterPage = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Join us and start shopping today</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
+          <p className="text-gray-600 dark:text-gray-400">Join us and start shopping today</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Full Name
               </label>
               <input
@@ -159,6 +153,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className={`input ${errors.name ? 'input-error' : ''}`}
                 placeholder="John Doe"
+                autoComplete="name"
               />
               {errors.name && (
                 <p className="text-red-500 text-sm mt-1">{errors.name}</p>
@@ -166,7 +161,7 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
               </label>
               <input
@@ -177,6 +172,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className={`input ${errors.email ? 'input-error' : ''}`}
                 placeholder="you@example.com"
+                autoComplete="email"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -184,7 +180,7 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -196,11 +192,12 @@ const RegisterPage = () => {
                   onChange={handleChange}
                   className={`input pr-10 ${errors.password ? 'input-error' : ''}`}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
@@ -211,7 +208,7 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Confirm Password
               </label>
               <input
@@ -222,6 +219,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className={`input ${errors.confirmPassword ? 'input-error' : ''}`}
                 placeholder="••••••••"
+                autoComplete="new-password"
               />
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
@@ -230,8 +228,8 @@ const RegisterPage = () => {
 
             {/* Referral Code Field */}
             <div>
-              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-2">
-                Referral Code <span className="text-gray-400">(optional)</span>
+              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Referral Code <span className="text-gray-400 dark:text-gray-500">(optional)</span>
               </label>
               <div className="relative">
                 <input
@@ -242,6 +240,7 @@ const RegisterPage = () => {
                   onChange={handleChange}
                   className={`input pr-10 ${errors.referralCode ? 'input-error' : ''} ${referralInfo ? 'border-green-500' : ''}`}
                   placeholder="REF-XXXXXX"
+                  autoComplete="off"
                 />
                 {validatingReferral && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -256,12 +255,12 @@ const RegisterPage = () => {
                 <p className="text-red-500 text-sm mt-1">{errors.referralCode}</p>
               )}
               {referralInfo && (
-                <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-green-700">
+                <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                     <FiGift className="w-5 h-5" />
                     <span className="font-medium">Referred by {referralInfo.referrerName}</span>
                   </div>
-                  <p className="text-sm text-green-600 mt-1">
+                  <p className="text-sm text-green-600 dark:text-green-500 mt-1">
                     You'll get <strong>{referralInfo.reward} bonus points</strong> when you sign up!
                   </p>
                 </div>
@@ -278,7 +277,7 @@ const RegisterPage = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
               <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
                 Sign in

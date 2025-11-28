@@ -39,17 +39,14 @@ export const registerUser = asyncHandler(async (req, res) => {
     // Set cookies
     setTokenCookies(res, accessToken, refreshToken);
 
-    // Send welcome email
-    try {
-      const emailContent = emailTemplates.welcomeEmail(user);
-      await sendEmail({
-        to: user.email,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      });
-    } catch (emailError) {
+    // Send welcome email in background (don't await)
+    sendEmail({
+      to: user.email,
+      subject: emailTemplates.welcomeEmail(user).subject,
+      html: emailTemplates.welcomeEmail(user).html,
+    }).catch((emailError) => {
       console.error('Failed to send welcome email:', emailError);
-    }
+    });
 
     res.status(201).json({
       success: true,
