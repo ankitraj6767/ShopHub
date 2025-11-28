@@ -274,13 +274,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   user.resetPasswordOTPExpires = otpExpires;
   await user.save({ validateBeforeSave: false });
 
-  // Send response immediately, then send email
-  res.json({
-    success: true,
-    message: 'OTP sent to your email address',
-  });
-
-  // Send OTP email in background (fire-and-forget for faster response)
+  // Prepare email HTML
   const emailHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
@@ -297,17 +291,29 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     </div>
   `;
 
-  sendEmail({
-    to: user.email,
-    subject: 'Password Reset OTP - ShopHub',
-    html: emailHtml,
-  }).catch(async (error) => {
+  // IMPORTANT: Await email sending to ensure it's delivered
+  // This is critical for password reset - user needs confirmation email worked
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: 'Password Reset OTP - ShopHub',
+      html: emailHtml,
+    });
+    
+    res.json({
+      success: true,
+      message: 'OTP sent to your email address',
+    });
+  } catch (error) {
     console.error('Failed to send OTP email:', error.message);
-    // Clear OTP if email fails (user won't receive it)
+    // Clear OTP since email failed
     user.resetPasswordOTP = undefined;
     user.resetPasswordOTPExpires = undefined;
     await user.save({ validateBeforeSave: false });
-  });
+    
+    res.status(500);
+    throw new Error('Failed to send OTP email. Please try again later.');
+  }
 });
 
 // @desc    Verify OTP

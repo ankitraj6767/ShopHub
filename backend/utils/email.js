@@ -12,7 +12,8 @@ const getTransporter = () => {
   }
   
   const smtpUser = process.env.SMTP_USER?.trim();
-  const smtpPassword = process.env.SMTP_PASSWORD?.trim();
+  // Remove spaces from password (Gmail App Passwords are shown with spaces but should be entered without)
+  const smtpPassword = process.env.SMTP_PASSWORD?.replace(/\s+/g, '');
   const smtpHost = process.env.SMTP_HOST?.trim() || 'smtp.gmail.com';
   const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
   
@@ -20,6 +21,7 @@ const getTransporter = () => {
   console.log('📧 Email Config Initialized:', {
     hasSmtpUser: !!smtpUser,
     hasSmtpPassword: !!smtpPassword,
+    passwordLength: smtpPassword?.length,
     smtpHost,
     smtpPort,
     nodeEnv: process.env.NODE_ENV
@@ -67,6 +69,11 @@ const getTransporter = () => {
     cachedTransporter.verify((error, success) => {
       if (error) {
         console.error('❌ SMTP connection error:', error.message);
+        console.error('❌ SMTP error details:', {
+          code: error.code,
+          command: error.command,
+          responseCode: error.responseCode
+        });
       } else {
         console.log('✅ SMTP server ready for emails');
       }
@@ -106,13 +113,35 @@ export const sendEmail = async ({ to, subject, html, text }) => {
       text: text || html?.replace(/<[^>]*>/g, ''),
     };
 
-    console.log('📧 Sending email to:', to);
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
+    console.log('📧 Sending email to:', to, '| Subject:', subject);
+    
+    // Set a timeout for the email sending
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Email sending timed out after 30 seconds')), 30000);
+    });
+    
+    const info = await Promise.race([
+      transporter.sendMail(mailOptions),
+      timeoutPromise
+    ]);
+    
+    console.log('✅ Email sent successfully:', {
+      messageId: info.messageId,
+      to: to,
+      accepted: info.accepted,
+      rejected: info.rejected
+    });
     
     return info;
   } catch (error) {
-    console.error('❌ Email error:', error.message);
+    console.error('❌ Email error details:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      responseCode: error.responseCode,
+      to: to,
+      subject: subject
+    });
     throw error;
   }
 };
