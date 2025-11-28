@@ -1,38 +1,98 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter
-const createTransporter = () => {
+// Cached transporter for connection pooling
+let cachedTransporter = null;
+let transporterInitialized = false;
+
+// Create transporter with connection pooling
+const getTransporter = () => {
+  // Return cached transporter if available
+  if (transporterInitialized) {
+    return cachedTransporter;
+  }
+  
+  const smtpUser = process.env.SMTP_USER?.trim();
+  const smtpPassword = process.env.SMTP_PASSWORD?.trim();
+  const smtpHost = process.env.SMTP_HOST?.trim() || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
+  
+  // Log configuration status once (without exposing credentials)
+  console.log('📧 Email Config Initialized:', {
+    hasSmtpUser: !!smtpUser,
+    hasSmtpPassword: !!smtpPassword,
+    smtpHost,
+    smtpPort,
+    nodeEnv: process.env.NODE_ENV
+  });
+  
+  transporterInitialized = true;
+  
   // Use Gmail SMTP if configured
-  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: false, // Use TLS
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-      },
+  if (smtpUser && smtpPassword) {
+    const isGmail = smtpHost.includes('gmail');
+    
+    // For Gmail, use service with connection pooling
+    if (isGmail) {
+      cachedTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: smtpUser,
+          pass: smtpPassword,
+        },
+        pool: true,           // Enable connection pooling
+        maxConnections: 5,    // Max concurrent connections
+        maxMessages: 100,     // Max messages per connection
+        rateDelta: 1000,      // How often to check rate limit
+        rateLimit: 10,        // Max 10 messages per second
+      });
+    } else {
+      cachedTransporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPassword,
+        },
+        pool: true,
+        maxConnections: 5,
+        maxMessages: 100,
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
+      });
+    }
+    
+    // Verify connection on startup (non-blocking)
+    cachedTransporter.verify((error, success) => {
+      if (error) {
+        console.error('❌ SMTP connection error:', error.message);
+      } else {
+        console.log('✅ SMTP server ready for emails');
+      }
     });
+    
+    return cachedTransporter;
   }
 
   // Fallback for development without SMTP config
-  console.warn('SMTP not configured. Emails will be logged to console.');
+  console.warn('⚠️ SMTP not configured. Emails will be logged to console.');
   return null;
 };
 
 // Send email helper
 export const sendEmail = async ({ to, subject, html, text }) => {
   try {
-    const transporter = createTransporter();
+    const transporter = getTransporter();
     
     // If no transporter, log email to console (dev fallback)
     if (!transporter) {
       console.log('=== EMAIL (No SMTP configured) ===');
       console.log('To:', to);
       console.log('Subject:', subject);
-      console.log('Text:', text || html.replace(/<[^>]*>/g, ''));
+      console.log('Text:', text || html?.replace(/<[^>]*>/g, '').substring(0, 200) + '...');
       console.log('=================================');
-      return { messageId: 'console-log' };
+      return { messageId: 'console-log', warning: 'SMTP not configured' };
     }
     
     const fromName = process.env.SMTP_FROM_NAME || 'ShopHub';
@@ -43,15 +103,16 @@ export const sendEmail = async ({ to, subject, html, text }) => {
       to,
       subject,
       html,
-      text: text || html.replace(/<[^>]*>/g, ''),
+      text: text || html?.replace(/<[^>]*>/g, ''),
     };
 
+    console.log('📧 Sending email to:', to);
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully to:', to);
+    console.log('✅ Email sent:', info.messageId);
     
     return info;
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('❌ Email error:', error.message);
     throw error;
   }
 };

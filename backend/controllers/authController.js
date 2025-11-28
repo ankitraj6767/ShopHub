@@ -274,74 +274,40 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   user.resetPasswordOTPExpires = otpExpires;
   await user.save({ validateBeforeSave: false });
 
-  // Send OTP email
-  try {
-    const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-          .otp-box { background: #fff; border: 2px dashed #667eea; padding: 20px; text-align: center; margin: 20px 0; border-radius: 10px; }
-          .otp-code { font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 5px; }
-          .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin-top: 20px; }
-          .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🔐 Password Reset</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${user.name}</strong>,</p>
-            <p>We received a request to reset your password. Use the OTP below to verify your identity:</p>
-            
-            <div class="otp-box">
-              <p style="margin: 0; color: #666;">Your OTP Code</p>
-              <p class="otp-code">${otp}</p>
-              <p style="margin: 0; color: #999; font-size: 14px;">Valid for 10 minutes</p>
-            </div>
-            
-            <div class="warning">
-              <strong>⚠️ Security Notice:</strong>
-              <ul style="margin: 5px 0;">
-                <li>Never share this OTP with anyone</li>
-                <li>ShopHub will never ask for your OTP via phone or email</li>
-                <li>If you didn't request this, please ignore this email</li>
-              </ul>
-            </div>
-          </div>
-          <div class="footer">
-            <p>© ${new Date().getFullYear()} ShopHub. All rights reserved.</p>
-          </div>
+  // Send response immediately, then send email
+  res.json({
+    success: true,
+    message: 'OTP sent to your email address',
+  });
+
+  // Send OTP email in background (fire-and-forget for faster response)
+  const emailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="margin: 0;">🔐 Password Reset</h1>
+      </div>
+      <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 10px 10px;">
+        <p>Hi <strong>${user.name}</strong>,</p>
+        <p>Your OTP code is:</p>
+        <div style="background: #fff; border: 2px dashed #667eea; padding: 15px; text-align: center; margin: 15px 0; border-radius: 10px;">
+          <span style="font-size: 28px; font-weight: bold; color: #667eea; letter-spacing: 5px;">${otp}</span>
         </div>
-      </body>
-      </html>
-    `;
+        <p style="color: #666; font-size: 14px;">Valid for 10 minutes. Never share this OTP.</p>
+      </div>
+    </div>
+  `;
 
-    await sendEmail({
-      to: user.email,
-      subject: 'Password Reset OTP - ShopHub',
-      html: emailHtml,
-    });
-
-    res.json({
-      success: true,
-      message: 'OTP sent to your email address',
-    });
-  } catch (error) {
-    // Clear OTP if email fails
+  sendEmail({
+    to: user.email,
+    subject: 'Password Reset OTP - ShopHub',
+    html: emailHtml,
+  }).catch(async (error) => {
+    console.error('Failed to send OTP email:', error.message);
+    // Clear OTP if email fails (user won't receive it)
     user.resetPasswordOTP = undefined;
     user.resetPasswordOTPExpires = undefined;
     await user.save({ validateBeforeSave: false });
-
-    res.status(500);
-    throw new Error('Failed to send OTP email. Please try again.');
-  }
+  });
 });
 
 // @desc    Verify OTP
