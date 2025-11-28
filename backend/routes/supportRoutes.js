@@ -13,6 +13,7 @@ import {
   updateFAQ,
   deleteFAQ,
   chatbotResponse,
+  getQuickReplySuggestions,
   assignTicket,
   closeTicket,
 } from '../controllers/supportController.js';
@@ -24,6 +25,7 @@ const router = express.Router();
 router.get('/faqs', getFAQs);
 router.post('/faqs/:id/vote', voteFAQ);
 router.post('/chat', chatbotResponse);
+router.get('/quick-replies', getQuickReplySuggestions);
 
 // Protected routes
 router.post('/tickets', protect, createTicket);

@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Coupon from '../models/Coupon.js';
 import Product from '../models/Product.js';
+import { notifyNewCoupon } from './notificationController.js';
 
 // @desc    Validate and apply coupon
 // @route   POST /api/coupons/apply
@@ -221,6 +222,9 @@ export const createCoupon = asyncHandler(async (req, res) => {
     excludedProducts: excludedProducts || [],
     createdBy: req.user._id,
   });
+
+  // Notify all users about new coupon
+  await notifyNewCoupon(coupon);
 
   res.status(201).json({
     success: true,

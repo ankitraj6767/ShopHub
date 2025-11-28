@@ -14,9 +14,24 @@ import {
   FiThumbsDown,
   FiPlus,
   FiClock,
-  FiCheckCircle,
-  FiAlertCircle,
+  FiPackage,
+  FiCreditCard,
+  FiTruck,
+  FiTag,
+  FiUser,
+  FiRefreshCw,
+  FiArrowRight,
+  FiX,
+  FiMaximize2,
+  FiMinimize2,
+  FiExternalLink,
+  FiShoppingBag,
+  FiCpu,
+  FiZap,
+  FiStar,
 } from 'react-icons/fi';
+
+// Using FiCpu for robot, FiStar for stars, FiZap for lightning as alternatives
 import {
   fetchFAQs,
   fetchMyTickets,
@@ -32,12 +47,14 @@ import toast from 'react-hot-toast';
 const HelpPage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { faqs, tickets, chatMessages, isLoading } = useSelector((state) => state.support);
+  const { faqs, tickets, chatMessages, chatSessionId, isLoading } = useSelector((state) => state.support);
 
-  const [activeTab, setActiveTab] = useState('faq');
+  const [activeTab, setActiveTab] = useState('chat');
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [chatInput, setChatInput] = useState('');
   const [showTicketForm, setShowTicketForm] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [ticketForm, setTicketForm] = useState({
     subject: '',
     category: 'general',
@@ -46,6 +63,23 @@ const HelpPage = () => {
   });
 
   const chatEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Quick reply options
+  const quickReplies = [
+    { icon: FiPackage, label: 'Track Order', message: 'I want to track my order' },
+    { icon: FiRefreshCw, label: 'Returns', message: 'How do I return an item?' },
+    { icon: FiCreditCard, label: 'Payment', message: 'What payment methods do you accept?' },
+    { icon: FiTruck, label: 'Shipping', message: 'What are your shipping options?' },
+    { icon: FiTag, label: 'Coupons', message: 'Are there any active coupons?' },
+    { icon: FiUser, label: 'Account', message: 'I need help with my account' },
+  ];
 
   useEffect(() => {
     dispatch(fetchFAQs());
@@ -55,25 +89,74 @@ const HelpPage = () => {
   }, [dispatch, user]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
+    // Scroll only within chat container, not the entire page
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages, isTyping]);
+
+  // Add welcome message on first load
+  useEffect(() => {
+    if (chatMessages.length === 0) {
+      dispatch(addChatMessage({
+        type: 'bot',
+        message: "👋 Hello! I'm **ShopHub AI Assistant**, powered by **Google Gemini AI** with conversation memory.\n\nI can help you with:\n• 📦 Order tracking & shipping\n• ↩️ Returns & refunds\n• 💳 Payment questions\n• 🛍️ Product search\n• 🎟️ Coupons & deals\n\nI remember our conversation, so feel free to ask follow-up questions!\n\nHow can I assist you today?",
+        suggestions: ['Show all active coupons', 'Track my order', 'Best sellers', 'Payment help'],
+        timestamp: new Date().toISOString(),
+      }));
+    }
+  }, []);
 
   const handleChatSubmit = async (e) => {
     e.preventDefault();
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() || isTyping) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput('');
 
     // Add user message
     dispatch(addChatMessage({
       type: 'user',
-      message: chatInput,
+      message: userMessage,
       timestamp: new Date().toISOString(),
     }));
 
-    const message = chatInput;
-    setChatInput('');
+    // Show typing indicator
+    setIsTyping(true);
 
-    // Get AI response
-    await dispatch(chatWithAI(message));
+    // Simulate slight delay for natural feel
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Get AI response with session ID for context memory
+    const result = await dispatch(chatWithAI({ message: userMessage, sessionId: chatSessionId }));
+    setIsTyping(false);
+
+    if (chatWithAI.rejected.match(result)) {
+      dispatch(addChatMessage({
+        type: 'bot',
+        message: "I'm having trouble processing your request. Please try again or contact our support team.",
+        suggestions: ['Try again', 'Contact support'],
+        timestamp: new Date().toISOString(),
+      }));
+    }
+
+    // Focus back on input
+    inputRef.current?.focus();
+  };
+
+  const handleQuickReply = (message) => {
+    setChatInput(message);
+    inputRef.current?.focus();
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setChatInput(suggestion);
+    setTimeout(() => {
+      const form = document.getElementById('chat-form');
+      if (form) {
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    }, 100);
   };
 
   const handleTicketSubmit = async (e) => {
@@ -99,31 +182,21 @@ const HelpPage = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'open':
-        return 'bg-blue-100 text-blue-800';
-      case 'in-progress':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'resolved':
-        return 'bg-green-100 text-green-800';
-      case 'closed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'open': return 'bg-blue-100 text-blue-800';
+      case 'in-progress': return 'bg-yellow-100 text-yellow-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'low':
-        return 'text-green-600';
-      case 'medium':
-        return 'text-yellow-600';
-      case 'high':
-        return 'text-orange-600';
-      case 'urgent':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
+      case 'low': return 'text-green-600';
+      case 'medium': return 'text-yellow-600';
+      case 'high': return 'text-orange-600';
+      case 'urgent': return 'text-red-600';
+      default: return 'text-gray-600';
     }
   };
 
@@ -135,201 +208,369 @@ const HelpPage = () => {
     return acc;
   }, {});
 
+  // Parse markdown-like formatting
+  const formatMessage = (text) => {
+    if (!text) return '';
+    
+    // Split by newlines and process
+    return text.split('\n').map((line, i) => {
+      // Bold text
+      let processedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Bullet points
+      if (processedLine.startsWith('• ')) {
+        return <div key={i} className="flex items-start ml-2"><span className="mr-2">•</span><span dangerouslySetInnerHTML={{ __html: processedLine.slice(2) }} /></div>;
+      }
+      // Numbered lists
+      const numberedMatch = processedLine.match(/^(\d+)\.\s/);
+      if (numberedMatch) {
+        return <div key={i} className="flex items-start ml-2"><span className="mr-2 font-medium">{numberedMatch[1]}.</span><span dangerouslySetInnerHTML={{ __html: processedLine.slice(numberedMatch[0].length) }} /></div>;
+      }
+      // Regular line
+      return <div key={i} dangerouslySetInnerHTML={{ __html: processedLine || '&nbsp;' }} />;
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">How can we help you?</h1>
-        <p className="text-gray-600">Get answers to your questions or contact our support team</p>
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
+          <FiCpu className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">AI-Powered Support Center</h1>
+        <p className="text-gray-600 flex items-center justify-center gap-2">
+          <FiStar className="text-yellow-500" />
+          Get instant answers with our smart AI assistant
+          <FiStar className="text-yellow-500" />
+        </p>
       </div>
 
       {/* Quick Help Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <button
           onClick={() => setActiveTab('chat')}
-          className={`p-6 rounded-lg border-2 text-left transition-all ${
-            activeTab === 'chat' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300'
+          className={`p-6 rounded-xl border-2 text-left transition-all group ${
+            activeTab === 'chat' 
+              ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-purple-50 shadow-md' 
+              : 'border-gray-200 hover:border-primary-300 hover:shadow-md'
           }`}
         >
-          <FiMessageCircle className="w-8 h-8 text-primary-600 mb-3" />
-          <h3 className="font-semibold text-gray-900">AI Chat Support</h3>
-          <p className="text-sm text-gray-600 mt-1">Get instant answers 24/7</p>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+            activeTab === 'chat' ? 'bg-gradient-to-br from-primary-500 to-purple-600' : 'bg-primary-100'
+          }`}>
+            <FiCpu className={`w-6 h-6 ${activeTab === 'chat' ? 'text-white' : 'text-primary-600'}`} />
+          </div>
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            AI Assistant
+            <FiZap className="text-yellow-500" />
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">Smart answers 24/7</p>
         </button>
 
         <button
           onClick={() => setActiveTab('faq')}
-          className={`p-6 rounded-lg border-2 text-left transition-all ${
-            activeTab === 'faq' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300'
+          className={`p-6 rounded-xl border-2 text-left transition-all ${
+            activeTab === 'faq' 
+              ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-purple-50 shadow-md' 
+              : 'border-gray-200 hover:border-primary-300 hover:shadow-md'
           }`}
         >
-          <FiHelpCircle className="w-8 h-8 text-primary-600 mb-3" />
-          <h3 className="font-semibold text-gray-900">FAQs</h3>
-          <p className="text-sm text-gray-600 mt-1">Browse common questions</p>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+            activeTab === 'faq' ? 'bg-gradient-to-br from-primary-500 to-purple-600' : 'bg-primary-100'
+          }`}>
+            <FiHelpCircle className={`w-6 h-6 ${activeTab === 'faq' ? 'text-white' : 'text-primary-600'}`} />
+          </div>
+          <h3 className="font-semibold text-gray-900">Knowledge Base</h3>
+          <p className="text-sm text-gray-600 mt-1">Browse FAQs</p>
         </button>
 
         <button
           onClick={() => setActiveTab('tickets')}
-          className={`p-6 rounded-lg border-2 text-left transition-all ${
-            activeTab === 'tickets' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300'
+          className={`p-6 rounded-xl border-2 text-left transition-all ${
+            activeTab === 'tickets' 
+              ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-purple-50 shadow-md' 
+              : 'border-gray-200 hover:border-primary-300 hover:shadow-md'
           }`}
         >
-          <FiFileText className="w-8 h-8 text-primary-600 mb-3" />
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+            activeTab === 'tickets' ? 'bg-gradient-to-br from-primary-500 to-purple-600' : 'bg-primary-100'
+          }`}>
+            <FiFileText className={`w-6 h-6 ${activeTab === 'tickets' ? 'text-white' : 'text-primary-600'}`} />
+          </div>
           <h3 className="font-semibold text-gray-900">Support Tickets</h3>
-          <p className="text-sm text-gray-600 mt-1">Track your requests</p>
+          <p className="text-sm text-gray-600 mt-1">Track requests</p>
         </button>
 
         <button
           onClick={() => setActiveTab('contact')}
-          className={`p-6 rounded-lg border-2 text-left transition-all ${
-            activeTab === 'contact' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-primary-300'
+          className={`p-6 rounded-xl border-2 text-left transition-all ${
+            activeTab === 'contact' 
+              ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-purple-50 shadow-md' 
+              : 'border-gray-200 hover:border-primary-300 hover:shadow-md'
           }`}
         >
-          <FiPhone className="w-8 h-8 text-primary-600 mb-3" />
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+            activeTab === 'contact' ? 'bg-gradient-to-br from-primary-500 to-purple-600' : 'bg-primary-100'
+          }`}>
+            <FiPhone className={`w-6 h-6 ${activeTab === 'contact' ? 'text-white' : 'text-primary-600'}`} />
+          </div>
           <h3 className="font-semibold text-gray-900">Contact Us</h3>
-          <p className="text-sm text-gray-600 mt-1">Speak to our team</p>
+          <p className="text-sm text-gray-600 mt-1">Human support</p>
         </button>
       </div>
 
       {/* Content Sections */}
-      <div className="bg-white rounded-lg shadow-md">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* AI Chat */}
         {activeTab === 'chat' && (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <FiMessageCircle className="mr-2" /> AI Assistant
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Our AI assistant is available 24/7 to help you with common questions.
-            </p>
+          <div className={`${isChatExpanded ? 'fixed inset-4 z-50 bg-white rounded-2xl shadow-2xl flex flex-col' : ''}`}>
+            {/* Chat Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary-600 to-purple-600 text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <FiCpu className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-semibold">ShopHub AI Assistant</h2>
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    Online • Powered by AI
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsChatExpanded(!isChatExpanded)}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  {isChatExpanded ? <FiMinimize2 className="w-5 h-5" /> : <FiMaximize2 className="w-5 h-5" />}
+                </button>
+                <button
+                  onClick={() => dispatch(clearChatMessages())}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  title="Clear chat"
+                >
+                  <FiRefreshCw className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Replies */}
+            {chatMessages.length <= 1 && (
+              <div className="p-4 bg-gray-50 border-b">
+                <p className="text-sm text-gray-600 mb-3">Quick actions:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickReplies.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleQuickReply(item.message)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm hover:border-primary-300 hover:bg-primary-50 transition-all"
+                    >
+                      <item.icon className="w-4 h-4 text-primary-600" />
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Chat Window */}
-            <div className="border rounded-lg h-96 flex flex-col">
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {chatMessages.length === 0 && (
-                  <div className="text-center text-gray-500 py-8">
-                    <FiMessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>Start a conversation with our AI assistant!</p>
-                    <p className="text-sm mt-2">Try asking about orders, returns, shipping, etc.</p>
-                  </div>
-                )}
-                {chatMessages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
+            <div ref={chatContainerRef} className={`${isChatExpanded ? 'flex-1' : 'h-[450px]'} overflow-y-auto p-4 space-y-4 bg-gray-50`}>
+              {chatMessages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.type === 'bot' && (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center mr-2 flex-shrink-0">
+                      <FiCpu className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div className={`max-w-[75%] ${msg.type === 'user' ? 'order-1' : ''}`}>
                     <div
-                      className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${
+                      className={`rounded-2xl px-4 py-3 ${
                         msg.type === 'user'
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-gradient-to-br from-primary-600 to-purple-600 text-white rounded-br-md'
+                          : 'bg-white shadow-sm border border-gray-100 rounded-bl-md'
                       }`}
                     >
-                      <p>{msg.message}</p>
-                      {msg.suggestions && msg.suggestions.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-200">
-                          <p className="text-xs text-gray-500 mb-1">Quick actions:</p>
-                          {msg.suggestions.map((suggestion, i) => (
-                            <button
+                      <div className={`text-sm ${msg.type === 'user' ? 'text-white' : 'text-gray-800'}`}>
+                        {formatMessage(msg.message)}
+                      </div>
+                      
+                      {/* Actions */}
+                      {msg.actions && msg.actions.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
+                          {msg.actions.map((action, i) => (
+                            <Link
                               key={i}
-                              onClick={() => setChatInput(suggestion)}
-                              className="text-xs bg-white text-primary-600 px-2 py-1 rounded mr-1 mb-1 hover:bg-primary-50"
+                              to={action.url}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-sm hover:bg-primary-100 transition-colors"
                             >
-                              {suggestion}
-                            </button>
+                              {action.label}
+                              <FiExternalLink className="w-3 h-3" />
+                            </Link>
                           ))}
                         </div>
                       )}
                     </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                    
+                    {/* Suggestions */}
+                    {msg.suggestions && msg.suggestions.length > 0 && msg.type === 'bot' && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {msg.suggestions.map((suggestion, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:border-primary-300 hover:bg-primary-50 transition-all"
+                          >
+                            {suggestion}
+                            <FiArrowRight className="w-3 h-3 ml-1" />
+                          </button>
+                        ))}
                       </div>
+                    )}
+                    
+                    {/* Timestamp */}
+                    <p className={`text-xs mt-1 ${msg.type === 'user' ? 'text-right text-gray-400' : 'text-gray-400'}`}>
+                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  {msg.type === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center ml-2 flex-shrink-0">
+                      <FiUser className="w-4 h-4 text-gray-600" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center mr-2">
+                    <FiCpu className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-white shadow-sm border border-gray-100 rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="flex space-x-1.5">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
 
-              {/* Chat Input */}
-              <form onSubmit={handleChatSubmit} className="border-t p-3 flex gap-2">
+            {/* Chat Input */}
+            <form id="chat-form" onSubmit={handleChatSubmit} className="p-4 bg-white border-t">
+              <div className="flex gap-2">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Type your message..."
-                  className="flex-1 input"
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  disabled={isTyping}
                 />
                 <button
                   type="submit"
-                  disabled={isLoading || !chatInput.trim()}
-                  className="btn btn-primary px-4"
+                  disabled={isTyping || !chatInput.trim()}
+                  className="px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  <FiSend />
+                  <FiSend className="w-5 h-5" />
                 </button>
-              </form>
-            </div>
-
-            <button
-              onClick={() => dispatch(clearChatMessages())}
-              className="mt-3 text-sm text-gray-500 hover:text-gray-700"
-            >
-              Clear conversation
-            </button>
+              </div>
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                AI-powered responses • For complex issues, create a support ticket
+              </p>
+            </form>
           </div>
         )}
 
         {/* FAQs */}
         {activeTab === 'faq' && (
           <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <FiHelpCircle className="mr-2" /> Frequently Asked Questions
-            </h2>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <FiHelpCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold">Knowledge Base</h2>
+                <p className="text-gray-600 text-sm">Find answers to common questions</p>
+              </div>
+            </div>
 
             {isLoading ? (
-              <div className="flex justify-center py-8">
+              <div className="flex justify-center py-12">
                 <Spinner />
               </div>
             ) : Object.keys(groupedFaqs).length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No FAQs available yet.</p>
+              <div className="text-center py-12">
+                <FiHelpCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-gray-500">No FAQs available yet.</p>
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className="mt-4 btn btn-primary"
+                >
+                  Ask AI Assistant
+                </button>
+              </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {Object.entries(groupedFaqs).map(([category, categoryFaqs]) => (
                   <div key={category}>
-                    <h3 className="text-lg font-medium text-gray-900 mb-3 capitalize">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2 capitalize">
+                      <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
                       {category.replace('-', ' ')}
                     </h3>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {categoryFaqs.map((faq) => (
-                        <div key={faq._id} className="border rounded-lg">
+                        <div 
+                          key={faq._id} 
+                          className={`border rounded-xl overflow-hidden transition-all ${
+                            expandedFaq === faq._id ? 'border-primary-300 shadow-md' : 'border-gray-200'
+                          }`}
+                        >
                           <button
                             onClick={() => setExpandedFaq(expandedFaq === faq._id ? null : faq._id)}
-                            className="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-gray-50"
+                            className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                           >
-                            <span className="font-medium text-gray-900">{faq.question}</span>
-                            {expandedFaq === faq._id ? <FiChevronUp /> : <FiChevronDown />}
+                            <span className="font-medium text-gray-900 pr-4">{faq.question}</span>
+                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                              expandedFaq === faq._id ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                              {expandedFaq === faq._id ? <FiChevronUp /> : <FiChevronDown />}
+                            </div>
                           </button>
                           {expandedFaq === faq._id && (
-                            <div className="px-4 pb-4">
-                              <p className="text-gray-600 mb-3">{faq.answer}</p>
-                              <div className="flex items-center gap-4 text-sm text-gray-500">
-                                <span>Was this helpful?</span>
+                            <div className="px-5 pb-5 border-t border-gray-100">
+                              <p className="text-gray-600 py-4 leading-relaxed">{faq.answer}</p>
+                              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <div className="flex items-center gap-4 text-sm text-gray-500">
+                                  <span>Was this helpful?</span>
+                                  <button
+                                    onClick={() => handleFaqVote(faq._id, 'helpful')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-green-50 hover:text-green-600 transition-colors"
+                                  >
+                                    <FiThumbsUp /> {faq.helpful || 0}
+                                  </button>
+                                  <button
+                                    onClick={() => handleFaqVote(faq._id, 'notHelpful')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"
+                                  >
+                                    <FiThumbsDown /> {faq.notHelpful || 0}
+                                  </button>
+                                </div>
                                 <button
-                                  onClick={() => handleFaqVote(faq._id, 'helpful')}
-                                  className="flex items-center gap-1 hover:text-green-600"
+                                  onClick={() => {
+                                    setChatInput(`Tell me more about: ${faq.question}`);
+                                    setActiveTab('chat');
+                                  }}
+                                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
                                 >
-                                  <FiThumbsUp /> {faq.helpful || 0}
-                                </button>
-                                <button
-                                  onClick={() => handleFaqVote(faq._id, 'notHelpful')}
-                                  className="flex items-center gap-1 hover:text-red-600"
-                                >
-                                  <FiThumbsDown /> {faq.notHelpful || 0}
+                                  Ask AI for more details <FiArrowRight className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>
@@ -347,22 +588,29 @@ const HelpPage = () => {
         {/* Support Tickets */}
         {activeTab === 'tickets' && (
           <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold flex items-center">
-                <FiFileText className="mr-2" /> Support Tickets
-              </h2>
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <FiFileText className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Support Tickets</h2>
+                  <p className="text-gray-600 text-sm">Track and manage your requests</p>
+                </div>
+              </div>
               {user && (
                 <button
                   onClick={() => setShowTicketForm(!showTicketForm)}
-                  className="btn btn-primary flex items-center"
+                  className="btn btn-primary flex items-center gap-2"
                 >
-                  <FiPlus className="mr-1" /> New Ticket
+                  <FiPlus /> New Ticket
                 </button>
               )}
             </div>
 
             {!user ? (
-              <div className="text-center py-8">
+              <div className="text-center py-12 bg-gray-50 rounded-xl">
+                <FiFileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <p className="text-gray-600 mb-4">Please log in to view and create support tickets.</p>
                 <Link to="/login" className="btn btn-primary">Log In</Link>
               </div>
@@ -370,26 +618,35 @@ const HelpPage = () => {
               <>
                 {/* Ticket Form */}
                 {showTicketForm && (
-                  <form onSubmit={handleTicketSubmit} className="bg-gray-50 rounded-lg p-4 mb-6">
-                    <h3 className="font-semibold mb-4">Create New Ticket</h3>
+                  <form onSubmit={handleTicketSubmit} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-6 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-lg">Create New Ticket</h3>
+                      <button
+                        type="button"
+                        onClick={() => setShowTicketForm(false)}
+                        className="p-2 hover:bg-gray-100 rounded-lg"
+                      >
+                        <FiX className="w-5 h-5" />
+                      </button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
                         <input
                           type="text"
                           value={ticketForm.subject}
                           onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
-                          className="input w-full"
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
                           placeholder="Brief description of your issue"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                         <select
                           value={ticketForm.category}
                           onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
-                          className="input w-full"
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                           <option value="general">General Inquiry</option>
                           <option value="order">Order Issue</option>
@@ -401,31 +658,40 @@ const HelpPage = () => {
                           <option value="technical">Technical Problem</option>
                         </select>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                        <select
-                          value={ticketForm.priority}
-                          onChange={(e) => setTicketForm({ ...ticketForm, priority: e.target.value })}
-                          className="input w-full"
-                        >
-                          <option value="low">Low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
-                          <option value="urgent">Urgent</option>
-                        </select>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                        <div className="flex gap-3">
+                          {['low', 'medium', 'high', 'urgent'].map((p) => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => setTicketForm({ ...ticketForm, priority: p })}
+                              className={`px-4 py-2 rounded-lg capitalize text-sm font-medium transition-all ${
+                                ticketForm.priority === p
+                                  ? p === 'urgent' ? 'bg-red-500 text-white' :
+                                    p === 'high' ? 'bg-orange-500 text-white' :
+                                    p === 'medium' ? 'bg-yellow-500 text-white' :
+                                    'bg-green-500 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
                       <textarea
                         value={ticketForm.message}
                         onChange={(e) => setTicketForm({ ...ticketForm, message: e.target.value })}
-                        className="input w-full h-32"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 h-32 resize-none"
                         placeholder="Describe your issue in detail..."
                         required
                       />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <button type="submit" className="btn btn-primary" disabled={isLoading}>
                         {isLoading ? 'Creating...' : 'Submit Ticket'}
                       </button>
@@ -442,10 +708,10 @@ const HelpPage = () => {
 
                 {/* Tickets List */}
                 {tickets.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <FiFileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>No support tickets yet.</p>
-                    <p className="text-sm mt-1">Create a ticket if you need help!</p>
+                  <div className="text-center py-12 bg-gray-50 rounded-xl">
+                    <FiFileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-600">No support tickets yet.</p>
+                    <p className="text-sm text-gray-500 mt-1">Create a ticket if you need help!</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -453,25 +719,25 @@ const HelpPage = () => {
                       <Link
                         key={ticket._id}
                         to={`/help/ticket/${ticket._id}`}
-                        className="block border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                        className="block border border-gray-200 rounded-xl p-5 hover:border-primary-300 hover:shadow-md transition-all"
                       >
                         <div className="flex items-start justify-between">
                           <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-sm text-gray-500">#{ticket.ticketNumber}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm text-gray-500 font-mono">#{ticket.ticketNumber}</span>
+                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
                                 {ticket.status}
                               </span>
-                              <span className={`text-xs ${getPriorityColor(ticket.priority)}`}>
+                              <span className={`text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
                                 {ticket.priority} priority
                               </span>
                             </div>
-                            <h4 className="font-medium text-gray-900">{ticket.subject}</h4>
+                            <h4 className="font-semibold text-gray-900">{ticket.subject}</h4>
                             <p className="text-sm text-gray-500 mt-1 capitalize">{ticket.category.replace('-', ' ')}</p>
                           </div>
                           <div className="text-right text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <FiClock className="mr-1" />
+                            <div className="flex items-center gap-1">
+                              <FiClock className="w-4 h-4" />
                               {new Date(ticket.createdAt).toLocaleDateString()}
                             </div>
                           </div>
@@ -488,59 +754,73 @@ const HelpPage = () => {
         {/* Contact Us */}
         {activeTab === 'contact' && (
           <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <FiPhone className="mr-2" /> Contact Us
-            </h2>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <FiPhone className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold">Contact Us</h2>
+                <p className="text-gray-600 text-sm">Get in touch with our support team</p>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-50 rounded-lg p-6">
-                <FiPhone className="w-10 h-10 text-primary-600 mb-4" />
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
+                  <FiPhone className="w-6 h-6 text-white" />
+                </div>
                 <h3 className="text-lg font-semibold mb-2">Phone Support</h3>
                 <p className="text-gray-600 mb-4">
                   Speak directly with our customer service team for urgent inquiries.
                 </p>
-                <p className="text-xl font-bold text-primary-600">1-800-123-4567</p>
+                <p className="text-2xl font-bold text-blue-600">1-800-123-4567</p>
                 <p className="text-sm text-gray-500 mt-2">
-                  Available: Mon-Fri, 9 AM - 8 PM EST
+                  Mon-Fri, 9 AM - 8 PM EST
                 </p>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-6">
-                <FiMail className="w-10 h-10 text-primary-600 mb-4" />
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
+                  <FiMail className="w-6 h-6 text-white" />
+                </div>
                 <h3 className="text-lg font-semibold mb-2">Email Support</h3>
                 <p className="text-gray-600 mb-4">
                   Send us an email and we'll get back to you within 24 hours.
                 </p>
                 <a
-                  href="mailto:support@ecommerce.com"
-                  className="text-xl font-bold text-primary-600 hover:underline"
+                  href="mailto:support@shophub.com"
+                  className="text-xl font-bold text-green-600 hover:underline"
                 >
-                  support@ecommerce.com
+                  support@shophub.com
                 </a>
                 <p className="text-sm text-gray-500 mt-2">
                   Response time: Within 24 hours
                 </p>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-6">
-                <FiMessageCircle className="w-10 h-10 text-primary-600 mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+                  <FiCpu className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">AI Chat Support</h3>
                 <p className="text-gray-600 mb-4">
-                  Chat with our AI assistant or a live agent for quick help.
+                  Get instant answers with our smart AI assistant, available 24/7.
                 </p>
                 <button
                   onClick={() => setActiveTab('chat')}
-                  className="btn btn-primary"
+                  className="btn bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   Start Chat
                 </button>
                 <p className="text-sm text-gray-500 mt-2">
-                  AI: 24/7 | Live Agent: Mon-Fri, 9 AM - 6 PM EST
+                  Available 24/7
                 </p>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-6">
-                <FiFileText className="w-10 h-10 text-primary-600 mb-4" />
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
+                  <FiFileText className="w-6 h-6 text-white" />
+                </div>
                 <h3 className="text-lg font-semibold mb-2">Submit a Ticket</h3>
                 <p className="text-gray-600 mb-4">
                   Create a support ticket for detailed assistance with your issue.
@@ -550,32 +830,35 @@ const HelpPage = () => {
                     setActiveTab('tickets');
                     setShowTicketForm(true);
                   }}
-                  className="btn btn-primary"
+                  className="btn bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   Create Ticket
                 </button>
                 <p className="text-sm text-gray-500 mt-2">
-                  Track and manage your support requests
+                  Track your requests
                 </p>
               </div>
             </div>
 
-            {/* Additional Info */}
-            <div className="mt-8 border-t pt-6">
+            {/* Quick Links */}
+            <div className="mt-8 p-6 bg-gray-50 rounded-xl">
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Link to="/orders" className="text-primary-600 hover:underline flex items-center">
-                  <FiCheckCircle className="mr-2" /> Track Order
+                <Link to="/orders" className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">
+                  <FiPackage className="w-5 h-5" /> Track Order
                 </Link>
-                <Link to="/help" className="text-primary-600 hover:underline flex items-center">
-                  <FiHelpCircle className="mr-2" /> Return Policy
+                <Link to="/products" className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">
+                  <FiShoppingBag className="w-5 h-5" /> Browse Products
                 </Link>
-                <Link to="/help" className="text-primary-600 hover:underline flex items-center">
-                  <FiAlertCircle className="mr-2" /> Shipping Info
+                <Link to="/profile" className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">
+                  <FiUser className="w-5 h-5" /> My Account
                 </Link>
-                <Link to="/profile" className="text-primary-600 hover:underline flex items-center">
-                  <FiMail className="mr-2" /> Account Settings
-                </Link>
+                <button
+                  onClick={() => setActiveTab('faq')}
+                  className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  <FiHelpCircle className="w-5 h-5" /> FAQs
+                </button>
               </div>
             </div>
           </div>

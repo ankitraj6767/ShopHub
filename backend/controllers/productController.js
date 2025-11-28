@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/Product.js';
+import { notifyNewProduct, notifyPriceDrop, notifyBackInStock } from './notificationController.js';
 
 // @desc    Get all products with filters, search, sort, pagination
 // @route   GET /api/products
@@ -189,10 +190,13 @@ export const createProduct = asyncHandler(async (req, res) => {
     category,
     brand,
     images: processedImages,
-    stock,
+    stock: Math.round(Number(stock)),
     featured: featured || false,
     createdBy: req.user._id,
   });
+
+  // Notify all users about new product
+  await notifyNewProduct(product);
 
   res.status(201).json({
     success: true,
@@ -207,11 +211,22 @@ export const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
-    product.name = req.body.name || product.name;
-    product.description = req.body.description || product.description;
-    product.price = req.body.price ?? product.price;
-    product.category = req.body.category || product.category;
-    product.brand = req.body.brand || product.brand;
+    // Store old values for notification checks
+    const oldPrice = product.price;
+    const oldStock = product.stock;
+
+    // Update fields
+    if (req.body.name) product.name = req.body.name;
+    if (req.body.description) product.description = req.body.description;
+    if (req.body.price !== undefined) product.price = req.body.price;
+    if (req.body.category) product.category = req.body.category;
+    if (req.body.brand) product.brand = req.body.brand;
+    
+    // Update stock - accept the exact value sent
+    if (req.body.stock !== undefined) {
+      product.stock = req.body.stock;
+      console.log('Setting stock to:', req.body.stock);
+    }
     
     // Transform images array - handle both string URLs and objects
     if (req.body.images && Array.isArray(req.body.images) && req.body.images.length > 0) {
@@ -221,13 +236,24 @@ export const updateProduct = asyncHandler(async (req, res) => {
         }
         return img;
       });
+      console.log('Setting images count:', product.images.length);
     }
     
-    product.stock = req.body.stock ?? product.stock;
-    product.featured = req.body.featured ?? product.featured;
-    product.isActive = req.body.isActive ?? product.isActive;
+    if (req.body.featured !== undefined) product.featured = req.body.featured;
+    if (req.body.isActive !== undefined) product.isActive = req.body.isActive;
 
     const updatedProduct = await product.save();
+    console.log('Saved product - stock:', updatedProduct.stock, 'images:', updatedProduct.images.length);
+
+    // Notify about price drop
+    if (req.body.price !== undefined && req.body.price < oldPrice) {
+      await notifyPriceDrop(updatedProduct, oldPrice, updatedProduct.price);
+    }
+
+    // Notify about back in stock
+    if (oldStock === 0 && updatedProduct.stock > 0) {
+      await notifyBackInStock(updatedProduct);
+    }
 
     res.json({
       success: true,

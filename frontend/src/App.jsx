@@ -11,6 +11,9 @@ import ScrollToTop from './components/utils/ScrollToTop';
 import Layout from './components/layout/Layout';
 import AdminLayout from './components/layout/AdminLayout';
 
+// Components
+import LiveChatWidget from './components/ui/LiveChatWidget';
+
 // Public Pages
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
@@ -20,6 +23,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import HelpPage from './pages/HelpPage';
+import FlashSalePage from './pages/FlashSalePage';
+import BundlesPage from './pages/BundlesPage';
+import BundleDetailsPage from './pages/BundleDetailsPage';
 
 // Protected Pages
 import CheckoutPage from './pages/CheckoutPage';
@@ -27,9 +33,14 @@ import OrderSuccessPage from './pages/OrderSuccessPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
+import OrderTrackingPage from './pages/OrderTrackingPage';
 import WishlistPage from './pages/WishlistPage';
 import ComparePage from './pages/ComparePage';
 import TicketDetailPage from './pages/TicketDetailPage';
+import AddressBookPage from './pages/AddressBookPage';
+import NotificationsPage from './pages/NotificationsPage';
+import LoyaltyPage from './pages/LoyaltyPage';
+import ReferralPage from './pages/ReferralPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -39,6 +50,11 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminSupport from './pages/admin/AdminSupport';
+import AdminTicketDetail from './pages/admin/AdminTicketDetail';
+import AdminFlashSales from './pages/admin/AdminFlashSales';
+import AdminBundles from './pages/admin/AdminBundles';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminCoupons from './pages/admin/AdminCoupons';
 
 // Route Guards
 import PrivateRoute from './components/routes/PrivateRoute';
@@ -83,6 +99,9 @@ function App() {
         <Route path="cart" element={<CartPage />} />
         <Route path="compare" element={<ComparePage />} />
         <Route path="help" element={<HelpPage />} />
+        <Route path="flash-sale/:id" element={<FlashSalePage />} />
+        <Route path="bundles" element={<BundlesPage />} />
+        <Route path="bundles/:id" element={<BundleDetailsPage />} />
         
         {/* Guest Only Routes */}
         <Route element={<GuestRoute />}>
@@ -98,7 +117,12 @@ function App() {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="orders/:id" element={<OrderDetailsPage />} />
+          <Route path="orders/:id/tracking" element={<OrderTrackingPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
+          <Route path="addresses" element={<AddressBookPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="loyalty" element={<LoyaltyPage />} />
+          <Route path="referrals" element={<ReferralPage />} />
           <Route path="help/ticket/:id" element={<TicketDetailPage />} />
         </Route>
 
@@ -116,10 +140,17 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders/:id" element={<AdminOrderDetail />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="flash-sales" element={<AdminFlashSales />} />
+          <Route path="bundles" element={<AdminBundles />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="support" element={<AdminSupport />} />
+          <Route path="support/:id" element={<AdminTicketDetail />} />
         </Route>
       </Route>
     </Routes>
+    {/* Live Chat Widget - Available on all pages */}
+    {isAuthenticated && <LiveChatWidget />}
     </>
   );
 }

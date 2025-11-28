@@ -70,14 +70,45 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+// Fetch wallet balance and history
+export const fetchWallet = createAsyncThunk(
+  'users/fetchWallet',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/users/wallet');
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch wallet');
+    }
+  }
+);
+
+// Use wallet balance for payment
+export const useWallet = createAsyncThunk(
+  'users/useWallet',
+  async (amount, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/users/wallet/use', { amount });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to use wallet');
+    }
+  }
+);
+
 const initialState = {
   users: [],
   user: null,
+  wallet: {
+    balance: 0,
+    history: [],
+  },
   pagination: null,
   page: 1,
   pages: 1,
   total: 0,
   isLoading: false,
+  walletLoading: false,
   error: null,
 };
 
@@ -166,6 +197,33 @@ const userSlice = createSlice({
       })
       .addCase(updateUserRole.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch Wallet
+      .addCase(fetchWallet.pending, (state) => {
+        state.walletLoading = true;
+      })
+      .addCase(fetchWallet.fulfilled, (state, action) => {
+        state.walletLoading = false;
+        state.wallet = {
+          balance: action.payload.balance || 0,
+          history: action.payload.history || [],
+        };
+      })
+      .addCase(fetchWallet.rejected, (state, action) => {
+        state.walletLoading = false;
+        state.error = action.payload;
+      })
+      // Use Wallet
+      .addCase(useWallet.pending, (state) => {
+        state.walletLoading = true;
+      })
+      .addCase(useWallet.fulfilled, (state, action) => {
+        state.walletLoading = false;
+        state.wallet.balance = action.payload.newBalance || 0;
+      })
+      .addCase(useWallet.rejected, (state, action) => {
+        state.walletLoading = false;
         state.error = action.payload;
       });
   },

@@ -53,18 +53,17 @@ const AdminProductForm = () => {
 
   useEffect(() => {
     if (isEditing && product) {
-      // Extract URLs from image objects if needed
-      let imageUrls = [''];
+      // Load existing images only to uploadedImages (not to formData.images to avoid duplication)
       if (product.images?.length > 0) {
-        imageUrls = product.images.map((img) => 
-          typeof img === 'string' ? img : img.url || ''
-        );
         setUploadedImages(product.images.map((img) => ({
           url: typeof img === 'string' ? img : img.url,
           alt: img.alt || product.name,
         })));
+      } else {
+        setUploadedImages([]);
       }
       
+      // formData.images is only for NEW URL inputs, keep it empty when editing
       setFormData({
         name: product.name || '',
         description: product.description || '',
@@ -72,7 +71,7 @@ const AdminProductForm = () => {
         category: product.category || '',
         brand: product.brand || '',
         stock: product.stock?.toString() || '',
-        images: imageUrls
+        images: ['']  // Empty for new URL inputs only
       });
     }
   }, [product, isEditing]);
@@ -186,25 +185,38 @@ const AdminProductForm = () => {
     setSubmitting(true);
 
     try {
-      // Combine uploaded images and URL images
-      let allImages = [...uploadedImages];
-      const urlImages = formData.images
-        .filter((img) => img.trim())
-        .map((url) => ({ url, alt: formData.name }));
-      allImages = [...allImages, ...urlImages];
+      // Combine uploaded/existing images with any NEW URL images
+      const existingImages = [...uploadedImages];
+      const newUrlImages = formData.images
+        .filter((img) => img && img.trim())
+        .map((url) => ({ url: url.trim(), alt: formData.name }));
+      
+      // Only add URL images that aren't already in existingImages
+      const allImages = [...existingImages];
+      newUrlImages.forEach((newImg) => {
+        if (!existingImages.some((existing) => existing.url === newImg.url)) {
+          allImages.push(newImg);
+        }
+      });
 
+      // Parse stock as integer
+      const stockValue = parseInt(formData.stock, 10);
+      
       const productData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
-        price: parseFloat(formData.price),
+        price: Number(parseFloat(formData.price).toFixed(2)),
         category: formData.category,
         brand: formData.brand.trim(),
-        stock: parseInt(formData.stock),
+        stock: stockValue,
         images: allImages
       };
 
+      // Debug log
+      console.log('Sending product data - stock:', stockValue, 'images count:', allImages.length);
+
       if (isEditing) {
-        await dispatch(updateProduct({ id, productData })).unwrap();
+        await dispatch(updateProduct({ id, data: productData })).unwrap();
         toast.success('Product updated successfully');
       } else {
         await dispatch(createProduct(productData)).unwrap();
@@ -307,6 +319,7 @@ const AdminProductForm = () => {
                 name="stock"
                 value={formData.stock}
                 onChange={handleChange}
+                step="1"
                 min="0"
                 className={`input w-full ${errors.stock ? 'border-red-500' : ''}`}
                 placeholder="0"

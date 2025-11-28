@@ -39,10 +39,11 @@ const AdminSupport = () => {
       if (priorityFilter !== 'all') params.append('priority', priorityFilter);
 
       const response = await api.get(`/support/admin/tickets?${params}`);
-      setTickets(response.data.tickets);
-      setTotalPages(response.data.pages);
+      setTickets(response.data.data || []);
+      setTotalPages(response.data.pagination?.pages || 1);
     } catch (error) {
       toast.error('Failed to fetch tickets');
+      setTickets([]);
     }
     setIsLoading(false);
   };
@@ -70,17 +71,17 @@ const AdminSupport = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'open':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300';
       case 'in-progress':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300';
       case 'waiting-customer':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300';
       case 'resolved':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300';
       case 'closed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
@@ -121,13 +122,13 @@ const AdminSupport = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Support Tickets</h1>
-        <p className="text-gray-600">Manage customer support requests</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Support Tickets</h1>
+        <p className="text-gray-600 dark:text-gray-400">Manage customer support requests</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-blue-50 rounded-lg p-4">
+        <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4">
           <div className="flex items-center">
             <FiAlertCircle className="w-8 h-8 text-blue-600" />
             <div className="ml-3">
@@ -136,25 +137,25 @@ const AdminSupport = () => {
             </div>
           </div>
         </div>
-        <div className="bg-yellow-50 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-4">
           <div className="flex items-center">
             <FiRefreshCw className="w-8 h-8 text-yellow-600" />
             <div className="ml-3">
               <p className="text-2xl font-bold text-yellow-600">{stats.inProgress}</p>
-              <p className="text-sm text-yellow-700">In Progress</p>
+              <p className="text-sm text-yellow-700 dark:text-yellow-400">In Progress</p>
             </div>
           </div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-4">
+        <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4">
           <div className="flex items-center">
             <FiClock className="w-8 h-8 text-purple-600" />
             <div className="ml-3">
               <p className="text-2xl font-bold text-purple-600">{stats.waiting}</p>
-              <p className="text-sm text-purple-700">Waiting</p>
+              <p className="text-sm text-purple-700 dark:text-purple-400">Waiting</p>
             </div>
           </div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4">
+        <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-4">
           <div className="flex items-center">
             <FiCheckCircle className="w-8 h-8 text-green-600" />
             <div className="ml-3">
@@ -166,7 +167,7 @@ const AdminSupport = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -211,72 +212,72 @@ const AdminSupport = () => {
       </div>
 
       {/* Tickets Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
         ) : filteredTickets.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <FiMessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <FiMessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
             <p>No tickets found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Ticket
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Customer
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Priority
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Assigned
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Created
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredTickets.map((ticket) => (
-                  <tr key={ticket._id} className="hover:bg-gray-50">
+                  <tr key={ticket._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
                           #{ticket.ticketNumber}
                         </p>
-                        <p className="text-sm text-gray-500 truncate max-w-xs">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
                           {ticket.subject}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <FiUser className="text-gray-400 mr-2" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
+                        <FiUser className="text-gray-400" />
+                        <div className="ml-2">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {ticket.user?.name}
                           </p>
-                          <p className="text-xs text-gray-500">{ticket.user?.email}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{ticket.user?.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 capitalize">
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 capitalize">
                       {ticket.category}
                     </td>
                     <td className="px-6 py-4">
@@ -297,7 +298,7 @@ const AdminSupport = () => {
                         <option value="closed">Closed</option>
                       </select>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {ticket.assignedTo ? (
                         ticket.assignedTo.name
                       ) : (
@@ -309,7 +310,7 @@ const AdminSupport = () => {
                         </button>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(ticket.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -328,7 +329,7 @@ const AdminSupport = () => {
         )}
 
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t">
+          <div className="px-6 py-4 border-t dark:border-gray-700">
             <Pagination
               currentPage={page}
               totalPages={totalPages}

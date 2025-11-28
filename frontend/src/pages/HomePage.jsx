@@ -1,20 +1,43 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiTruck, FiShield, FiHeadphones } from 'react-icons/fi';
+import { FiArrowRight, FiTruck, FiShield, FiHeadphones, FiAward, FiGift } from 'react-icons/fi';
 import { fetchFeaturedProducts, fetchCategories } from '../store/slices/productSlice';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
+import DealOfTheDay from '../components/ui/DealOfTheDay';
+import FlashSale from '../components/ui/FlashSale';
+import FeaturedBundles from '../components/ui/FeaturedBundles';
+import Testimonials from '../components/ui/Testimonials';
+import toast from 'react-hot-toast';
 
 const HomePage = () => {
   const dispatch = useDispatch();
   const productsState = useSelector((state) => state.products) || {};
   const { featuredProducts = [], categories = [], isLoading = false } = productsState;
+  const [email, setEmail] = useState('');
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     dispatch(fetchFeaturedProducts(8));
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error('Please enter your email');
+      return;
+    }
+    
+    setSubscribing(true);
+    // Simulate API call
+    setTimeout(() => {
+      toast.success('Successfully subscribed to newsletter!');
+      setEmail('');
+      setSubscribing(false);
+    }, 1000);
+  };
 
   const features = [
     {
@@ -31,6 +54,11 @@ const HomePage = () => {
       icon: FiHeadphones,
       title: '24/7 Support',
       description: 'Dedicated support team ready to help',
+    },
+    {
+      icon: FiAward,
+      title: 'Loyalty Rewards',
+      description: 'Earn points on every purchase',
     },
   ];
 
@@ -62,7 +90,7 @@ const HomePage = () => {
       {/* Features */}
       <section className="py-12 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
@@ -77,6 +105,12 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Flash Sale Section */}
+      <FlashSale />
+
+      {/* Deal of the Day */}
+      <DealOfTheDay />
 
       {/* Categories */}
       <section className="py-16">
@@ -141,6 +175,12 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Featured Bundles */}
+      <FeaturedBundles />
+
+      {/* Testimonials */}
+      <Testimonials />
+
       {/* CTA Section */}
       <section className="py-16 bg-primary-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -150,14 +190,20 @@ const HomePage = () => {
           <p className="text-primary-100 mb-8 max-w-2xl mx-auto">
             Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
           </p>
-          <form className="max-w-md mx-auto flex gap-4">
+          <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
             />
-            <button type="submit" className="btn bg-white text-primary-600 hover:bg-gray-100 px-6">
-              Subscribe
+            <button 
+              type="submit" 
+              disabled={subscribing}
+              className="btn bg-white text-primary-600 hover:bg-gray-100 px-6 disabled:opacity-50"
+            >
+              {subscribing ? 'Subscribing...' : 'Subscribe'}
             </button>
           </form>
         </div>

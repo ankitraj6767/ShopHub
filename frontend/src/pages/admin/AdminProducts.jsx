@@ -66,14 +66,14 @@ const AdminProducts = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Products</h1>
         <Link to="/admin/products/new" className="btn-primary flex items-center">
           <FiPlus className="mr-2" /> Add Product
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
             <div className="relative">
@@ -116,41 +116,41 @@ const AdminProducts = () => {
           <Spinner size="lg" />
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <p className="text-gray-500 mb-4">No products found</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">No products found</p>
           <Link to="/admin/products/new" className="btn-primary">
             Add Your First Product
           </Link>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Product
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Price
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Stock
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Rating
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {products.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50">
+                  <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <img
@@ -162,15 +162,15 @@ const AdminProducts = () => {
                           }}
                         />
                         <div>
-                          <p className="font-medium line-clamp-1">{product.name}</p>
-                          <p className="text-sm text-gray-500">#{product._id.slice(-8)}</p>
+                          <p className="font-medium line-clamp-1 dark:text-white">{product.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">#{product._id.slice(-8)}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="badge badge-primary">{product.category}</span>
                     </td>
-                    <td className="px-6 py-4 font-medium">
+                    <td className="px-6 py-4 font-medium dark:text-white">
                       {formatPrice(product.price)}
                     </td>
                     <td className="px-6 py-4">
@@ -184,15 +184,15 @@ const AdminProducts = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
                         <span className="text-yellow-400">★</span>
-                        <span>{product.rating?.toFixed(1) || 'N/A'}</span>
-                        <span className="text-gray-500 text-sm">({product.numReviews})</span>
+                        <span className="dark:text-white">{product.rating?.toFixed(1) || 'N/A'}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">({product.numReviews})</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={`/admin/products/${product._id}/edit`}
-                          className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded"
+                          className="p-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                         >
                           <FiEdit2 />
                         </Link>
@@ -201,7 +201,7 @@ const AdminProducts = () => {
                             setProductToDelete(product);
                             setShowDeleteModal(true);
                           }}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded"
+                          className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                         >
                           <FiTrash2 />
                         </button>
@@ -228,9 +228,9 @@ const AdminProducts = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Product</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Delete Product</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone.
             </p>
             <div className="flex gap-4 justify-end">

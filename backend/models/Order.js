@@ -34,11 +34,11 @@ const paymentInfoSchema = new mongoose.Schema({
   method: {
     type: String,
     required: true,
-    enum: ['Credit Card', 'PayPal', 'Cash on Delivery', 'Stripe'],
+    enum: ['Credit Card', 'PayPal', 'Cash on Delivery', 'Stripe', 'UPI'],
   },
   status: {
     type: String,
-    enum: ['unpaid', 'paid', 'refunded', 'partial_refund'],
+    enum: ['unpaid', 'paid', 'refunded', 'partial_refund', 'pending'],
     default: 'unpaid',
   },
   transactionId: { type: String },
@@ -88,6 +88,10 @@ const orderSchema = new mongoose.Schema(
       default: 0.0,
     },
     couponCode: { type: String },
+    walletAmount: {
+      type: Number,
+      default: 0.0,
+    },
     totalPrice: {
       type: Number,
       required: true,

@@ -7,6 +7,8 @@ import {
   updateUser,
   updateUserRole,
   deleteUser,
+  getWalletBalance,
+  useWalletBalance,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import {
@@ -19,6 +21,10 @@ const router = express.Router();
 // User routes
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateProfileValidation, updateUserProfile);
+
+// Wallet routes
+router.get('/wallet', protect, getWalletBalance);
+router.post('/wallet/use', protect, useWalletBalance);
 
 // Admin routes
 router.get('/', protect, admin, getUsers);

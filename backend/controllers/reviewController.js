@@ -259,24 +259,18 @@ export const canReviewProduct = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check if purchased
+  // Check if purchased (for verified badge, but allow all users to review)
   const hasPurchased = await Order.findOne({
     user: req.user._id,
     'orderItems.product': productId,
     status: { $in: ['Paid', 'Shipped', 'Delivered'] },
   });
 
-  if (!hasPurchased) {
-    return res.json({
-      success: true,
-      canReview: false,
-      reason: 'not_purchased',
-    });
-  }
-
+  // Allow all authenticated users to review
   res.json({
     success: true,
     canReview: true,
+    isVerifiedPurchase: !!hasPurchased,
   });
 });
 

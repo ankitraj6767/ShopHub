@@ -79,9 +79,9 @@ export const createCoupon = createAsyncThunk(
 
 export const updateCoupon = createAsyncThunk(
   'coupon/updateCoupon',
-  async ({ couponId, couponData }, { rejectWithValue }) => {
+  async ({ id, couponData }, { rejectWithValue }) => {
     try {
-      const { data } = await api.put(`/coupons/${couponId}`, couponData);
+      const { data } = await api.put(`/coupons/${id}`, couponData);
       return data.data;
     } catch (error) {
       return rejectWithValue(

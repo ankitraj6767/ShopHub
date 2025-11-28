@@ -84,12 +84,12 @@ export const closeTicket = createAsyncThunk(
   }
 );
 
-// Chat with AI
+// Chat with AI (with session context for memory)
 export const chatWithAI = createAsyncThunk(
   'support/chatWithAI',
-  async (message, { rejectWithValue }) => {
+  async ({ message, sessionId }, { rejectWithValue }) => {
     try {
-      const response = await api.post('/support/chat', { message });
+      const response = await api.post('/support/chat', { message, sessionId });
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to get response');
@@ -115,6 +115,7 @@ const initialState = {
   tickets: [],
   currentTicket: null,
   chatMessages: [],
+  chatSessionId: null, // Track session for conversation memory
   isLoading: false,
   error: null,
 };
@@ -131,6 +132,7 @@ const supportSlice = createSlice({
     },
     clearChatMessages: (state) => {
       state.chatMessages = [];
+      state.chatSessionId = null; // Reset session when clearing chat
     },
   },
   extraReducers: (builder) => {
@@ -210,11 +212,19 @@ const supportSlice = createSlice({
       })
       .addCase(chatWithAI.fulfilled, (state, action) => {
         state.isLoading = false;
+        // Store session ID for context memory
+        if (action.payload.sessionId) {
+          state.chatSessionId = action.payload.sessionId;
+        }
         state.chatMessages.push({
           type: 'bot',
           message: action.payload.message || action.payload.response,
           suggestions: action.payload.suggestions || [],
-          timestamp: new Date().toISOString(),
+          actions: action.payload.actions || [],
+          relatedProducts: action.payload.relatedProducts || [],
+          relatedFaqs: action.payload.relatedFaqs || [],
+          sentiment: action.payload.sentiment || null,
+          timestamp: action.payload.timestamp || new Date().toISOString(),
         });
       })
       .addCase(chatWithAI.rejected, (state, action) => {
@@ -222,6 +232,7 @@ const supportSlice = createSlice({
         state.chatMessages.push({
           type: 'bot',
           message: 'Sorry, I encountered an error. Please try again.',
+          suggestions: ['Try again', 'Contact support'],
           timestamp: new Date().toISOString(),
         });
       })

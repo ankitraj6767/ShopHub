@@ -7,7 +7,13 @@ export const createOrder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await api.post('/orders', orderData);
-      return response.data.data;
+      // Return the full response data including loyalty points and wallet info
+      return {
+        order: response.data.data,
+        loyaltyPoints: response.data.loyaltyPoints,
+        referralCompleted: response.data.referralCompleted,
+        walletUsed: response.data.walletUsed,
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create order');
     }
@@ -199,6 +205,8 @@ const initialState = {
   success: false,
   cancelSuccess: false,
   returnSuccess: false,
+  loyaltyPoints: null,
+  referralCompleted: null,
 };
 
 const orderSlice = createSlice({
@@ -226,7 +234,9 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.order = action.payload;
+        state.order = action.payload.order;
+        state.loyaltyPoints = action.payload.loyaltyPoints;
+        state.referralCompleted = action.payload.referralCompleted;
         state.success = true;
       })
       .addCase(createOrder.rejected, (state, action) => {

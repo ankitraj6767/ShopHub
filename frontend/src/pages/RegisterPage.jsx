@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiGift, FiCheck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { register, clearError } from '../store/slices/authSlice';
+import api from '../utils/api';
 
 const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isLoading, error } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
@@ -15,9 +17,42 @@ const RegisterPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    referralCode: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [referralInfo, setReferralInfo] = useState(null);
+  const [validatingReferral, setValidatingReferral] = useState(false);
+
+  // Get referral code from URL on mount
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setFormData(prev => ({ ...prev, referralCode: refCode }));
+      validateReferralCode(refCode);
+    }
+  }, [searchParams]);
+
+  // Validate referral code
+  const validateReferralCode = async (code) => {
+    if (!code || code.length < 6) {
+      setReferralInfo(null);
+      return;
+    }
+    
+    setValidatingReferral(true);
+    try {
+      const { data } = await api.get(`/referrals/validate/${code}`);
+      setReferralInfo(data.data);
+    } catch (err) {
+      setReferralInfo(null);
+      if (code.length >= 6) {
+        setErrors(prev => ({ ...prev, referralCode: 'Invalid referral code' }));
+      }
+    } finally {
+      setValidatingReferral(false);
+    }
+  };
 
   useEffect(() => {
     if (error) {
@@ -27,8 +62,14 @@ const RegisterPage = () => {
   }, [error, dispatch]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: '' });
+    
+    // Validate referral code on change
+    if (name === 'referralCode') {
+      validateReferralCode(value);
+    }
   };
 
   const validate = () => {
@@ -70,7 +111,28 @@ const RegisterPage = () => {
     }));
 
     if (register.fulfilled.match(result)) {
-      toast.success('Account created successfully!');
+      // Apply referral code if valid
+      if (referralInfo && formData.referralCode) {
+        // Retry logic for referral application
+        let applied = false;
+        for (let attempt = 0; attempt < 3 && !applied; attempt++) {
+          try {
+            // Wait a bit longer on each retry to ensure token is ready
+            await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)));
+            const { data } = await api.post('/referrals/apply', { code: formData.referralCode });
+            toast.success(`🎉 Welcome! ${data.message}`, { duration: 5000 });
+            applied = true;
+          } catch (err) {
+            console.error(`Referral apply attempt ${attempt + 1} failed:`, err);
+            if (attempt === 2) {
+              // Final attempt failed
+              toast.success('Account created successfully!');
+            }
+          }
+        }
+      } else {
+        toast.success('Account created successfully!');
+      }
       navigate('/');
     }
   };
@@ -163,6 +225,46 @@ const RegisterPage = () => {
               />
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+              )}
+            </div>
+
+            {/* Referral Code Field */}
+            <div>
+              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-2">
+                Referral Code <span className="text-gray-400">(optional)</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="referralCode"
+                  name="referralCode"
+                  value={formData.referralCode}
+                  onChange={handleChange}
+                  className={`input pr-10 ${errors.referralCode ? 'input-error' : ''} ${referralInfo ? 'border-green-500' : ''}`}
+                  placeholder="REF-XXXXXX"
+                />
+                {validatingReferral && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                  </div>
+                )}
+                {referralInfo && !validatingReferral && (
+                  <FiCheck className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 w-5 h-5" />
+                )}
+              </div>
+              {errors.referralCode && (
+                <p className="text-red-500 text-sm mt-1">{errors.referralCode}</p>
+              )}
+              {referralInfo && (
+                <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <FiGift className="w-5 h-5" />
+                    <span className="font-medium">Referred by {referralInfo.referrerName}</span>
+                  </div>
+                  <p className="text-sm text-green-600 mt-1">
+                    You'll get <strong>{referralInfo.reward} bonus points</strong> when you sign up!
+                  </p>
+                </div>
               )}
             </div>
 

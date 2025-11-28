@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiMinus, FiPlus, FiShoppingCart, FiHeart, FiShare2, FiStar, FiCheck } from 'react-icons/fi';
+import { FiMinus, FiPlus, FiShoppingCart, FiHeart, FiShare2, FiStar, FiCheck, FiZap } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { fetchProduct, clearProduct } from '../store/slices/productSlice';
-import { addToCart } from '../store/slices/cartSlice';
+import { addToCart, setBuyNowItem } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist, selectIsInWishlist } from '../store/slices/wishlistSlice';
 import { addToRecentlyViewed } from '../store/slices/recentlyViewedSlice';
 import { addToCompare, removeFromCompare } from '../store/slices/compareSlice';
@@ -15,15 +15,19 @@ import ProductQuestions from '../components/ui/ProductQuestions';
 import StockAlertButton from '../components/ui/StockAlertButton';
 import RecentlyViewed from '../components/ui/RecentlyViewed';
 import ProductCard from '../components/ui/ProductCard';
+import FrequentlyBoughtTogether from '../components/ui/FrequentlyBoughtTogether';
+import ShareProduct from '../components/ui/ShareProduct';
 import api from '../utils/api';
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const productsState = useSelector((state) => state.products) || {};
   const { product = null, isLoading = false, error = null } = productsState;
   const authState = useSelector((state) => state.auth) || {};
   const { isAuthenticated = false } = authState;
+  const cartItems = useSelector((state) => state.cart?.items || []);
   const isInWishlist = useSelector(selectIsInWishlist(id));
   const compareProducts = useSelector((state) => state.compare?.products || []);
   const isInCompare = compareProducts.some((p) => p._id === id);
@@ -36,10 +40,13 @@ const ProductDetailsPage = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [flashSaleInfo, setFlashSaleInfo] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProduct(id));
     fetchReviews();
+    checkFlashSale();
     
     if (isAuthenticated) {
       checkCanReview();
@@ -49,6 +56,27 @@ const ProductDetailsPage = () => {
       dispatch(clearProduct());
     };
   }, [dispatch, id, isAuthenticated]);
+
+  // Check if product is in active flash sale
+  const checkFlashSale = async () => {
+    try {
+      const { data } = await api.get('/flash-sales/live');
+      if (data.data && data.data.products) {
+        const flashProduct = data.data.products.find(p => p.product._id === id || p.product === id);
+        if (flashProduct) {
+          setFlashSaleInfo({
+            salePrice: flashProduct.salePrice,
+            originalPrice: flashProduct.originalPrice,
+            endTime: data.data.endTime,
+            saleName: data.data.name,
+            remaining: flashProduct.quantity - flashProduct.sold,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking flash sale:', error);
+    }
+  };
 
   // Add to recently viewed when product is loaded
   useEffect(() => {
@@ -84,8 +112,67 @@ const ProductDetailsPage = () => {
       toast.error('Product is out of stock');
       return;
     }
-    dispatch(addToCart({ product, quantity }));
-    toast.success('Added to cart');
+    
+    // Check flash sale stock if applicable
+    if (flashSaleInfo && flashSaleInfo.remaining <= 0) {
+      toast.error('Flash sale items are sold out');
+      return;
+    }
+    
+    // Check if adding quantity exceeds stock (including items already in cart)
+    const existingItem = cartItems.find(item => item._id === product._id);
+    const currentCartQuantity = existingItem ? existingItem.quantity : 0;
+    const totalQuantity = currentCartQuantity + quantity;
+    const availableStock = flashSaleInfo ? Math.min(product.stock, flashSaleInfo.remaining) : product.stock;
+    
+    if (totalQuantity > availableStock) {
+      const canAdd = availableStock - currentCartQuantity;
+      if (canAdd <= 0) {
+        toast.error(`You already have the maximum available quantity (${availableStock}) in your cart`);
+      } else {
+        toast.error(`Only ${canAdd} more available. You have ${currentCartQuantity} in cart.`);
+      }
+      return;
+    }
+    
+    // Pass flash sale price if available
+    dispatch(addToCart({ 
+      product, 
+      quantity,
+      salePrice: flashSaleInfo?.salePrice 
+    }));
+    
+    if (flashSaleInfo) {
+      toast.success(`Added to cart at flash sale price: $${flashSaleInfo.salePrice.toFixed(2)}!`);
+    } else {
+      toast.success('Added to cart');
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to buy');
+      navigate('/login');
+      return;
+    }
+    if (product.stock === 0) {
+      toast.error('Product is out of stock');
+      return;
+    }
+    
+    const availableStock = flashSaleInfo ? Math.min(product.stock, flashSaleInfo.remaining) : product.stock;
+    if (quantity > availableStock) {
+      toast.error(`Only ${availableStock} items available`);
+      return;
+    }
+    
+    // Set as "Buy Now" item and navigate directly to checkout (bypasses cart)
+    dispatch(setBuyNowItem({ 
+      product, 
+      quantity,
+      salePrice: flashSaleInfo?.salePrice 
+    }));
+    navigate('/checkout?buyNow=true');
   };
 
   const handleToggleWishlist = async () => {
@@ -228,9 +315,46 @@ const ProductDetailsPage = () => {
             </span>
           </div>
 
-          <p className="text-4xl font-bold text-primary-600 mb-6">
-            {formatPrice(product.price)}
-          </p>
+          {/* Flash Sale Banner */}
+          {flashSaleInfo && (
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl p-4 mb-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/20 p-2 rounded-lg">
+                    <FiZap className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg">{flashSaleInfo.saleName}</p>
+                    <p className="text-white/80 text-sm">Limited time offer!</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-white/80">Only {flashSaleInfo.remaining} left</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Price */}
+          <div className="mb-6">
+            {flashSaleInfo ? (
+              <div className="flex items-center gap-4">
+                <p className="text-4xl font-bold text-red-600">
+                  {formatPrice(flashSaleInfo.salePrice)}
+                </p>
+                <p className="text-2xl text-gray-400 line-through">
+                  {formatPrice(product.price)}
+                </p>
+                <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">
+                  -{Math.round(((product.price - flashSaleInfo.salePrice) / product.price) * 100)}% OFF
+                </span>
+              </div>
+            ) : (
+              <p className="text-4xl font-bold text-primary-600">
+                {formatPrice(product.price)}
+              </p>
+            )}
+          </div>
 
           <p className="text-gray-600 mb-8 leading-relaxed">{product.description}</p>
 
@@ -264,9 +388,13 @@ const ProductDetailsPage = () => {
                   <FiPlus />
                 </button>
               </div>
-              <button onClick={handleAddToCart} className="btn-primary flex-1 py-3">
+              <button onClick={handleAddToCart} className="btn-secondary flex-1 py-3">
                 <FiShoppingCart className="mr-2" />
                 Add to Cart
+              </button>
+              <button onClick={handleBuyNow} className="btn-primary flex-1 py-3">
+                <FiZap className="mr-2" />
+                Buy Now
               </button>
               <button
                 onClick={handleToggleWishlist}
@@ -331,6 +459,15 @@ const ProductDetailsPage = () => {
             {isInCompare ? 'Remove from Compare' : 'Add to Compare'}
           </button>
 
+          {/* Share Button */}
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="w-full mt-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-2 text-sm"
+          >
+            <FiShare2 className="w-4 h-4" />
+            Share Product
+          </button>
+
           {/* Additional Info */}
           <div className="border-t pt-6 space-y-3 text-sm text-gray-600">
             <p><span className="font-medium">Category:</span> {product.category}</p>
@@ -344,37 +481,54 @@ const ProductDetailsPage = () => {
       <div className="border-t pt-12">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
-          {isAuthenticated && canReview && (
-            <button
-              onClick={() => setShowReviewForm(!showReviewForm)}
-              className="btn-primary"
-            >
-              Write a Review
-            </button>
+          {isAuthenticated ? (
+            canReview ? (
+              <button
+                onClick={() => setShowReviewForm(!showReviewForm)}
+                className="btn-primary"
+              >
+                {showReviewForm ? 'Cancel' : 'Write a Review'}
+              </button>
+            ) : (
+              <p className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-lg">
+                ✓ You have already reviewed this product
+              </p>
+            )
+          ) : (
+            <Link to="/login" className="btn-secondary text-sm">
+              Login to Write a Review
+            </Link>
           )}
         </div>
 
         {/* Review Form */}
         {showReviewForm && (
-          <form onSubmit={handleSubmitReview} className="bg-gray-50 rounded-lg p-6 mb-8">
-            <h3 className="font-semibold text-lg mb-4">Write Your Review</h3>
+          <form onSubmit={handleSubmitReview} className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border border-blue-100">
+            <h3 className="font-semibold text-xl mb-6 text-gray-800">Share Your Experience</h3>
             
             {/* Rating */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Rating *</label>
-              <div className="flex gap-2">
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">Your Rating *</label>
+              <div className="flex gap-2 items-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
                     onClick={() => setNewReview({ ...newReview, rating: star })}
-                    className={`text-2xl ${
+                    className={`text-3xl transition-transform hover:scale-110 ${
                       star <= newReview.rating ? 'text-yellow-400' : 'text-gray-300'
                     }`}
                   >
                     <FiStar className={star <= newReview.rating ? 'fill-current' : ''} />
                   </button>
                 ))}
+                <span className="ml-3 text-sm font-medium text-gray-600">
+                  {newReview.rating === 1 && '😞 Poor'}
+                  {newReview.rating === 2 && '😐 Fair'}
+                  {newReview.rating === 3 && '🙂 Good'}
+                  {newReview.rating === 4 && '😊 Very Good'}
+                  {newReview.rating === 5 && '🤩 Excellent'}
+                </span>
               </div>
             </div>
 
@@ -615,6 +769,9 @@ const ProductDetailsPage = () => {
         <ProductQuestions productId={id} />
       </div>
 
+      {/* Frequently Bought Together */}
+      <FrequentlyBoughtTogether productId={id} category={product.category} />
+
       {/* Related Products Section */}
       <RelatedProducts category={product.category} currentProductId={id} />
 
@@ -622,6 +779,13 @@ const ProductDetailsPage = () => {
       <div className="border-t pt-12 mb-8">
         <RecentlyViewed excludeId={id} />
       </div>
+
+      {/* Share Product Modal */}
+      <ShareProduct 
+        product={product}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 };

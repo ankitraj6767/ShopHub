@@ -22,6 +22,13 @@ import stockAlertRoutes from './routes/stockAlertRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import flashSaleRoutes from './routes/flashSaleRoutes.js';
+import loyaltyRoutes from './routes/loyaltyRoutes.js';
+import giftCardRoutes from './routes/giftCardRoutes.js';
+import bundleRoutes from './routes/bundleRoutes.js';
+import referralRoutes from './routes/referralRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 dotenv.config();
 
@@ -66,6 +73,13 @@ app.use('/api/stock-alerts', stockAlertRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/flash-sales', flashSaleRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/gift-cards', giftCardRoutes);
+app.use('/api/bundles', bundleRoutes);
+app.use('/api/referrals', referralRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiStar, FiHeart } from 'react-icons/fi';
+import { FiShoppingCart, FiStar, FiHeart, FiEye } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist, selectIsInWishlist } from '../../store/slices/wishlistSlice';
@@ -7,6 +7,7 @@ import { addToCompare, removeFromCompare } from '../../store/slices/compareSlice
 import { formatPrice } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
+import QuickViewModal from './QuickViewModal';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const ProductCard = ({ product }) => {
   const compareProducts = useSelector((state) => state.compare?.products || []);
   const isInCompare = product ? compareProducts.some((p) => p._id === product._id) : false;
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [showQuickView, setShowQuickView] = useState(false);
 
   // Return null if product is not provided
   if (!product || !product._id) {
@@ -120,6 +122,18 @@ const ProductCard = ({ product }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
         </button>
+        {/* Quick View Button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowQuickView(true);
+          }}
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
+          title="Quick View"
+        >
+          <FiEye className="w-5 h-5" />
+        </button>
         {product.featured && (
           <span className="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-1 rounded">
             Featured
@@ -164,6 +178,13 @@ const ProductCard = ({ product }) => {
           </button>
         </div>
       </div>
+      
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={product}
+        isOpen={showQuickView}
+        onClose={() => setShowQuickView(false)}
+      />
     </Link>
   );
 };

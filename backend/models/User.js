@@ -62,6 +62,35 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    // Wallet balance (in dollars)
+    walletBalance: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    walletHistory: [
+      {
+        type: {
+          type: String,
+          enum: ['credit', 'debit'],
+          required: true,
+        },
+        amount: {
+          type: Number,
+          required: true,
+        },
+        description: String,
+        orderId: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'Order',
+        },
+        pointsRedeemed: Number,
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

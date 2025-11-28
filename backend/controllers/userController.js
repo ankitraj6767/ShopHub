@@ -197,3 +197,68 @@ export const deleteUser = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+
+// @desc    Get user wallet balance
+// @route   GET /api/users/wallet
+// @access  Private
+export const getWalletBalance = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  res.json({
+    success: true,
+    data: {
+      balance: user.walletBalance || 0,
+      history: (user.walletHistory || []).slice(-20).reverse(),
+    },
+  });
+});
+
+// @desc    Use wallet balance for order
+// @route   POST /api/users/wallet/use
+// @access  Private
+export const useWalletBalance = asyncHandler(async (req, res) => {
+  const { amount, orderId } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  if (!amount || amount <= 0) {
+    res.status(400);
+    throw new Error('Invalid amount');
+  }
+
+  const currentBalance = user.walletBalance || 0;
+  
+  if (amount > currentBalance) {
+    res.status(400);
+    throw new Error('Insufficient wallet balance');
+  }
+
+  // Deduct from wallet
+  user.walletBalance = currentBalance - amount;
+  user.walletHistory.push({
+    type: 'debit',
+    amount: amount,
+    description: `Used for order${orderId ? ` #${orderId.toString().slice(-8).toUpperCase()}` : ''}`,
+    orderId: orderId || null,
+  });
+  await user.save();
+
+  res.json({
+    success: true,
+    message: `$${amount.toFixed(2)} deducted from wallet`,
+    data: {
+      amountUsed: amount,
+      newBalance: user.walletBalance,
+    },
+  });
+});

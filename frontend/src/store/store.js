@@ -13,6 +13,8 @@ import questionReducer from './slices/questionSlice';
 import stockAlertReducer from './slices/stockAlertSlice';
 import supportReducer from './slices/supportSlice';
 import paymentReducer from './slices/paymentSlice';
+import loyaltyReducer from './slices/loyaltySlice';
+import referralReducer from './slices/referralSlice';
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +32,8 @@ export const store = configureStore({
     stockAlert: stockAlertReducer,
     support: supportReducer,
     payment: paymentReducer,
+    loyalty: loyaltyReducer,
+    referral: referralReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

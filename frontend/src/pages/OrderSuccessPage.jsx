@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiCheck, FiPackage, FiMail } from 'react-icons/fi';
+import { FiCheck, FiPackage, FiMail, FiStar, FiGift } from 'react-icons/fi';
 import { fetchOrder } from '../store/slices/orderSlice';
 import { formatPrice, formatDate } from '../utils/helpers';
 import Spinner from '../components/ui/Spinner';
@@ -9,7 +9,7 @@ import Spinner from '../components/ui/Spinner';
 const OrderSuccessPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { order, isLoading } = useSelector((state) => state.orders);
+  const { order, isLoading, loyaltyPoints, referralCompleted } = useSelector((state) => state.orders);
 
   useEffect(() => {
     dispatch(fetchOrder(id));
@@ -34,6 +34,51 @@ const OrderSuccessPage = () => {
           Thank you for your order. We've received your order and will begin processing it soon.
         </p>
       </div>
+
+      {/* Loyalty Points Earned */}
+      {loyaltyPoints && (
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-6 mb-8 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+                <FiStar className="w-7 h-7" />
+              </div>
+              <div>
+                <p className="text-white/80 text-sm">You earned</p>
+                <p className="text-3xl font-bold">{loyaltyPoints.totalPoints} Points</p>
+                {loyaltyPoints.bonusPoints > 0 && (
+                  <p className="text-sm text-white/80">
+                    Includes {loyaltyPoints.bonusPoints} tier bonus points!
+                  </p>
+                )}
+              </div>
+            </div>
+            <Link
+              to="/loyalty"
+              className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors text-sm font-medium"
+            >
+              View Rewards
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Referral Completed */}
+      {referralCompleted && (
+        <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-6 mb-8 text-white">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+              <FiGift className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-lg font-medium">🎉 First Order Bonus!</p>
+              <p className="text-white/80">
+                Your referrer earned {referralCompleted.referrerReward} bonus points thanks to you!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
         <div className="flex items-center justify-between border-b pb-4 mb-4">

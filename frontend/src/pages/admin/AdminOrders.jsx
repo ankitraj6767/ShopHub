@@ -39,11 +39,11 @@ const AdminOrders = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
         <div className="flex flex-wrap gap-4">
           <div className="w-48">
             <div className="relative">
@@ -71,56 +71,56 @@ const AdminOrders = () => {
           <Spinner size="lg" />
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <p className="text-gray-500">No orders found</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No orders found</p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Order ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Customer
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Items
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Total
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {orders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50">
+                    <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4">
-                        <p className="font-medium">#{order._id.slice(-8).toUpperCase()}</p>
+                        <p className="font-medium dark:text-white">#{order._id.slice(-8).toUpperCase()}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-medium">{order.user?.name || 'Unknown'}</p>
-                        <p className="text-sm text-gray-500">{order.user?.email}</p>
+                        <p className="font-medium dark:text-white">{order.user?.name || 'Unknown'}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{order.user?.email}</p>
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                         {formatDate(order.createdAt)}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 dark:text-gray-300">
                         {order.orderItems.length} items
                       </td>
-                      <td className="px-6 py-4 font-medium">
+                      <td className="px-6 py-4 font-medium dark:text-white">
                         {formatPrice(order.totalPrice)}
                       </td>
                       <td className="px-6 py-4">
@@ -139,7 +139,7 @@ const AdminOrders = () => {
                         <div className="flex items-center justify-end">
                           <Link
                             to={`/admin/orders/${order._id}`}
-                            className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded"
+                            className="p-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                           >
                             <FiEye />
                           </Link>

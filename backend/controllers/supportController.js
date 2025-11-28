@@ -2,6 +2,7 @@ import SupportTicket from '../models/SupportTicket.js';
 import FAQ from '../models/FAQ.js';
 import Order from '../models/Order.js';
 import { sendEmail } from '../utils/email.js';
+import { generateAIResponse, getQuickReplies } from '../utils/aiHelper.js';
 
 // ==================== SUPPORT TICKETS ====================
 
@@ -458,74 +459,63 @@ export const deleteFAQ = async (req, res) => {
 // @desc    AI Chatbot response
 // @route   POST /api/support/chat
 // @access  Public
+// @desc    AI Chatbot Response (Powered by Gemini with context memory)
+// @route   POST /api/support/chat
+// @access  Public
 export const chatbotResponse = async (req, res) => {
   try {
-    const { message, context } = req.body;
-    const lowerMessage = message.toLowerCase();
-
-    // Simple rule-based responses (can be replaced with AI API)
-    let response = '';
-    let suggestions = [];
-
-    // Order related
-    if (lowerMessage.includes('track') || lowerMessage.includes('order status')) {
-      response = "To track your order, go to 'My Orders' in your account. You'll find real-time tracking information and delivery updates there.";
-      suggestions = ['How to return an item?', 'Where is my refund?', 'Contact support'];
+    const { message, context, sessionId } = req.body;
+    
+    if (!message || message.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a message',
+      });
     }
-    // Shipping
-    else if (lowerMessage.includes('shipping') || lowerMessage.includes('delivery')) {
-      response = "We offer free shipping on orders over $100. Standard delivery takes 5-7 business days. Express shipping (2-3 days) is available for an additional fee.";
-      suggestions = ['Track my order', 'Shipping to my location', 'Express shipping cost'];
-    }
-    // Returns
-    else if (lowerMessage.includes('return') || lowerMessage.includes('refund')) {
-      response = "We have a 30-day return policy. To initiate a return, go to your order details and click 'Request Return'. Refunds are processed within 5-7 business days after we receive the item.";
-      suggestions = ['Return policy', 'Refund status', 'Exchange item'];
-    }
-    // Payment
-    else if (lowerMessage.includes('payment') || lowerMessage.includes('pay')) {
-      response = "We accept Credit/Debit cards, PayPal, and Cash on Delivery. All transactions are secured with SSL encryption.";
-      suggestions = ['Payment failed', 'Add payment method', 'Payment security'];
-    }
-    // Account
-    else if (lowerMessage.includes('account') || lowerMessage.includes('password')) {
-      response = "To manage your account, go to 'Profile' from the menu. You can update your password, address, and other details there.";
-      suggestions = ['Reset password', 'Update address', 'Delete account'];
-    }
-    // Greeting
-    else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-      response = "Hello! 👋 I'm ShopHub Assistant. How can I help you today?";
-      suggestions = ['Track order', 'Return item', 'Payment help', 'Contact support'];
-    }
-    // Contact
-    else if (lowerMessage.includes('contact') || lowerMessage.includes('support') || lowerMessage.includes('human') || lowerMessage.includes('agent')) {
-      response = "You can reach our support team by creating a support ticket or emailing support@shophub.com. Our team typically responds within 24 hours.";
-      suggestions = ['Create ticket', 'Email support', 'FAQ'];
-    }
-    // Default
-    else {
-      // Try to find relevant FAQ
-      const faqs = await FAQ.find({
-        $text: { $search: message },
-        isActive: true,
-      }).limit(3);
-
-      if (faqs.length > 0) {
-        response = faqs[0].answer;
-        suggestions = faqs.slice(1).map(f => f.question.substring(0, 50));
-      } else {
-        response = "I'm not sure I understand. Would you like to speak with a human agent or browse our FAQ?";
-        suggestions = ['Contact support', 'View FAQ', 'Track order', 'Return policy'];
-      }
-    }
-
+    
+    // Get user ID from auth if available
+    const userId = req.user?._id || null;
+    
+    // Build context with session ID for conversation memory
+    const chatContext = {
+      ...context,
+      sessionId: sessionId || (userId ? userId.toString() : `session-${Date.now()}`)
+    };
+    
+    // Generate AI response with Gemini
+    const aiResult = await generateAIResponse(message, userId, chatContext);
+    
     res.json({
       success: true,
       data: {
-        message: response,
-        suggestions,
+        message: aiResult.response,
+        suggestions: aiResult.suggestions,
+        actions: aiResult.actions || [],
+        relatedProducts: aiResult.relatedProducts || [],
+        relatedFaqs: aiResult.relatedFaqs || [],
+        sentiment: aiResult.sentiment,
+        sessionId: aiResult.sessionId, // Return session ID for client to use in next request
         timestamp: new Date(),
       },
+    });
+  } catch (error) {
+    console.error('AI Chat Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate response. Please try again.',
+    });
+  }
+};
+
+// @desc    Get quick reply suggestions
+// @route   GET /api/support/quick-replies
+// @access  Public
+export const getQuickReplySuggestions = async (req, res) => {
+  try {
+    const quickReplies = getQuickReplies();
+    res.json({
+      success: true,
+      data: quickReplies,
     });
   } catch (error) {
     res.status(500).json({

@@ -88,7 +88,8 @@ const OrderDetailsPage = () => {
 
   const canCancel = order && ['Pending', 'Paid', 'Processing'].includes(order.status);
   const canReturn = order && order.status === 'Delivered' && !order.returnRequest?.status;
-  const isWithinReturnWindow = order?.deliveredAt && 
+  // Check if within 30-day return window, default to true if deliveredAt is not set (for backward compatibility)
+  const isWithinReturnWindow = !order?.deliveredAt || 
     (Date.now() - new Date(order.deliveredAt).getTime()) < (30 * 24 * 60 * 60 * 1000);
 
   if (isLoading || !order) {
@@ -116,6 +117,13 @@ const OrderDetailsPage = () => {
           <p className="text-gray-500">Placed on {formatDateTime(order.createdAt)}</p>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            to={`/orders/${id}/tracking`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+          >
+            <FiTruck className="w-4 h-4" />
+            Track Order
+          </Link>
           <button
             onClick={handleDownloadInvoice}
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
@@ -249,10 +257,16 @@ const OrderDetailsPage = () => {
             <span className="text-gray-600">Tax</span>
             <span>{formatPrice(order.taxPrice)}</span>
           </div>
-          {order.discountApplied > 0 && (
+          {(order.discountApplied > 0 || order.discountAmount > 0) && (
             <div className="flex justify-between text-green-600">
-              <span>Discount</span>
-              <span>-{formatPrice(order.discountApplied)}</span>
+              <span>Coupon Discount</span>
+              <span>-{formatPrice(order.discountApplied || order.discountAmount)}</span>
+            </div>
+          )}
+          {order.walletAmount > 0 && (
+            <div className="flex justify-between text-emerald-600">
+              <span>Wallet Payment</span>
+              <span>-{formatPrice(order.walletAmount)}</span>
             </div>
           )}
           <div className="flex justify-between text-lg font-bold pt-2 border-t">

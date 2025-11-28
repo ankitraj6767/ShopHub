@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
 import { store } from './store/store';
+import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import './index.css';
 
@@ -12,8 +13,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <Provider store={store}>
-        <BrowserRouter>
-          <App />
+        <ThemeProvider>
+          <BrowserRouter>
+            <App />
           <Toaster
             position="top-right"
             toastOptions={{
@@ -36,7 +38,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               },
             }}
           />
-        </BrowserRouter>
+          </BrowserRouter>
+        </ThemeProvider>
       </Provider>
     </ErrorBoundary>
   </React.StrictMode>

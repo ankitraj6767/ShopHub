@@ -4,12 +4,167 @@ import Product from '../models/Product.js';
 import { sendEmail, emailTemplates } from '../utils/email.js';
 import User from '../models/User.js';
 import { generateInvoicePDF } from '../utils/pdf.js';
+import Notification from '../models/Notification.js';
+import { notifyOrderStatus } from './notificationController.js';
+import LoyaltyPoint from '../models/LoyaltyPoint.js';
+import Referral from '../models/Referral.js';
+
+// Points configuration
+const LOYALTY_CONFIG = {
+  purchaseRate: 10, // Points per $1 spent
+  referrerReward: 500, // Points for referrer on first purchase
+};
+
+// Helper function to add loyalty points for order
+const addLoyaltyPointsForOrder = async (userId, orderTotal, orderId) => {
+  try {
+    let loyalty = await LoyaltyPoint.findOne({ user: userId });
+    
+    if (!loyalty) {
+      // Check if user was referred
+      const referral = await Referral.findOne({
+        'referrals.referredUser': userId,
+      });
+      
+      const initialPoints = referral ? 200 : 100; // 200 for referred users, 100 for regular
+      const bonusType = referral ? 'referral' : 'bonus';
+      const bonusDesc = referral ? 'Referral signup bonus - Welcome gift!' : 'Welcome bonus for joining ShopHub!';
+      
+      try {
+        loyalty = await LoyaltyPoint.create({
+          user: userId,
+          points: initialPoints,
+          lifetimePoints: initialPoints,
+          history: [
+            {
+              type: bonusType,
+              points: initialPoints,
+              description: bonusDesc,
+            },
+          ],
+        });
+      } catch (err) {
+        // Handle duplicate key error
+        if (err.code === 11000) {
+          loyalty = await LoyaltyPoint.findOne({ user: userId });
+        } else {
+          throw err;
+        }
+      }
+    }
+    
+    // Calculate points based on tier
+    const benefits = loyalty.getTierBenefits();
+    const basePoints = Math.floor(orderTotal * LOYALTY_CONFIG.purchaseRate);
+    const bonusPoints = Math.floor(basePoints * (benefits.pointsMultiplier - 1));
+    const totalPoints = basePoints + bonusPoints;
+    
+    // Add points for purchase
+    await loyalty.addPoints(
+      totalPoints,
+      'earned',
+      `Order #${orderId.toString().slice(-8).toUpperCase()}: ${basePoints} base + ${bonusPoints} tier bonus`,
+      orderId
+    );
+    
+    // Create notification for points earned
+    await Notification.create({
+      user: userId,
+      type: 'info',
+      title: 'Loyalty Points Earned! ⭐',
+      message: `You earned ${totalPoints} points from your order! ${bonusPoints > 0 ? `(Includes ${bonusPoints} tier bonus!)` : ''}`,
+    });
+    
+    return { basePoints, bonusPoints, totalPoints, newBalance: loyalty.points, tier: loyalty.tier };
+  } catch (error) {
+    console.error('Failed to add loyalty points:', error);
+    return null;
+  }
+};
+
+// Helper function to complete referral on first purchase
+const completeReferralOnFirstPurchase = async (userId, orderId) => {
+  try {
+    // Check if this is user's first order
+    const orderCount = await Order.countDocuments({ user: userId });
+    if (orderCount > 1) return null; // Not first order
+    
+    // Find pending referral for this user
+    const referral = await Referral.findOne({
+      'referrals.referredUser': userId,
+      'referrals.status': 'pending',
+    });
+    
+    if (!referral) return null;
+    
+    // Complete the referral
+    await referral.completeReferral(
+      userId,
+      orderId,
+      LOYALTY_CONFIG.referrerReward,
+      0 // Referred user already got bonus at signup
+    );
+    
+    // Give points to referrer
+    let referrerLoyalty = await LoyaltyPoint.findOne({ user: referral.referrer });
+    if (!referrerLoyalty) {
+      referrerLoyalty = await LoyaltyPoint.create({
+        user: referral.referrer,
+        points: LOYALTY_CONFIG.referrerReward,
+        lifetimePoints: LOYALTY_CONFIG.referrerReward,
+        history: [
+          {
+            type: 'referral',
+            points: LOYALTY_CONFIG.referrerReward,
+            description: 'Referral reward - friend made first purchase',
+            referredUser: userId,
+          },
+        ],
+      });
+    } else {
+      await referrerLoyalty.addPoints(
+        LOYALTY_CONFIG.referrerReward,
+        'referral',
+        'Referral reward - friend made first purchase',
+        null,
+        userId
+      );
+    }
+    
+    // Notify referrer
+    await Notification.create({
+      user: referral.referrer,
+      type: 'info',
+      title: 'Referral Bonus Earned! 🎉',
+      message: `Your friend made their first purchase! You earned ${LOYALTY_CONFIG.referrerReward} bonus points.`,
+    });
+    
+    return { referrerReward: LOYALTY_CONFIG.referrerReward };
+  } catch (error) {
+    console.error('Failed to complete referral:', error);
+    return null;
+  }
+};
+
+// Helper function to notify all admins
+const notifyAllAdmins = async (notification) => {
+  try {
+    const admins = await User.find({ role: 'admin' });
+    const notifications = admins.map(admin => ({
+      user: admin._id,
+      ...notification
+    }));
+    await Notification.insertMany(notifications);
+  } catch (error) {
+    console.error('Failed to notify admins:', error);
+  }
+};
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 export const createOrder = asyncHandler(async (req, res) => {
-  const { orderItems, shippingAddress, paymentInfo } = req.body;
+  const { orderItems, shippingAddress, paymentInfo, walletAmount = 0, couponCode = null, discountAmount = 0 } = req.body;
 
   if (!orderItems || orderItems.length === 0) {
     res.status(400);
@@ -38,22 +193,63 @@ export const createOrder = asyncHandler(async (req, res) => {
       throw new Error(`Not enough stock for ${product.name}. Available: ${product.stock}`);
     }
 
+    // Use the price passed from cart (for bundle/flash sale discounts)
+    // Validate that passed price is not higher than original product price
+    let finalPrice = product.price;
+    if (item.price !== undefined && item.price > 0 && item.price <= product.price) {
+      finalPrice = item.price; // Use the discounted price from cart
+    }
+
     itemsWithDetails.push({
       product: product._id,
       name: product.name,
-      price: product.price,
+      price: finalPrice,
       quantity: item.quantity,
       image: product.images[0]?.url || '/images/placeholder.jpg',
     });
 
-    itemsPrice += product.price * item.quantity;
+    itemsPrice += finalPrice * item.quantity;
   }
 
   // Calculate prices
   const taxRate = 0.08; // 8% tax
   const taxPrice = Number((itemsPrice * taxRate).toFixed(2));
   const shippingPrice = itemsPrice > 100 ? 0 : 10; // Free shipping over $100
-  const totalPrice = Number((itemsPrice + taxPrice + shippingPrice).toFixed(2));
+  
+  // Apply coupon discount
+  const couponDiscount = Number(discountAmount) || 0;
+  let totalPrice = Number((itemsPrice + taxPrice + shippingPrice - couponDiscount).toFixed(2));
+  totalPrice = Math.max(0, totalPrice); // Ensure non-negative
+  
+  // Handle wallet payment
+  let walletUsed = 0;
+  if (walletAmount > 0) {
+    const user = await User.findById(req.user._id);
+    const availableBalance = user.walletBalance || 0;
+    
+    // Use minimum of requested amount, available balance, or total price
+    walletUsed = Math.min(walletAmount, availableBalance, totalPrice);
+    
+    if (walletUsed > 0) {
+      // Deduct from wallet
+      user.walletBalance = availableBalance - walletUsed;
+      
+      // Initialize walletHistory if it doesn't exist
+      if (!user.walletHistory) {
+        user.walletHistory = [];
+      }
+      
+      user.walletHistory.push({
+        type: 'debit',
+        amount: walletUsed,
+        description: 'Used for order payment',
+      });
+      await user.save();
+      
+      // Reduce total price
+      totalPrice = Number((totalPrice - walletUsed).toFixed(2));
+    }
+  }
 
   // Create order
   const order = await Order.create({
@@ -62,14 +258,28 @@ export const createOrder = asyncHandler(async (req, res) => {
     shippingAddress,
     paymentInfo: {
       method: paymentInfo.method,
-      status: 'unpaid',
+      status: totalPrice === 0 ? 'paid' : 'unpaid', // If fully paid by wallet, mark as paid
     },
     itemsPrice,
     taxPrice,
     shippingPrice,
+    couponCode,
+    discountAmount,
+    walletAmount: walletUsed,
     totalPrice,
-    status: 'Pending',
+    status: totalPrice === 0 ? 'Confirmed' : 'Pending',
   });
+  
+  // Update wallet history with order ID
+  if (walletUsed > 0) {
+    const user = await User.findById(req.user._id);
+    const lastEntry = user.walletHistory[user.walletHistory.length - 1];
+    if (lastEntry) {
+      lastEntry.orderId = order._id;
+      lastEntry.description = `Used for order #${order._id.toString().slice(-8).toUpperCase()}`;
+      await user.save();
+    }
+  }
 
   // Decrease stock for each product
   for (const item of orderItems) {
@@ -77,6 +287,12 @@ export const createOrder = asyncHandler(async (req, res) => {
       $inc: { stock: -item.quantity },
     });
   }
+
+  // Add loyalty points for this order
+  const loyaltyResult = await addLoyaltyPointsForOrder(req.user._id, itemsPrice, order._id);
+  
+  // Complete referral if this is user's first purchase
+  const referralResult = await completeReferralOnFirstPurchase(req.user._id, order._id);
 
   // Send order confirmation email
   try {
@@ -94,6 +310,9 @@ export const createOrder = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     data: order,
+    loyaltyPoints: loyaltyResult,
+    referralCompleted: referralResult,
+    walletUsed: walletUsed,
   });
 });
 
@@ -274,6 +493,11 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
     const updatedOrder = await order.save();
 
+    // Send notification to user about status change
+    if (status !== previousStatus) {
+      await notifyOrderStatus(order.user._id, order, status);
+    }
+
     // Send status update emails
     try {
       if (status === 'Shipped' && previousStatus !== 'Shipped') {
@@ -309,7 +533,12 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 // @route   GET /api/orders/stats
 // @access  Private/Admin
 export const getOrderStats = asyncHandler(async (req, res) => {
-  // Orders by status
+  // Define current period (last 30 days) and previous period (30-60 days ago)
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+  // Orders by status (all time)
   const ordersByStatus = await Order.aggregate([
     {
       $group: {
@@ -319,6 +548,70 @@ export const getOrderStats = asyncHandler(async (req, res) => {
       },
     },
   ]);
+
+  // Calculate total orders and revenue (all time)
+  const totalOrders = ordersByStatus.reduce((sum, item) => sum + item.count, 0);
+  const totalRevenue = ordersByStatus.reduce((sum, item) => sum + item.total, 0);
+
+  // Current period stats (last 30 days)
+  const currentPeriodOrders = await Order.aggregate([
+    { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: null,
+        count: { $sum: 1 },
+        revenue: { $sum: '$totalPrice' },
+      },
+    },
+  ]);
+
+  // Previous period stats (30-60 days ago)
+  const previousPeriodOrders = await Order.aggregate([
+    { $match: { createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } } },
+    {
+      $group: {
+        _id: null,
+        count: { $sum: 1 },
+        revenue: { $sum: '$totalPrice' },
+      },
+    },
+  ]);
+
+  const currentOrders = currentPeriodOrders[0]?.count || 0;
+  const previousOrders = previousPeriodOrders[0]?.count || 0;
+  const currentRevenue = currentPeriodOrders[0]?.revenue || 0;
+  const previousRevenue = previousPeriodOrders[0]?.revenue || 0;
+
+  // Calculate percentage changes
+  const calculateChange = (current, previous) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  const ordersChange = calculateChange(currentOrders, previousOrders);
+  const revenueChange = calculateChange(currentRevenue, previousRevenue);
+
+  // Get total products count and compare
+  const totalProducts = await Product.countDocuments({ isActive: true });
+  const productsThirtyDaysAgo = await Product.countDocuments({
+    isActive: true,
+    createdAt: { $lt: thirtyDaysAgo }
+  });
+  const newProducts = totalProducts - productsThirtyDaysAgo;
+  const productsChange = productsThirtyDaysAgo > 0 
+    ? ((newProducts) / productsThirtyDaysAgo) * 100 
+    : (newProducts > 0 ? 100 : 0);
+
+  // Get total users count and compare
+  const User = (await import('../models/User.js')).default;
+  const totalUsers = await User.countDocuments();
+  const usersThirtyDaysAgo = await User.countDocuments({
+    createdAt: { $lt: thirtyDaysAgo }
+  });
+  const newUsers = totalUsers - usersThirtyDaysAgo;
+  const usersChange = usersThirtyDaysAgo > 0 
+    ? ((newUsers) / usersThirtyDaysAgo) * 100 
+    : (newUsers > 0 ? 100 : 0);
 
   // Orders by month (last 12 months)
   const ordersByMonth = await Order.aggregate([
@@ -363,10 +656,25 @@ export const getOrderStats = asyncHandler(async (req, res) => {
     { $limit: 10 },
   ]);
 
+  // Convert ordersByStatus array to object for easier access
+  const statusCounts = {};
+  ordersByStatus.forEach(item => {
+    statusCounts[item._id] = item.count;
+  });
+
   res.json({
     success: true,
     data: {
-      ordersByStatus,
+      totalOrders,
+      totalRevenue,
+      totalProducts,
+      totalUsers,
+      // Percentage changes (comparing last 30 days vs previous 30 days)
+      ordersChange: Math.round(ordersChange * 10) / 10,
+      revenueChange: Math.round(revenueChange * 10) / 10,
+      productsChange: Math.round(productsChange * 10) / 10,
+      usersChange: Math.round(usersChange * 10) / 10,
+      ordersByStatus: statusCounts,
       ordersByMonth,
       recentOrders,
       topProducts,
@@ -533,6 +841,20 @@ export const requestReturn = asyncHandler(async (req, res) => {
   });
 
   await order.save();
+
+  // Notify all admins about the return request
+  await notifyAllAdmins({
+    type: 'return_request',
+    title: 'New Return Request',
+    message: `Return request received for Order #${order._id.toString().slice(-8).toUpperCase()}. Customer: ${req.user.name}. Reason: ${reason.trim().substring(0, 100)}${reason.length > 100 ? '...' : ''}`,
+    link: `/admin/orders/${order._id}`,
+    data: {
+      orderId: order._id,
+      refundAmount,
+      customerName: req.user.name,
+      customerEmail: req.user.email,
+    }
+  });
 
   res.json({
     success: true,
