@@ -86,6 +86,16 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'API is running' });
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'ShopHub API Server',
+    version: '1.0.0',
+    endpoints: '/api/*'
+  });
+});
+
 // Error handling
 app.use(notFound);
 app.use(errorHandler);
