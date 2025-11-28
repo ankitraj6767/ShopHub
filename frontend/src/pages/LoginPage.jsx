@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { login, clearError } from '../store/slices/authSlice';
-
+// login
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
