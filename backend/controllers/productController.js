@@ -334,12 +334,29 @@ export const uploadProductImages = asyncHandler(async (req, res) => {
     throw new Error('No images uploaded');
   }
 
-  // Get uploaded image URLs
-  const images = req.files.map((file) => ({
-    url: file.path || file.location || `/uploads/${file.filename}`,
-    alt: file.originalname,
-    public_id: file.filename,
-  }));
+  // Import uploadToCloudinary function
+  const { uploadToCloudinary } = await import('../config/cloudinary.js');
+  
+  // Upload each file to Cloudinary
+  const uploadPromises = req.files.map(async (file) => {
+    // If using memory storage (Cloudinary enabled), upload buffer
+    if (file.buffer) {
+      const result = await uploadToCloudinary(file);
+      return {
+        url: result.url,
+        alt: file.originalname,
+        public_id: result.public_id,
+      };
+    }
+    // If using disk storage (local), return local path
+    return {
+      url: file.path || `/uploads/${file.filename}`,
+      alt: file.originalname,
+      public_id: file.filename,
+    };
+  });
+
+  const images = await Promise.all(uploadPromises);
 
   res.json({
     success: true,

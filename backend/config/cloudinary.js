@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
 import config from './config.js';
 
@@ -10,15 +9,8 @@ cloudinary.config({
   api_secret: config.cloudinaryApiSecret,
 });
 
-// Configure multer storage for Cloudinary
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'shophub/products',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-    transformation: [{ width: 1000, height: 1000, crop: 'limit', quality: 'auto' }],
-  },
-});
+// Use memory storage - we'll upload to Cloudinary manually
+const memoryStorage = multer.memoryStorage();
 
 // For local storage fallback (development without Cloudinary)
 const localStorage = multer.diskStorage({
@@ -44,16 +36,31 @@ const fileFilter = (req, file, cb) => {
 const useCloudinary = config.cloudinaryCloudName && config.cloudinaryApiKey && config.cloudinaryApiSecret;
 
 export const upload = multer({
-  storage: useCloudinary ? storage : localStorage,
+  storage: useCloudinary ? memoryStorage : localStorage,
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
 });
 
-// Upload to Cloudinary from URL or Base64
+// Upload buffer to Cloudinary
 export const uploadToCloudinary = async (file, folder = 'shophub/products') => {
   try {
+    // If file is a buffer (from memory storage), convert to base64
+    if (file.buffer) {
+      const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      const result = await cloudinary.uploader.upload(base64, {
+        folder,
+        resource_type: 'auto',
+        transformation: [{ width: 1000, height: 1000, crop: 'limit', quality: 'auto' }],
+      });
+      return {
+        public_id: result.public_id,
+        url: result.secure_url,
+      };
+    }
+    
+    // If file is a path or URL
     const result = await cloudinary.uploader.upload(file, {
       folder,
       resource_type: 'auto',
