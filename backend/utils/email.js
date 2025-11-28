@@ -33,19 +33,25 @@ const getTransporter = () => {
   if (smtpUser && smtpPassword) {
     const isGmail = smtpHost.includes('gmail');
     
-    // For Gmail, use service with connection pooling
+    // For Gmail, use direct SMTP with SSL (port 465) for better reliability
     if (isGmail) {
       cachedTransporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,         // Use SSL
         auth: {
           user: smtpUser,
           pass: smtpPassword,
         },
         pool: true,           // Enable connection pooling
-        maxConnections: 5,    // Max concurrent connections
-        maxMessages: 100,     // Max messages per connection
-        rateDelta: 1000,      // How often to check rate limit
-        rateLimit: 10,        // Max 10 messages per second
+        maxConnections: 3,    // Max concurrent connections
+        maxMessages: 50,      // Max messages per connection
+        connectionTimeout: 60000,  // 60 seconds
+        greetingTimeout: 30000,    // 30 seconds
+        socketTimeout: 60000,      // 60 seconds
+        tls: {
+          rejectUnauthorized: false  // Allow self-signed certs
+        }
       });
     } else {
       cachedTransporter = nodemailer.createTransport({
@@ -115,9 +121,9 @@ export const sendEmail = async ({ to, subject, html, text }) => {
 
     console.log('📧 Sending email to:', to, '| Subject:', subject);
     
-    // Set a timeout for the email sending
+    // Set a timeout for the email sending (90 seconds for slow connections)
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Email sending timed out after 30 seconds')), 30000);
+      setTimeout(() => reject(new Error('Email sending timed out after 90 seconds')), 90000);
     });
     
     const info = await Promise.race([
