@@ -1,5 +1,6 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
+import UserActivity from '../models/UserActivity.js';
 
 // @desc    Get user notifications
 // @route   GET /api/notifications
@@ -269,18 +270,60 @@ export const notifyNewProduct = async (product) => {
   }
 };
 
-// Helper function to notify about price drop
+// Helper function to notify about price drop - ONLY to users who have set price alerts
 export const notifyPriceDrop = async (product, oldPrice, newPrice) => {
   try {
     const discount = Math.round(((oldPrice - newPrice) / oldPrice) * 100);
     
-    await notifyAllUsers({
-      type: 'price_drop',
-      title: `Price Drop Alert! 💰`,
-      message: `${product.name} is now ${discount}% off! Was ₹${oldPrice}, now ₹${newPrice}!`,
-      link: `/products/${product._id}`,
-      data: { productId: product._id, oldPrice, newPrice, discount }
-    });
+    // Find all users who have active price alerts for this product
+    // and whose target price is >= the new price
+    const usersWithAlerts = await UserActivity.find({
+      'priceAlerts.product': product._id,
+      'priceAlerts.isActive': true,
+      'priceAlerts.targetPrice': { $gte: newPrice }
+    }).select('user priceAlerts');
+
+    // Filter to get only users whose alert for this specific product is triggered
+    const usersToNotify = [];
+    for (const activity of usersWithAlerts) {
+      const alert = activity.priceAlerts.find(
+        (a) => a.product.toString() === product._id.toString() && 
+               a.isActive && 
+               a.targetPrice >= newPrice
+      );
+      if (alert) {
+        usersToNotify.push({
+          userId: activity.user,
+          targetPrice: alert.targetPrice,
+          originalPrice: alert.originalPrice
+        });
+        
+        // Mark the alert as notified
+        alert.notifiedAt = new Date();
+        await activity.save();
+      }
+    }
+
+    // Create notifications only for users who set alerts
+    if (usersToNotify.length > 0) {
+      const notifications = usersToNotify.map((userAlert) => ({
+        user: userAlert.userId,
+        type: 'price_drop',
+        title: `Price Drop Alert! 💰`,
+        message: `Great news! ${product.name} has dropped to ₹${newPrice} - below your target of ₹${userAlert.targetPrice}!`,
+        link: `/products/${product._id}`,
+        data: { 
+          productId: product._id, 
+          oldPrice: userAlert.originalPrice, 
+          newPrice, 
+          targetPrice: userAlert.targetPrice,
+          discount 
+        }
+      }));
+
+      await Notification.insertMany(notifications);
+      console.log(`Price drop notifications sent to ${usersToNotify.length} users for ${product.name}`);
+    }
   } catch (error) {
     console.error('Failed to notify about price drop:', error);
   }

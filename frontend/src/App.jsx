@@ -44,6 +44,8 @@ import ReferralPage from './pages/ReferralPage';
 import BuyAgainPage from './pages/BuyAgainPage';
 import GiftCardsPage from './pages/GiftCardsPage';
 import PremiumPage from './pages/PremiumPage';
+import PriceAlertsPage from './pages/PriceAlertsPage';
+import SavedCartsPage from './pages/SavedCartsPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -131,6 +133,8 @@ function App() {
           <Route path="loyalty" element={<LoyaltyPage />} />
           <Route path="referrals" element={<ReferralPage />} />
           <Route path="buy-again" element={<BuyAgainPage />} />
+          <Route path="price-alerts" element={<PriceAlertsPage />} />
+          <Route path="saved-carts" element={<SavedCartsPage />} />
           <Route path="help/ticket/:id" element={<TicketDetailPage />} />
         </Route>
 

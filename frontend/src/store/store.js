@@ -16,6 +16,7 @@ import paymentReducer from './slices/paymentSlice';
 import loyaltyReducer from './slices/loyaltySlice';
 import referralReducer from './slices/referralSlice';
 import premiumReducer from './slices/premiumSlice';
+import activityReducer from './slices/activitySlice';
 
 export const store = configureStore({
   reducer: {
@@ -36,6 +37,7 @@ export const store = configureStore({
     loyalty: loyaltyReducer,
     referral: referralReducer,
     premium: premiumReducer,
+    activity: activityReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

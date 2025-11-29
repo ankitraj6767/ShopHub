@@ -9,6 +9,9 @@ import DealOfTheDay from '../components/ui/DealOfTheDay';
 import FlashSale from '../components/ui/FlashSale';
 import FeaturedBundles from '../components/ui/FeaturedBundles';
 import Testimonials from '../components/ui/Testimonials';
+import PersonalizedDashboard from '../components/ui/PersonalizedDashboard';
+import SmartRecommendations from '../components/ui/SmartRecommendations';
+import QuickBuySection from '../components/ui/QuickBuySection';
 import toast from 'react-hot-toast';
 
 const HomePage = () => {
@@ -109,6 +112,12 @@ const HomePage = () => {
       {/* Flash Sale Section */}
       <FlashSale />
 
+      {/* Personalized Dashboard */}
+      <PersonalizedDashboard />
+
+      {/* Quick Reorder Section */}
+      <QuickBuySection />
+
       {/* Deal of the Day */}
       <DealOfTheDay />
 
@@ -177,6 +186,9 @@ const HomePage = () => {
 
       {/* Featured Bundles */}
       <FeaturedBundles />
+
+      {/* Smart Recommendations */}
+      <SmartRecommendations />
 
       {/* Testimonials */}
       <Testimonials />

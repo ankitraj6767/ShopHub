@@ -8,11 +8,13 @@ import { addToCart, setBuyNowItem } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist, selectIsInWishlist } from '../store/slices/wishlistSlice';
 import { addToRecentlyViewed } from '../store/slices/recentlyViewedSlice';
 import { addToCompare, removeFromCompare } from '../store/slices/compareSlice';
+import { trackProductView } from '../store/slices/activitySlice';
 import { formatPrice, formatDate } from '../utils/helpers';
 import Rating from '../components/ui/Rating';
 import Spinner from '../components/ui/Spinner';
 import ProductQuestions from '../components/ui/ProductQuestions';
 import StockAlertButton from '../components/ui/StockAlertButton';
+import PriceAlertButton from '../components/ui/PriceAlertButton';
 import RecentlyViewed from '../components/ui/RecentlyViewed';
 import ProductCard from '../components/ui/ProductCard';
 import FrequentlyBoughtTogether from '../components/ui/FrequentlyBoughtTogether';
@@ -85,8 +87,12 @@ const ProductDetailsPage = () => {
   useEffect(() => {
     if (product && product._id) {
       dispatch(addToRecentlyViewed(product));
+      // Track product view for personalized recommendations
+      if (isAuthenticated) {
+        dispatch(trackProductView(product._id));
+      }
     }
-  }, [dispatch, product]);
+  }, [dispatch, product, isAuthenticated]);
 
   const fetchReviews = async () => {
     try {
@@ -553,6 +559,17 @@ const ProductDetailsPage = () => {
             <FiShare2 className="w-4 h-4" />
             Share Product
           </button>
+
+          {/* Price Alert Button */}
+          {product.stock > 0 && (
+            <div className="mt-3">
+              <PriceAlertButton 
+                productId={product._id} 
+                currentPrice={flashSaleInfo?.salePrice || product.price}
+                productName={product.name}
+              />
+            </div>
+          )}
 
           {/* Additional Info */}
           <div className="border-t pt-6 space-y-3 text-sm text-gray-600">

@@ -1,13 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiBookmark, FiShoppingCart } from 'react-icons/fi';
+import { useState } from 'react';
+import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiBookmark, FiShoppingCart, FiSave } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { updateQuantity, removeFromCart, saveForLater, moveToCart, removeFromSavedForLater } from '../store/slices/cartSlice';
+import { saveCart } from '../store/slices/activitySlice';
 import { formatPrice } from '../utils/helpers';
 
 const CartPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [cartName, setCartName] = useState('');
+  const [saving, setSaving] = useState(false);
   const cartState = useSelector((state) => state.cart) || {};
   const { 
     items = [], 
@@ -80,6 +85,33 @@ const CartPage = () => {
   const handleRemoveFromSaved = (productId) => {
     dispatch(removeFromSavedForLater(productId));
     toast.success('Item removed');
+  };
+
+  const handleSaveCart = async () => {
+    if (!cartName.trim()) {
+      toast.error('Please enter a name for your cart');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await dispatch(
+        saveCart({
+          name: cartName.trim(),
+          items: items.map((item) => ({
+            productId: item._id,
+            quantity: item.quantity,
+          })),
+        })
+      ).unwrap();
+      toast.success('Cart saved successfully!');
+      setShowSaveModal(false);
+      setCartName('');
+    } catch (error) {
+      toast.error(error || 'Failed to save cart');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -233,6 +265,16 @@ const CartPage = () => {
               Proceed to Checkout
             </button>
 
+            {isAuthenticated && items.length > 0 && (
+              <button
+                onClick={() => setShowSaveModal(true)}
+                className="w-full mt-3 py-2.5 border border-primary-500 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition flex items-center justify-center gap-2 text-sm font-medium"
+              >
+                <FiSave className="w-4 h-4" />
+                Save Cart for Later
+              </button>
+            )}
+
             <Link
               to="/products"
               className="block text-center text-primary-600 hover:text-primary-700 mt-4"
@@ -299,6 +341,59 @@ const CartPage = () => {
           <Link to="/products" className="btn-primary">
             Continue Shopping
           </Link>
+        </div>
+      )}
+
+      {/* Save Cart Modal */}
+      {showSaveModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowSaveModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Save Cart for Later
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Give your cart a name to easily find it later
+            </p>
+            <input
+              type="text"
+              value={cartName}
+              onChange={(e) => setCartName(e.target.value)}
+              placeholder="e.g., Monthly Groceries, Birthday Gifts"
+              className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent mb-4"
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSaveModal(false)}
+                className="flex-1 py-2.5 border dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveCart}
+                disabled={saving || !cartName.trim()}
+                className="flex-1 py-2.5 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white rounded-lg font-medium transition flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <FiSave className="w-4 h-4" />
+                    Save Cart
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
+              You can access saved carts from your account menu
+            </p>
+          </div>
         </div>
       )}
     </div>
