@@ -50,6 +50,10 @@ const giftCardSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'User',
     },
+    redeemedByUsers: [{
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    }],
     transactions: [
       {
         type: {
@@ -134,6 +138,7 @@ giftCardSchema.methods.refund = function (amount, orderId, userId) {
 
 giftCardSchema.index({ purchasedBy: 1 });
 giftCardSchema.index({ redeemedBy: 1 });
+giftCardSchema.index({ redeemedByUsers: 1 });
 
 const GiftCard = mongoose.model('GiftCard', giftCardSchema);
 

@@ -53,7 +53,7 @@ const GiftCardsPage = () => {
   const [myRedeemedCards, setMyRedeemedCards] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
 
-  const predefinedAmounts = [500, 1000, 2000, 5000, 10000, 25000];
+  const predefinedAmounts = [100, 500, 1000, 2000, 5000, 10000, 25000];
 
   const themes = [
     { id: 'general', label: 'General', icon: Gift, color: 'bg-gradient-to-br from-primary-500 to-purple-600' },
@@ -94,8 +94,8 @@ const GiftCardsPage = () => {
 
     const amount = purchaseForm.customAmount ? parseFloat(purchaseForm.customAmount) : purchaseForm.amount;
     
-    if (amount < 500 || amount > 50000) {
-      toast.error('Amount must be between ₹500 and ₹50000');
+    if (amount < 1 || amount > 50000) {
+      toast.error('Amount must be between ₹1 and ₹50,000');
       return;
     }
 
@@ -350,9 +350,9 @@ const GiftCardsPage = () => {
                     <span className="text-gray-600 dark:text-gray-400">₹</span>
                     <input
                       type="number"
-                      min="500"
+                      min="1"
                       max="50000"
-                      placeholder="Custom amount (500-50000)"
+                      placeholder="Custom amount (1-50000)"
                       value={purchaseForm.customAmount}
                       onChange={(e) => setPurchaseForm({ ...purchaseForm, customAmount: e.target.value })}
                       className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"

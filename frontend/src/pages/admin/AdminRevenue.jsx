@@ -81,12 +81,13 @@ const AdminRevenue = () => {
     if (!stats.length) return;
     
     const csvContent = [
-      ['Date', 'Total Revenue', 'Order Revenue', 'Subscription Revenue', 'Transactions'],
+      ['Date', 'Total Revenue', 'Order Revenue', 'Subscription Revenue', 'Gift Card Revenue', 'Transactions'],
       ...stats.map(item => [
         item._id,
         item.totalRevenue,
         item.orderRevenue,
         item.subscriptionRevenue,
+        item.giftCardRevenue || 0,
         item.count
       ])
     ].map(row => row.join(',')).join('\n');
@@ -285,10 +286,18 @@ const AdminRevenue = () => {
                     />
                     {/* Subscription Revenue Bar */}
                     <div 
-                      className="bg-purple-500 h-4 rounded-r"
+                      className="bg-purple-500 h-4"
                       style={{ 
                         width: `${((item.subscriptionRevenue || 0) / maxRevenue) * 100}%`,
                         minWidth: item.subscriptionRevenue > 0 ? '4px' : '0'
+                      }}
+                    />
+                    {/* Gift Card Revenue Bar */}
+                    <div 
+                      className="bg-pink-500 h-4 rounded-r"
+                      style={{ 
+                        width: `${((item.giftCardRevenue || 0) / maxRevenue) * 100}%`,
+                        minWidth: item.giftCardRevenue > 0 ? '4px' : '0'
                       }}
                     />
                   </div>
@@ -314,6 +323,10 @@ const AdminRevenue = () => {
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-purple-500 rounded" />
             <span className="text-sm text-gray-600 dark:text-gray-400">Subscriptions</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-pink-500 rounded" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">Gift Cards</span>
           </div>
         </div>
       </div>

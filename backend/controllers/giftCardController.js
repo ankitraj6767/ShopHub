@@ -25,9 +25,9 @@ try {
 export const createGiftCardOrder = asyncHandler(async (req, res) => {
   const { amount, recipientEmail, recipientName, senderName, message, theme } = req.body;
 
-  if (amount < 500 || amount > 50000) {
+  if (amount < 1 || amount > 50000) {
     res.status(400);
-    throw new Error('Gift card amount must be between ₹500 and ₹50,000');
+    throw new Error('Gift card amount must be between ₹1 and ₹50,000');
   }
 
   if (!recipientEmail) {
@@ -176,9 +176,9 @@ export const verifyGiftCardPayment = asyncHandler(async (req, res) => {
 export const purchaseGiftCard = asyncHandler(async (req, res) => {
   const { amount, recipientEmail, recipientName, senderName, message, theme } = req.body;
 
-  if (amount < 500 || amount > 50000) {
+  if (amount < 1 || amount > 50000) {
     res.status(400);
-    throw new Error('Gift card amount must be between ₹500 and ₹50,000');
+    throw new Error('Gift card amount must be between ₹1 and ₹50,000');
   }
 
   // Redirect to payment flow
@@ -259,12 +259,33 @@ export const redeemGiftCard = asyncHandler(async (req, res) => {
     throw new Error('Gift card is not valid or has expired');
   }
 
-  if (giftCard.redeemedBy && giftCard.redeemedBy.toString() !== req.user._id.toString()) {
+  // Check if this user has already redeemed this gift card
+  const userId = req.user._id.toString();
+  const hasAlreadyRedeemed = giftCard.redeemedByUsers && 
+    giftCard.redeemedByUsers.some(id => id.toString() === userId);
+
+  if (hasAlreadyRedeemed) {
     res.status(400);
-    throw new Error('This gift card has already been redeemed by another user');
+    throw new Error('You have already redeemed this gift card code');
   }
 
-  giftCard.redeemedBy = req.user._id;
+  // Check if gift card has any balance left
+  if (giftCard.currentBalance <= 0) {
+    res.status(400);
+    throw new Error('This gift card has no remaining balance');
+  }
+
+  // Add user to redeemedByUsers array
+  if (!giftCard.redeemedByUsers) {
+    giftCard.redeemedByUsers = [];
+  }
+  giftCard.redeemedByUsers.push(req.user._id);
+  
+  // Set redeemedBy for backward compatibility (first redeemer)
+  if (!giftCard.redeemedBy) {
+    giftCard.redeemedBy = req.user._id;
+  }
+  
   await giftCard.save();
 
   res.json({
