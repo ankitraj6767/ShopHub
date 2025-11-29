@@ -18,17 +18,16 @@ const DealOfTheDay = () => {
   }, []);
 
   useEffect(() => {
-    if (deals.length > 0 && deals[0].endDate) {
-      const timer = setInterval(() => {
-        calculateTimeLeft(deals[0].endDate);
-      }, 1000);
-      return () => clearInterval(timer);
-    } else {
-      // Default to end of day if no specific end date
-      const timer = setInterval(() => {
+    if (deals.length > 0) {
+      const endDate = deals[0].endDate || (() => {
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999);
-        calculateTimeLeft(endOfDay);
+        return endOfDay;
+      })();
+      
+      calculateTimeLeft(endDate);
+      const timer = setInterval(() => {
+        calculateTimeLeft(endDate);
       }, 1000);
       return () => clearInterval(timer);
     }
@@ -36,44 +35,13 @@ const DealOfTheDay = () => {
 
   const fetchDeals = async () => {
     try {
-      // Fetch deals from the deals API
+      // Fetch deals from the deals API - only show admin-created deals
       const response = await api.get('/deals/today');
       const fetchedDeals = response.data.data || [];
-      
-      if (fetchedDeals.length > 0) {
-        setDeals(fetchedDeals);
-      } else {
-        // Fallback: fetch featured products if no deals are set
-        const productResponse = await api.get('/products?limit=4&sort=-createdAt');
-        const products = productResponse.data.data || [];
-        const fallbackDeals = products.map(p => ({
-          _id: p._id,
-          product: p,
-          originalPrice: Math.round(p.price * 1.3),
-          salePrice: p.price,
-          discountPercent: 30,
-          isFallback: true
-        }));
-        setDeals(fallbackDeals);
-      }
+      setDeals(fetchedDeals);
     } catch (error) {
       console.error('Failed to fetch deals:', error);
-      // Fallback on error
-      try {
-        const productResponse = await api.get('/products?limit=4&sort=-createdAt');
-        const products = productResponse.data.data || [];
-        const fallbackDeals = products.map(p => ({
-          _id: p._id,
-          product: p,
-          originalPrice: Math.round(p.price * 1.3),
-          salePrice: p.price,
-          discountPercent: 30,
-          isFallback: true
-        }));
-        setDeals(fallbackDeals);
-      } catch (err) {
-        console.error('Failed to fetch fallback products');
-      }
+      setDeals([]);
     }
     setLoading(false);
   };
