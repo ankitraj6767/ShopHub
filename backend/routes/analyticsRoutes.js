@@ -3,7 +3,9 @@ import {
   getDashboardAnalytics,
   getRevenueBreakdown,
   getCustomerAnalytics,
-  getProductAnalytics
+  getProductAnalytics,
+  getRevenueAnalytics,
+  getRevenueStats
 } from '../controllers/analyticsController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -16,5 +18,7 @@ router.get('/dashboard', getDashboardAnalytics);
 router.get('/revenue', getRevenueBreakdown);
 router.get('/customers', getCustomerAnalytics);
 router.get('/products', getProductAnalytics);
+router.get('/revenue-analytics', getRevenueAnalytics);
+router.get('/revenue-stats', getRevenueStats);
 
 export default router;

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { 
   FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiArrowLeft, 
   FiMessageCircle, FiTag, FiZap, FiLayers, FiBarChart2, FiMenu, FiX,
-  FiChevronRight, FiShield
+  FiChevronRight, FiShield, FiDollarSign, FiPercent
 } from 'react-icons/fi';
 import { logout } from '../../store/slices/authSlice';
 
@@ -40,9 +40,11 @@ const AdminLayout = () => {
     { path: '/admin/users', icon: FiUsers, label: 'Users', color: 'from-purple-500 to-purple-600' },
     { path: '/admin/coupons', icon: FiTag, label: 'Coupons', color: 'from-pink-500 to-pink-600' },
     { path: '/admin/flash-sales', icon: FiZap, label: 'Flash Sales', color: 'from-yellow-500 to-yellow-600' },
+    { path: '/admin/deals', icon: FiPercent, label: 'Deals', color: 'from-red-500 to-red-600' },
     { path: '/admin/bundles', icon: FiLayers, label: 'Bundles', color: 'from-indigo-500 to-indigo-600' },
+    { path: '/admin/revenue', icon: FiDollarSign, label: 'Revenue', color: 'from-green-500 to-green-600' },
     { path: '/admin/analytics', icon: FiBarChart2, label: 'Analytics', color: 'from-cyan-500 to-cyan-600' },
-    { path: '/admin/support', icon: FiMessageCircle, label: 'Support', color: 'from-red-500 to-red-600' },
+    { path: '/admin/support', icon: FiMessageCircle, label: 'Support', color: 'from-rose-500 to-rose-600' },
   ];
 
   const isActive = (path, exact = false) => {

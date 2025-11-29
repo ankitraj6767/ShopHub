@@ -1,7 +1,28 @@
 import PremiumSubscription from '../models/PremiumSubscription.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import Revenue from '../models/Revenue.js';
 import asyncHandler from 'express-async-handler';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+import config from '../config/config.js';
+
+// Initialize Razorpay
+console.log('Initializing Razorpay with key:', config.razorpayKeyId ? 'Present' : 'Missing');
+let razorpay = null;
+try {
+  if (config.razorpayKeyId && config.razorpayKeySecret) {
+    razorpay = new Razorpay({
+      key_id: config.razorpayKeyId,
+      key_secret: config.razorpayKeySecret,
+    });
+    console.log('Razorpay initialized successfully');
+  } else {
+    console.error('Razorpay keys not found in config');
+  }
+} catch (err) {
+  console.error('Failed to initialize Razorpay:', err);
+}
 
 // Premium plan configuration
 const PREMIUM_PLANS = {
@@ -96,15 +117,23 @@ export const getPremiumStatus = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Subscribe to premium
-// @route   POST /api/premium/subscribe
+// @desc    Create Razorpay order for premium subscription
+// @route   POST /api/premium/create-order
 // @access  Private
-export const subscribeToPremium = asyncHandler(async (req, res) => {
-  const { plan, paymentMethod = 'card' } = req.body;
+export const createPremiumOrder = asyncHandler(async (req, res) => {
+  const { plan } = req.body;
+
+  console.log('Creating premium order for plan:', plan);
 
   if (!plan || !PREMIUM_PLANS[plan]) {
     res.status(400);
     throw new Error('Invalid plan selected');
+  }
+
+  if (!razorpay) {
+    console.error('Razorpay not configured. Key ID:', config.razorpayKeyId ? 'present' : 'missing');
+    res.status(500);
+    throw new Error('Payment system not configured');
   }
 
   const planDetails = PREMIUM_PLANS[plan];
@@ -117,14 +146,82 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
     throw new Error('You already have an active premium subscription');
   }
 
+  // Create Razorpay order - receipt must be <= 40 chars
+  const shortUserId = req.user._id.toString().slice(-8);
+  const options = {
+    amount: Math.round(planDetails.price * 100), // Convert to paise
+    currency: 'INR',
+    receipt: `prem_${shortUserId}_${Date.now().toString().slice(-10)}`,
+    notes: {
+      userId: req.user._id.toString(),
+      plan: plan,
+      planName: planDetails.name,
+    },
+  };
+
+  try {
+    const razorpayOrder = await razorpay.orders.create(options);
+    console.log('Razorpay order created:', razorpayOrder.id);
+
+    res.json({
+      success: true,
+      order: razorpayOrder,
+      key_id: config.razorpayKeyId,
+      plan: planDetails,
+    });
+  } catch (razorpayError) {
+    console.error('Razorpay order creation failed:', razorpayError);
+    console.error('Error details:', JSON.stringify(razorpayError, null, 2));
+    res.status(500);
+    throw new Error('Failed to create payment order: ' + (razorpayError.error?.description || razorpayError.message || 'Unknown error'));
+  }
+});
+
+// @desc    Verify payment and activate premium subscription
+// @route   POST /api/premium/verify-payment
+// @access  Private
+export const verifyPremiumPayment = asyncHandler(async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    plan,
+  } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    res.status(400);
+    throw new Error('Missing payment verification data');
+  }
+
+  if (!plan || !PREMIUM_PLANS[plan]) {
+    res.status(400);
+    throw new Error('Invalid plan');
+  }
+
+  // Verify signature
+  const body = razorpay_order_id + '|' + razorpay_payment_id;
+  const expectedSignature = crypto
+    .createHmac('sha256', config.razorpayKeySecret)
+    .update(body.toString())
+    .digest('hex');
+
+  const isAuthentic = expectedSignature === razorpay_signature;
+
+  if (!isAuthentic) {
+    res.status(400);
+    throw new Error('Payment verification failed - Invalid signature');
+  }
+
+  const planDetails = PREMIUM_PLANS[plan];
   const startDate = new Date();
   const endDate = new Date(startDate.getTime() + planDetails.duration * 24 * 60 * 60 * 1000);
   const nextBillingDate = new Date(endDate);
 
   let subscription;
+  const existingSubscription = await PremiumSubscription.findOne({ user: req.user._id });
 
   if (existingSubscription) {
-    // Reactivate existing subscription
+    // Reactivate/Update existing subscription
     existingSubscription.plan = plan;
     existingSubscription.planName = planDetails.name;
     existingSubscription.price = planDetails.price;
@@ -139,11 +236,13 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
     existingSubscription.nextBillingDate = nextBillingDate;
     existingSubscription.autoRenew = true;
     existingSubscription.cancelledAt = undefined;
+    existingSubscription.lastPaymentDate = new Date();
+    existingSubscription.paymentMethod = 'razorpay';
     existingSubscription.paymentHistory.push({
       amount: planDetails.price,
       date: new Date(),
       status: 'success',
-      transactionId: `TXN_${Date.now()}`,
+      transactionId: razorpay_payment_id,
     });
     subscription = await existingSubscription.save();
   } else {
@@ -162,7 +261,7 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
       startDate,
       endDate,
       nextBillingDate,
-      paymentMethod,
+      paymentMethod: 'razorpay',
       autoRenew: true,
       lastPaymentDate: new Date(),
       paymentHistory: [
@@ -170,7 +269,7 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
           amount: planDetails.price,
           date: new Date(),
           status: 'success',
-          transactionId: `TXN_${Date.now()}`,
+          transactionId: razorpay_payment_id,
         },
       ],
     });
@@ -178,6 +277,14 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
 
   // Update user's premium status
   await User.findByIdAndUpdate(req.user._id, { isPremium: true });
+
+  // Record revenue
+  await Revenue.recordSubscriptionPayment(subscription, {
+    method: 'razorpay',
+    transactionId: razorpay_payment_id,
+    razorpayOrderId: razorpay_order_id,
+    razorpayPaymentId: razorpay_payment_id,
+  });
 
   // Create notification
   await Notification.create({
@@ -190,7 +297,7 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
     },
   });
 
-  res.status(201).json({
+  res.json({
     success: true,
     message: `Successfully subscribed to ${planDetails.name}!`,
     subscription: {
@@ -203,6 +310,36 @@ export const subscribeToPremium = asyncHandler(async (req, res) => {
       discountPercent: subscription.discountPercent,
       daysRemaining: subscription.getDaysRemaining(),
     },
+  });
+});
+
+// @desc    Subscribe to premium (legacy - now just returns payment info)
+// @route   POST /api/premium/subscribe
+// @access  Private
+export const subscribeToPremium = asyncHandler(async (req, res) => {
+  const { plan } = req.body;
+
+  if (!plan || !PREMIUM_PLANS[plan]) {
+    res.status(400);
+    throw new Error('Invalid plan selected');
+  }
+
+  const planDetails = PREMIUM_PLANS[plan];
+
+  // Check if user already has an active subscription
+  const existingSubscription = await PremiumSubscription.findOne({ user: req.user._id });
+  
+  if (existingSubscription && existingSubscription.isActive()) {
+    res.status(400);
+    throw new Error('You already have an active premium subscription');
+  }
+
+  // Return plan info for frontend to initiate payment
+  res.json({
+    success: true,
+    message: 'Please complete payment to activate subscription',
+    plan: planDetails,
+    requiresPayment: true,
   });
 });
 

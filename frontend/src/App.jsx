@@ -58,6 +58,8 @@ import AdminFlashSales from './pages/admin/AdminFlashSales';
 import AdminBundles from './pages/admin/AdminBundles';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminCoupons from './pages/admin/AdminCoupons';
+import AdminDeals from './pages/admin/AdminDeals';
+import AdminRevenue from './pages/admin/AdminRevenue';
 
 // Route Guards
 import PrivateRoute from './components/routes/PrivateRoute';
@@ -149,7 +151,9 @@ function App() {
           <Route path="coupons" element={<AdminCoupons />} />
           <Route path="flash-sales" element={<AdminFlashSales />} />
           <Route path="bundles" element={<AdminBundles />} />
+          <Route path="deals" element={<AdminDeals />} />
           <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="revenue" element={<AdminRevenue />} />
           <Route path="support" element={<AdminSupport />} />
           <Route path="support/:id" element={<AdminTicketDetail />} />
         </Route>

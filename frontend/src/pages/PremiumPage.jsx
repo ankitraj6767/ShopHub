@@ -70,13 +70,78 @@ const PremiumPage = () => {
 
     setSubscribing(true);
     try {
-      const { data } = await api.post('/premium/subscribe', { plan: planId });
-      toast.success(data.message);
-      setIsPremium(true);
-      setSubscription(data.subscription);
+      // Get the selected plan details
+      const selectedPlanDetails = plans.find(p => p.id === planId);
+      if (!selectedPlanDetails) {
+        throw new Error('Plan not found');
+      }
+
+      // Create Razorpay payment order
+      const { data: paymentData } = await api.post('/premium/create-order', { plan: planId });
+      
+      // Load Razorpay script if not already loaded
+      if (!window.Razorpay) {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+        await new Promise((resolve) => {
+          script.onload = resolve;
+        });
+      }
+
+      // Configure Razorpay options
+      const options = {
+        key: paymentData.key_id,
+        amount: paymentData.order.amount,
+        currency: paymentData.order.currency,
+        name: 'ShopHub Premium',
+        description: `${selectedPlanDetails.name} Subscription`,
+        order_id: paymentData.order.id,
+        handler: async function (response) {
+          try {
+            // Verify payment with backend
+            const verifyData = await api.post('/premium/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              plan: planId
+            });
+            
+            toast.success(verifyData.data.message || 'Premium subscription activated!');
+            setIsPremium(true);
+            setSubscription(verifyData.data.subscription);
+            setSubscribing(false);
+          } catch (error) {
+            toast.error(error.response?.data?.message || 'Payment verification failed');
+            setSubscribing(false);
+          }
+        },
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+          contact: user?.phone || ''
+        },
+        notes: {
+          plan: planId,
+          userId: user?._id
+        },
+        theme: {
+          color: '#7c3aed'
+        },
+        modal: {
+          ondismiss: function() {
+            setSubscribing(false);
+            toast.error('Payment cancelled');
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+      
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to subscribe');
-    } finally {
+      toast.error(error.response?.data?.message || 'Failed to initiate payment');
       setSubscribing(false);
     }
   };

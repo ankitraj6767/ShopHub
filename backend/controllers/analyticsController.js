@@ -2,6 +2,8 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import Review from '../models/Review.js';
+import Revenue from '../models/Revenue.js';
+import PremiumSubscription from '../models/PremiumSubscription.js';
 import asyncHandler from 'express-async-handler';
 
 // @desc    Get dashboard analytics
@@ -515,9 +517,161 @@ export const getProductAnalytics = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get revenue summary for admin
+// @route   GET /api/analytics/revenue
+// @access  Private/Admin
+export const getRevenueAnalytics = asyncHandler(async (req, res) => {
+  const { startDate, endDate, period = 'daily' } = req.query;
+  
+  // Get overall revenue summary
+  const revenueSummary = await Revenue.getRevenueSummary(startDate, endDate);
+  
+  // Get time-based revenue
+  let timeBasedRevenue;
+  if (period === 'monthly') {
+    timeBasedRevenue = await Revenue.getMonthlyRevenue(12);
+  } else {
+    const days = req.query.days ? parseInt(req.query.days) : 30;
+    timeBasedRevenue = await Revenue.getDailyRevenue(days);
+  }
+
+  // Get premium subscription stats
+  const now = new Date();
+  const activeSubscriptions = await PremiumSubscription.countDocuments({
+    status: 'active',
+    endDate: { $gt: now },
+  });
+  
+  const totalSubscriptions = await PremiumSubscription.countDocuments();
+  
+  const subscriptionRevenue = await PremiumSubscription.aggregate([
+    { $match: { status: 'active' } },
+    {
+      $group: {
+        _id: '$plan',
+        count: { $sum: 1 },
+        totalRevenue: { $sum: '$price' },
+      },
+    },
+  ]);
+
+  // Recent transactions
+  const recentTransactions = await Revenue.find()
+    .populate('user', 'name email')
+    .sort({ createdAt: -1 })
+    .limit(20);
+
+  res.json({
+    success: true,
+    data: {
+      summary: revenueSummary,
+      timeBased: timeBasedRevenue,
+      subscriptions: {
+        active: activeSubscriptions,
+        total: totalSubscriptions,
+        byPlan: subscriptionRevenue,
+      },
+      recentTransactions,
+    },
+  });
+});
+
+// @desc    Get payment transactions
+// @route   GET /api/analytics/transactions
+// @access  Private/Admin
+export const getTransactions = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, type, status, startDate, endDate } = req.query;
+  const skip = (page - 1) * limit;
+
+  const query = {};
+  
+  if (type) query.type = type;
+  if (status) query.status = status;
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+  }
+
+  const [transactions, total] = await Promise.all([
+    Revenue.find(query)
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Revenue.countDocuments(query),
+  ]);
+
+  res.json({
+    success: true,
+    data: transactions,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / limit),
+    },
+  });
+});
+
+// @desc    Get daily revenue stats for charts
+// @route   GET /api/analytics/revenue-stats
+// @access  Private/Admin
+export const getRevenueStats = asyncHandler(async (req, res) => {
+  const { days = 30, startDate, endDate } = req.query;
+  
+  let dateFilter = {};
+  if (startDate && endDate) {
+    dateFilter = {
+      createdAt: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+    };
+  } else {
+    const daysAgo = new Date();
+    daysAgo.setDate(daysAgo.getDate() - parseInt(days));
+    dateFilter = {
+      createdAt: { $gte: daysAgo }
+    };
+  }
+
+  const dailyStats = await Revenue.aggregate([
+    { $match: { ...dateFilter, status: 'completed' } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        totalRevenue: { $sum: '$amount' },
+        orderRevenue: {
+          $sum: { $cond: [{ $eq: ['$type', 'order'] }, '$amount', 0] }
+        },
+        subscriptionRevenue: {
+          $sum: { $cond: [{ $eq: ['$type', 'subscription'] }, '$amount', 0] }
+        },
+        giftCardRevenue: {
+          $sum: { $cond: [{ $eq: ['$type', 'gift_card'] }, '$amount', 0] }
+        },
+        refunds: {
+          $sum: { $cond: [{ $eq: ['$type', 'refund'] }, '$amount', 0] }
+        },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } }
+  ]);
+
+  res.json({
+    success: true,
+    data: dailyStats
+  });
+});
+
 export default {
   getDashboardAnalytics,
   getRevenueBreakdown,
   getCustomerAnalytics,
-  getProductAnalytics
+  getProductAnalytics,
+  getRevenueAnalytics,
+  getRevenueStats,
+  getTransactions,
 };

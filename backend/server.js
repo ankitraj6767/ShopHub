@@ -31,6 +31,7 @@ import referralRoutes from './routes/referralRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import premiumRoutes from './routes/premiumRoutes.js';
+import dealRoutes from './routes/dealRoutes.js';
 
 dotenv.config();
 
@@ -87,6 +88,7 @@ app.use('/api/referrals', referralRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/premium', premiumRoutes);
+app.use('/api/deals', dealRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

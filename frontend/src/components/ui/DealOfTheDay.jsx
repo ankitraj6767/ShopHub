@@ -1,50 +1,88 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiClock, FiZap } from 'react-icons/fi';
+import { FiClock, FiZap, FiShoppingCart } from 'react-icons/fi';
 import { formatPrice } from '../../utils/helpers';
 import api from '../../utils/api';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../store/slices/cartSlice';
+import toast from 'react-hot-toast';
 
 const DealOfTheDay = () => {
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchDeals();
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      calculateTimeLeft();
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (deals.length > 0 && deals[0].endDate) {
+      const timer = setInterval(() => {
+        calculateTimeLeft(deals[0].endDate);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else {
+      // Default to end of day if no specific end date
+      const timer = setInterval(() => {
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+        calculateTimeLeft(endOfDay);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [deals]);
 
   const fetchDeals = async () => {
     try {
-      // Fetch products with discount (simulating deals)
-      const response = await api.get('/products?limit=4&sort=-createdAt');
-      const products = response.data.data || [];
-      // Add fake discount for demo
-      const dealsWithDiscount = products.map(p => ({
-        ...p,
-        originalPrice: p.price * 1.3,
-        discount: 30,
-      }));
-      setDeals(dealsWithDiscount);
+      // Fetch deals from the deals API
+      const response = await api.get('/deals/today');
+      const fetchedDeals = response.data.data || [];
+      
+      if (fetchedDeals.length > 0) {
+        setDeals(fetchedDeals);
+      } else {
+        // Fallback: fetch featured products if no deals are set
+        const productResponse = await api.get('/products?limit=4&sort=-createdAt');
+        const products = productResponse.data.data || [];
+        const fallbackDeals = products.map(p => ({
+          _id: p._id,
+          product: p,
+          originalPrice: Math.round(p.price * 1.3),
+          salePrice: p.price,
+          discountPercent: 30,
+          isFallback: true
+        }));
+        setDeals(fallbackDeals);
+      }
     } catch (error) {
-      console.error('Failed to fetch deals');
+      console.error('Failed to fetch deals:', error);
+      // Fallback on error
+      try {
+        const productResponse = await api.get('/products?limit=4&sort=-createdAt');
+        const products = productResponse.data.data || [];
+        const fallbackDeals = products.map(p => ({
+          _id: p._id,
+          product: p,
+          originalPrice: Math.round(p.price * 1.3),
+          salePrice: p.price,
+          discountPercent: 30,
+          isFallback: true
+        }));
+        setDeals(fallbackDeals);
+      } catch (err) {
+        console.error('Failed to fetch fallback products');
+      }
     }
     setLoading(false);
   };
 
-  const calculateTimeLeft = () => {
-    // Deal ends at midnight
+  const calculateTimeLeft = (endDate) => {
     const now = new Date();
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    const end = new Date(endDate);
     
-    const difference = endOfDay - now;
+    const difference = end - now;
     
     if (difference > 0) {
       setTimeLeft({
@@ -52,7 +90,27 @@ const DealOfTheDay = () => {
         minutes: Math.floor((difference / 1000 / 60) % 60),
         seconds: Math.floor((difference / 1000) % 60),
       });
+    } else {
+      setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
     }
+  };
+
+  const handleAddToCart = (e, deal) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const product = deal.product;
+    if (!product) return;
+    
+    dispatch(addToCart({
+      _id: product._id,
+      name: product.name,
+      price: deal.salePrice,
+      image: product.images?.[0]?.url || 'https://via.placeholder.com/300',
+      quantity: 1,
+      stock: product.stock
+    }));
+    toast.success('Added to cart!');
   };
 
   if (loading || deals.length === 0) return null;
@@ -90,31 +148,71 @@ const DealOfTheDay = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {deals.map((deal) => (
-            <Link
-              key={deal._id}
-              to={`/products/${deal._id}`}
-              className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition group"
-            >
-              <div className="relative">
-                <img
-                  src={deal.images?.[0]?.url || 'https://via.placeholder.com/300'}
-                  alt={deal.name}
-                  className="w-full h-40 object-cover group-hover:scale-105 transition"
-                />
-                <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-                  -{deal.discount}%
-                </span>
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium text-gray-900 line-clamp-2 mb-2">{deal.name}</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-red-600">{formatPrice(deal.price)}</span>
-                  <span className="text-sm text-gray-400 line-through">{formatPrice(deal.originalPrice)}</span>
+          {deals.map((deal) => {
+            const product = deal.product || deal;
+            const productId = product._id || deal._id;
+            const productName = product.name || 'Product';
+            const productImage = product.images?.[0]?.url || 'https://via.placeholder.com/300';
+            const discount = deal.discountPercent || Math.round(((deal.originalPrice - deal.salePrice) / deal.originalPrice) * 100);
+            const soldCount = deal.soldCount || 0;
+            const purchaseLimit = deal.purchaseLimit || 0;
+            const stockLeft = purchaseLimit > 0 ? purchaseLimit - soldCount : null;
+            
+            return (
+              <Link
+                key={deal._id}
+                to={`/products/${productId}`}
+                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition group"
+              >
+                <div className="relative">
+                  <img
+                    src={productImage}
+                    alt={productName}
+                    className="w-full h-40 object-cover group-hover:scale-105 transition"
+                  />
+                  <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    -{discount}%
+                  </span>
+                  {stockLeft !== null && stockLeft <= 10 && (
+                    <span className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
+                      Only {stockLeft} left!
+                    </span>
+                  )}
                 </div>
-              </div>
-            </Link>
-          ))}
+                <div className="p-4">
+                  <h3 className="font-medium text-gray-900 line-clamp-2 mb-2">{productName}</h3>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg font-bold text-red-600">{formatPrice(deal.salePrice)}</span>
+                    <span className="text-sm text-gray-400 line-through">{formatPrice(deal.originalPrice)}</span>
+                  </div>
+                  
+                  {/* Progress bar for stock */}
+                  {purchaseLimit > 0 && (
+                    <div className="mb-3">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Sold: {soldCount}</span>
+                        <span>Available: {stockLeft}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-red-500 h-2 rounded-full transition-all"
+                          style={{ width: `${Math.min((soldCount / purchaseLimit) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={(e) => handleAddToCart(e, deal)}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition"
+                  >
+                    <FiShoppingCart className="w-4 h-4" />
+                    Add to Cart
+                  </button>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

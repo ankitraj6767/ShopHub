@@ -3,6 +3,8 @@ import {
   getPremiumPlans,
   getPremiumStatus,
   subscribeToPremium,
+  createPremiumOrder,
+  verifyPremiumPayment,
   cancelPremium,
   toggleAutoRenew,
   getPremiumBenefits,
@@ -20,6 +22,8 @@ router.get('/plans', getPremiumPlans);
 // Protected routes
 router.get('/status', protect, getPremiumStatus);
 router.post('/subscribe', protect, subscribeToPremium);
+router.post('/create-order', protect, createPremiumOrder);
+router.post('/verify-payment', protect, verifyPremiumPayment);
 router.post('/cancel', protect, cancelPremium);
 router.put('/auto-renew', protect, toggleAutoRenew);
 router.get('/benefits', protect, getPremiumBenefits);

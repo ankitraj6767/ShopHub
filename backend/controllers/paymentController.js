@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import Order from '../models/Order.js';
+import Revenue from '../models/Revenue.js';
 import config from '../config/config.js';
 import { sendEmail, emailTemplates } from '../utils/email.js';
 
@@ -349,6 +350,18 @@ export const verifyRazorpayPayment = async (req, res) => {
         order.addStatusHistory('Confirmed', req.user._id, 'Payment received via Razorpay');
         
         await order.save();
+
+        // Record revenue for admin tracking
+        try {
+          await Revenue.recordOrderPayment(order, {
+            method: 'razorpay',
+            transactionId: razorpay_payment_id,
+            razorpayOrderId: razorpay_order_id,
+            razorpayPaymentId: razorpay_payment_id,
+          });
+        } catch (revenueError) {
+          console.error('Failed to record revenue:', revenueError);
+        }
 
         // Send confirmation email
         try {
