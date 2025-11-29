@@ -10,6 +10,8 @@ export const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Validate is disabled to prevent errors with proxy headers
+  validate: { trustProxy: false, xForwardedForHeader: false },
   skip: (req) => {
     // Skip rate limiting in development
     return process.env.NODE_ENV === 'development';
@@ -26,6 +28,8 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Validate is disabled to prevent errors with proxy headers
+  validate: { trustProxy: false, xForwardedForHeader: false },
   skip: (req) => {
     // Skip rate limiting in development
     return process.env.NODE_ENV === 'development';
@@ -42,6 +46,7 @@ export const passwordResetLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false, xForwardedForHeader: false },
 });
 
 // Order creation limiter

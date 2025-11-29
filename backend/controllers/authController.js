@@ -69,6 +69,9 @@ export const registerUser = asyncHandler(async (req, res) => {
 // @access  Public
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  
+  // Debug log for troubleshooting
+  console.log('Login attempt:', { email, ip: req.ip, userAgent: req.get('User-Agent')?.substring(0, 50) });
 
   // Check for user
   const user = await User.findOne({ email }).select('+password');
