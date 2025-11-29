@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-// Use environment variable for API URL, fallback to direct backend URL for local development
+// Use environment variable for API URL
 // In production (Vercel), use the Railway backend URL
+// In development, use proxy (/api) which Vite proxies to localhost:5001
 const API_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? 'https://shophub-production-e2cc.up.railway.app/api' : 'http://localhost:5001/api');
+  (import.meta.env.PROD ? 'https://shophub-production-e2cc.up.railway.app/api' : '/api');
 
 const api = axios.create({
   baseURL: API_URL,

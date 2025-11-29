@@ -607,7 +607,7 @@ const CheckoutPage = () => {
       paymentInfo: {
         method: paymentMethod,
         transactionId: paymentIntentId,
-        status: paymentIntentId ? 'paid' : 'pending',
+        status: paymentIntentId ? 'paid' : 'unpaid',
       },
       couponCode: appliedCoupon?.code || null,
       discountAmount: discount,
@@ -690,7 +690,7 @@ const CheckoutPage = () => {
     });
   };
 
-  // Razorpay payment handler
+  // Razorpay payment handler - Payment first, then create order
   const handleRazorpayPayment = async () => {
     if (!razorpayLoaded || !razorpayKeyId) {
       toast.error('Razorpay is not available. Please try another payment method.');
@@ -700,22 +700,14 @@ const CheckoutPage = () => {
     setIsProcessing(true);
 
     try {
-      // First create the order in our database
-      const newOrder = await handlePlaceOrder();
-      if (!newOrder) {
-        setIsProcessing(false);
-        return;
-      }
-
-      // Create Razorpay order
+      // First create Razorpay order (without creating shop order yet)
       const razorpayResult = await dispatch(createRazorpayOrder({
         amount: Math.round(finalTotal), // Amount in rupees, backend converts to paise
         currency: 'INR',
-        orderId: newOrder._id,
       }));
 
       if (!createRazorpayOrder.fulfilled.match(razorpayResult)) {
-        toast.error('Failed to create Razorpay order');
+        toast.error('Failed to initialize payment. Please try again.');
         setIsProcessing(false);
         return;
       }
@@ -731,19 +723,65 @@ const CheckoutPage = () => {
         amount: amount,
         currency: currency,
         name: 'ShopHub',
-        description: `Order #${newOrder._id.slice(-8).toUpperCase()}`,
+        description: 'Order Payment',
         order_id: razorpayOrderId,
         handler: async function (response) {
-          // Verify payment
-          const verifyResult = await dispatch(verifyRazorpayPayment({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            orderId: newOrder._id,
-          }));
+          // Payment successful - now create the order with payment details
+          toast.loading('Processing your order...', { id: 'order-processing' });
+          
+          const orderData = {
+            orderItems: items.map((item) => ({
+              product: item._id,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+            shippingAddress,
+            paymentInfo: {
+              method: 'Razorpay',
+              transactionId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              status: 'paid',
+            },
+            couponCode: appliedCoupon?.code || null,
+            discountAmount: discount,
+            premiumDiscount: premiumDiscount,
+            walletAmount: actualWalletUsed,
+            giftWrap: giftOptions.enabled,
+            giftWrapPrice: giftWrapPrice,
+            giftMessage: giftOptions.message,
+            giftRecipientName: giftOptions.recipientName,
+            giftRecipientEmail: giftOptions.recipientEmail,
+            sendGiftReceipt: giftOptions.sendGiftReceipt,
+            selectedDeliveryDate: deliveryOptions.preferredDeliveryDate,
+            deliveryTimeSlot: deliveryOptions.preferredDeliverySlot,
+            deliveryInstructions: deliveryOptions.deliveryInstructions,
+            leaveAtDoor: deliveryOptions.leaveAtDoor,
+          };
 
-          if (verifyRazorpayPayment.fulfilled.match(verifyResult)) {
-            toast.success('Payment successful!');
+          const orderResult = await dispatch(createOrder(orderData));
+          
+          if (createOrder.fulfilled.match(orderResult)) {
+            const { order: createdOrder, walletUsed } = orderResult.payload;
+            
+            // Verify payment on backend
+            await dispatch(verifyRazorpayPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: createdOrder._id,
+            }));
+
+            toast.dismiss('order-processing');
+            toast.success('Payment successful! Order placed.');
+            
+            // Show wallet notification
+            if (walletUsed && walletUsed.amount > 0) {
+              toast.success(`💰 Used ${formatPrice(walletUsed.amount)} from wallet!`, {
+                duration: 4000,
+              });
+              dispatch(fetchWallet());
+            }
+            
             // Clear cart and navigate
             if (isBuyNowMode) {
               dispatch(clearBuyNowItem());
@@ -751,18 +789,16 @@ const CheckoutPage = () => {
               dispatch(clearCart());
             }
             dispatch(clearPaymentState());
-            navigate(`/order-success/${newOrder._id}`);
+            navigate(`/order-success/${createdOrder._id}`);
           } else {
-            toast.error('Payment verification failed. Please contact support.');
+            toast.dismiss('order-processing');
+            toast.error('Payment received but order creation failed. Please contact support.');
           }
         },
         prefill: {
           name: shippingAddress.fullName,
           email: user?.email || '',
           contact: shippingAddress.phone,
-        },
-        notes: {
-          orderId: newOrder._id,
         },
         theme: {
           color: '#6366f1',

@@ -148,7 +148,7 @@ export const orderValidation = [
   body('paymentInfo.method')
     .notEmpty()
     .withMessage('Payment method is required')
-    .isIn(['Credit Card', 'PayPal', 'Cash on Delivery', 'Stripe'])
+    .isIn(['Credit Card', 'PayPal', 'Cash on Delivery', 'Stripe', 'UPI', 'Razorpay'])
     .withMessage('Invalid payment method'),
   handleValidation,
 ];

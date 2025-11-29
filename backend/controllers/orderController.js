@@ -317,6 +317,14 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
   }
 
+  // Determine payment status
+  let paymentStatus = 'unpaid';
+  if (totalPrice === 0) {
+    paymentStatus = 'paid'; // Fully paid by wallet
+  } else if (paymentInfo.status === 'paid') {
+    paymentStatus = 'paid'; // Already paid (e.g., Razorpay)
+  }
+
   // Create order
   const order = await Order.create({
     user: req.user._id,
@@ -324,7 +332,10 @@ export const createOrder = asyncHandler(async (req, res) => {
     shippingAddress,
     paymentInfo: {
       method: paymentInfo.method,
-      status: totalPrice === 0 ? 'paid' : 'unpaid', // If fully paid by wallet, mark as paid
+      status: paymentStatus,
+      transactionId: paymentInfo.transactionId || null,
+      razorpayOrderId: paymentInfo.razorpayOrderId || null,
+      paidAt: paymentStatus === 'paid' ? new Date() : null,
     },
     itemsPrice,
     taxPrice,
@@ -334,7 +345,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     premiumDiscount: actualPremiumDiscount,
     walletAmount: walletUsed,
     totalPrice,
-    status: totalPrice === 0 ? 'Confirmed' : 'Pending',
+    status: paymentStatus === 'paid' ? 'Confirmed' : 'Pending',
     // Gift options
     giftWrap: {
       enabled: giftWrap,
