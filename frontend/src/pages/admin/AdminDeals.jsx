@@ -112,11 +112,23 @@ const AdminDeals = () => {
     e.preventDefault();
     
     try {
+      // Map form data to API expected format
+      const dealData = {
+        productId: formData.product,
+        title: products.find(p => p._id === formData.product)?.name || '',
+        dealType: formData.dealType === 'daily' ? 'deal_of_day' : formData.dealType,
+        discountPercent: parseFloat(formData.discountPercent),
+        quantity: parseInt(formData.purchaseLimit) || 100,
+        startTime: formData.startDate,
+        endTime: formData.endDate,
+        isActive: formData.isActive
+      };
+
       if (editingDeal) {
-        await api.put(`/deals/${editingDeal._id}`, formData);
+        await api.put(`/deals/${editingDeal._id}`, dealData);
         toast.success('Deal updated successfully');
       } else {
-        await api.post('/deals', formData);
+        await api.post('/deals', dealData);
         toast.success('Deal created successfully');
       }
       setShowModal(false);
@@ -134,10 +146,10 @@ const AdminDeals = () => {
       originalPrice: deal.originalPrice,
       salePrice: deal.salePrice,
       discountPercent: deal.discountPercent,
-      startDate: deal.startDate ? new Date(deal.startDate).toISOString().slice(0, 16) : '',
-      endDate: deal.endDate ? new Date(deal.endDate).toISOString().slice(0, 16) : '',
-      purchaseLimit: deal.purchaseLimit || '',
-      dealType: deal.dealType || 'daily',
+      startDate: deal.startTime ? new Date(deal.startTime).toISOString().slice(0, 16) : '',
+      endDate: deal.endTime ? new Date(deal.endTime).toISOString().slice(0, 16) : '',
+      purchaseLimit: deal.quantity || '',
+      dealType: deal.dealType === 'deal_of_day' ? 'daily' : deal.dealType,
       isActive: deal.isActive
     });
     setShowModal(true);
