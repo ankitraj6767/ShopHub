@@ -169,6 +169,13 @@ const Layout = () => {
                         <FiRefreshCw className="mr-2" /> Subscriptions
                       </Link>
                       <Link
+                        to="/gift-cards"
+                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FiGift className="mr-2" /> Gift Cards
+                      </Link>
+                      <Link
                         to="/help"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setUserMenuOpen(false)}
@@ -292,6 +299,13 @@ const Layout = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Subscriptions
+                  </Link>
+                  <Link
+                    to="/gift-cards"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Gift Cards
                   </Link>
                   <Link
                     to="/help"

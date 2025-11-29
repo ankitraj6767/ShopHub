@@ -42,6 +42,9 @@ connectDB();
 
 const app = express();
 
+// Trust proxy for production (Railway, Vercel, etc.)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: true, // Allow all origins in production (credentials still required)
