@@ -52,7 +52,7 @@ const fetchStoreContext = async (userId = null) => {
     context.coupons = coupons.map(c => ({
       code: c.code,
       description: c.description,
-      discount: c.discountType === 'percentage' ? `${c.discountValue}%` : `$${c.discountValue}`,
+      discount: c.discountType === 'percentage' ? `${c.discountValue}%` : `₹${c.discountValue}`,
       minPurchase: c.minimumPurchase || 0,
       maxDiscount: c.maximumDiscount,
       expiresAt: c.validUntil
@@ -239,9 +239,9 @@ CURRENT STORE DATA:
     systemPrompt += `\n📦 COMPLETE PRODUCT CATALOG (${storeContext.allProducts.length} products):\n`;
     systemPrompt += `USE THIS LIST TO ANSWER ANY PRODUCT QUESTIONS:\n`;
     storeContext.allProducts.forEach((p, i) => {
-      systemPrompt += `${i + 1}. "${p.name}" - Price: $${p.price}`;
+      systemPrompt += `${i + 1}. "${p.name}" - Price: ₹${p.price}`;
       if (p.isOnSale && p.originalPrice !== p.price) {
-        systemPrompt += ` (Was: $${p.originalPrice}, ON SALE!)`;
+        systemPrompt += ` (Was: ₹${p.originalPrice}, ON SALE!)`;
       }
       systemPrompt += ` | Category: ${p.category} | Brand: ${p.brand}`;
       systemPrompt += ` | ${p.inStock ? `In Stock (${p.stock} available)` : 'OUT OF STOCK'}`;
@@ -254,7 +254,7 @@ CURRENT STORE DATA:
   if (storeContext.featuredProducts && storeContext.featuredProducts.length > 0) {
     systemPrompt += `\n⭐ FEATURED PRODUCTS:\n`;
     storeContext.featuredProducts.forEach((p, i) => {
-      systemPrompt += `${i + 1}. ${p.name} - $${p.price} (${p.category}, ${p.brand}) - Stock: ${p.stock}\n`;
+      systemPrompt += `${i + 1}. ${p.name} - ₹${p.price} (${p.category}, ${p.brand}) - Stock: ${p.stock}\n`;
     });
   }
 
@@ -262,7 +262,7 @@ CURRENT STORE DATA:
   if (storeContext.searchResults && storeContext.searchResults.length > 0) {
     systemPrompt += `\n🔍 SEARCH RESULTS (matching user query):\n`;
     storeContext.searchResults.forEach((p, i) => {
-      systemPrompt += `${i + 1}. ${p.name} - $${p.price} (${p.category}, ${p.brand}) - ${p.inStock ? `In Stock (${p.stock})` : 'Out of Stock'}\n`;
+      systemPrompt += `${i + 1}. ${p.name} - ₹${p.price} (${p.category}, ${p.brand}) - ${p.inStock ? `In Stock (${p.stock})` : 'Out of Stock'}\n`;
     });
   }
 
@@ -274,7 +274,7 @@ CURRENT STORE DATA:
   if (storeContext.userOrders && storeContext.userOrders.length > 0) {
     systemPrompt += `\n📦 CUSTOMER'S RECENT ORDERS:\n`;
     storeContext.userOrders.forEach((o, i) => {
-      systemPrompt += `${i + 1}. Order #${o.orderNumber} - Status: ${o.status.toUpperCase()} - $${o.total.toFixed(2)} (${o.itemCount} items) - Date: ${new Date(o.date).toLocaleDateString()}\n`;
+      systemPrompt += `${i + 1}. Order #${o.orderNumber} - Status: ${o.status.toUpperCase()} - ₹${o.total.toFixed(2)} (${o.itemCount} items) - Date: ${new Date(o.date).toLocaleDateString()}\n`;
     });
   }
 
@@ -561,7 +561,7 @@ const generateFallbackResponse = (message, storeContext, lowerMessage) => {
         }[o.status] || '📦';
         
         response += `${i + 1}. **Order #${o.orderNumber}** ${statusEmoji}\n`;
-        response += `   Status: ${o.status} | Total: $${o.total.toFixed(2)}\n`;
+        response += `   Status: ${o.status} | Total: ₹${o.total.toFixed(2)}\n`;
         response += `   Date: ${new Date(o.date).toLocaleDateString()}\n\n`;
       });
       return response;

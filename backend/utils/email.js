@@ -236,16 +236,16 @@ export const emailTemplates = {
                   <p style="margin: 0; font-weight: 500;">${item.name}</p>
                   <p style="margin: 5px 0; color: #6b7280;">Qty: ${item.quantity}</p>
                 </div>
-                <p style="margin: 0; font-weight: bold;">$${(item.price * item.quantity).toFixed(2)}</p>
+                <p style="margin: 0; font-weight: bold;">₹${(item.price * item.quantity).toFixed(2)}</p>
               </div>
             `).join('')}
             
             <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-              <p style="display: flex; justify-content: space-between;"><span>Subtotal:</span> <span>$${order.itemsPrice.toFixed(2)}</span></p>
-              <p style="display: flex; justify-content: space-between;"><span>Shipping:</span> <span>$${order.shippingPrice.toFixed(2)}</span></p>
-              <p style="display: flex; justify-content: space-between;"><span>Tax:</span> <span>$${order.taxPrice.toFixed(2)}</span></p>
-              ${order.discount > 0 ? `<p style="display: flex; justify-content: space-between; color: #10b981;"><span>Discount:</span> <span>-$${order.discount.toFixed(2)}</span></p>` : ''}
-              <p style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px;"><span>Total:</span> <span>$${order.totalPrice.toFixed(2)}</span></p>
+              <p style="display: flex; justify-content: space-between;"><span>Subtotal:</span> <span>₹${order.itemsPrice.toFixed(2)}</span></p>
+              <p style="display: flex; justify-content: space-between;"><span>Shipping:</span> <span>₹${order.shippingPrice.toFixed(2)}</span></p>
+              <p style="display: flex; justify-content: space-between;"><span>Tax:</span> <span>₹${order.taxPrice.toFixed(2)}</span></p>
+              ${order.discount > 0 ? `<p style="display: flex; justify-content: space-between; color: #10b981;"><span>Discount:</span> <span>-₹${order.discount.toFixed(2)}</span></p>` : ''}
+              <p style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px;"><span>Total:</span> <span>₹${order.totalPrice.toFixed(2)}</span></p>
             </div>
             
             <h3>Shipping Address</h3>
@@ -383,7 +383,7 @@ export const emailTemplates = {
             <div class="product">
               <img src="${product.images?.[0]?.url || ''}" alt="${product.name}" style="max-width: 200px; border-radius: 8px;">
               <h3>${product.name}</h3>
-              <p style="font-size: 24px; font-weight: bold; color: #4F46E5;">$${product.price.toFixed(2)}</p>
+              <p style="font-size: 24px; font-weight: bold; color: #4F46E5;">₹${product.price.toFixed(2)}</p>
             </div>
             
             <p>Hurry! Stock is limited and items sell out fast.</p>

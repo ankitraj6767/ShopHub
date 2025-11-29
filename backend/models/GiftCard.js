@@ -11,7 +11,7 @@ const giftCardSchema = new mongoose.Schema(
     initialBalance: {
       type: Number,
       required: [true, 'Please add an initial balance'],
-      min: [1, 'Balance must be at least $1'],
+      min: [1, 'Balance must be at least ₹1'],
     },
     currentBalance: {
       type: Number,

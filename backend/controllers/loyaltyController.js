@@ -4,7 +4,7 @@ import User from '../models/User.js';
 
 // Points configuration
 const POINTS_CONFIG = {
-  purchaseRate: 10, // Points per $1 spent
+  purchaseRate: 10, // Points per ₹1 spent
   reviewPoints: 50,
   referralPoints: 500,
   signupBonus: 100,
@@ -15,7 +15,7 @@ const POINTS_CONFIG = {
     Platinum: 500,
     Diamond: 1000,
   },
-  redemptionRate: 100, // 100 points = $1
+  redemptionRate: 100, // 100 points = ₹1
 };
 
 // @desc    Get user's loyalty points
@@ -148,7 +148,7 @@ export const redeemPoints = asyncHandler(async (req, res) => {
   const dollarValue = points / POINTS_CONFIG.redemptionRate;
 
   // Redeem points from loyalty
-  await loyalty.redeemPoints(points, `Redeemed ${points} points for $${dollarValue.toFixed(2)} wallet credit`);
+  await loyalty.redeemPoints(points, `Redeemed ${points} points for ₹${dollarValue.toFixed(2)} wallet credit`);
 
   // Add to user's wallet
   const user = await User.findById(req.user._id);
@@ -169,7 +169,7 @@ export const redeemPoints = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: `Successfully added $${dollarValue.toFixed(2)} to your wallet!`,
+    message: `Successfully added ₹${dollarValue.toFixed(2)} to your wallet!`,
     data: {
       pointsRedeemed: points,
       dollarValue,

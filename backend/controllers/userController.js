@@ -255,7 +255,7 @@ export const useWalletBalance = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: `$${amount.toFixed(2)} deducted from wallet`,
+    message: `₹${amount.toFixed(2)} deducted from wallet`,
     data: {
       amountUsed: amount,
       newBalance: user.walletBalance,

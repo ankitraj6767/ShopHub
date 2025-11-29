@@ -69,7 +69,7 @@ const LoyaltyPage = () => {
     setRedeeming(true);
     try {
       const { data } = await api.post('/loyalty/redeem', { points });
-      toast.success(`🎉 Redeemed ${points} points! $${data.data.dollarValue.toFixed(2)} added to your wallet!`);
+      toast.success(`🎉 Redeemed ${points} points! ₹${data.data.dollarValue.toFixed(2)} added to your wallet!`);
       setLoyalty({
         ...loyalty,
         points: data.data.remainingPoints,

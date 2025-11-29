@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
-    // Wallet balance (in dollars)
+    // Wallet balance (in rupees)
     walletBalance: {
       type: Number,
       default: 0,

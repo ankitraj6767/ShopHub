@@ -600,7 +600,7 @@ export const processRefund = async (req, res) => {
     order.paymentInfo.status = amount && amount < order.totalPrice ? 'partial_refund' : 'refunded';
     order.paymentInfo.refundedAmount = (order.paymentInfo.refundedAmount || 0) + (amount || order.totalPrice);
     order.paymentInfo.refundedAt = new Date();
-    order.addStatusHistory('Returned', req.user._id, `Refund processed: $${amount || order.totalPrice}`);
+    order.addStatusHistory('Returned', req.user._id, `Refund processed: ₹${amount || order.totalPrice}`);
     
     await order.save();
 

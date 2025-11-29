@@ -240,7 +240,7 @@ export const notifyNewCoupon = async (coupon) => {
   try {
     const discountText = coupon.discountType === 'percentage' 
       ? `${coupon.discountValue}% off` 
-      : `$${coupon.discountValue} off`;
+      : `₹${coupon.discountValue} off`;
     
     await notifyAllUsers({
       type: 'promo',
@@ -260,7 +260,7 @@ export const notifyNewProduct = async (product) => {
     await notifyAllUsers({
       type: 'system',
       title: `New Arrival: ${product.name} ✨`,
-      message: `Check out our new ${product.category} - ${product.name} now available for $${product.price}!`,
+      message: `Check out our new ${product.category} - ${product.name} now available for ₹${product.price}!`,
       link: `/products/${product._id}`,
       data: { productId: product._id, productName: product.name }
     });
@@ -277,7 +277,7 @@ export const notifyPriceDrop = async (product, oldPrice, newPrice) => {
     await notifyAllUsers({
       type: 'price_drop',
       title: `Price Drop Alert! 💰`,
-      message: `${product.name} is now ${discount}% off! Was $${oldPrice}, now $${newPrice}!`,
+      message: `${product.name} is now ${discount}% off! Was ₹${oldPrice}, now ₹${newPrice}!`,
       link: `/products/${product._id}`,
       data: { productId: product._id, oldPrice, newPrice, discount }
     });

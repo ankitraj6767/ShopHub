@@ -67,8 +67,8 @@ export const generateInvoicePDF = (order, user) => {
         
         doc.text(item.name.substring(0, 40), 60, yPosition, { width: 250 });
         doc.text(item.quantity.toString(), 320, yPosition, { width: 50, align: 'center' });
-        doc.text(`$${item.price.toFixed(2)}`, 380, yPosition, { width: 70, align: 'right' });
-        doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
+        doc.text(`₹${item.price.toFixed(2)}`, 380, yPosition, { width: 70, align: 'right' });
+        doc.text(`₹${(item.price * item.quantity).toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
         
         yPosition += 25;
       });
@@ -82,21 +82,21 @@ export const generateInvoicePDF = (order, user) => {
       const totalsX = 380;
       
       doc.text('Subtotal:', totalsX, yPosition);
-      doc.text(`$${order.itemsPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
+      doc.text(`₹${order.itemsPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
       yPosition += 20;
 
       doc.text('Shipping:', totalsX, yPosition);
-      doc.text(`$${order.shippingPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
+      doc.text(`₹${order.shippingPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
       yPosition += 20;
 
       doc.text('Tax:', totalsX, yPosition);
-      doc.text(`$${order.taxPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
+      doc.text(`₹${order.taxPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
       yPosition += 20;
 
       if (order.discount && order.discount > 0) {
         doc.fillColor('#10B981');
         doc.text('Discount:', totalsX, yPosition);
-        doc.text(`-$${order.discount.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
+        doc.text(`-₹${order.discount.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
         doc.fillColor('#000000');
         yPosition += 20;
       }
@@ -106,7 +106,7 @@ export const generateInvoicePDF = (order, user) => {
       yPosition += 10;
       doc.fontSize(14).font('Helvetica-Bold');
       doc.text('Total:', totalsX, yPosition);
-      doc.text(`$${order.totalPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
+      doc.text(`₹${order.totalPrice.toFixed(2)}`, 460, yPosition, { width: 80, align: 'right' });
 
       // Payment Info
       yPosition += 50;

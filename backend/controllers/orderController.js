@@ -12,7 +12,7 @@ import PremiumSubscription from '../models/PremiumSubscription.js';
 
 // Points configuration
 const LOYALTY_CONFIG = {
-  purchaseRate: 10, // Points per $1 spent
+  purchaseRate: 10, // Points per ₹1 spent
   referrerReward: 500, // Points for referrer on first purchase
 };
 
@@ -266,7 +266,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     endDate: { $gt: new Date() },
   });
   
-  // Free shipping for premium members or orders over $100
+  // Free shipping for premium members or orders over ₹100
   const shippingPrice = premiumSubscription?.freeShipping || itemsPrice > 100 ? 0 : 10;
   
   // Add gift wrap price
@@ -1138,7 +1138,7 @@ export const processRefund = asyncHandler(async (req, res) => {
 
   order.statusHistory.push({
     status: 'Refunded',
-    note: note || `Refund of $${refundData.refundAmount} processed via ${refundMethod || 'original payment method'}`,
+    note: note || `Refund of ₹${refundData.refundAmount} processed via ${refundMethod || 'original payment method'}`,
     updatedBy: req.user._id,
   });
 

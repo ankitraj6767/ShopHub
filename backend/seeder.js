@@ -312,7 +312,7 @@ const seedDatabase = async () => {
       },
       {
         code: 'FLAT20',
-        description: 'Flat $20 off on orders above $100',
+        description: 'Flat ₹20 off on orders above ₹100',
         discountType: 'fixed',
         discountValue: 20,
         minimumPurchase: 100,
@@ -325,7 +325,7 @@ const seedDatabase = async () => {
       },
       {
         code: 'SUMMER25',
-        description: 'Summer sale - 25% off on orders above $200',
+        description: 'Summer sale - 25% off on orders above ₹200',
         discountType: 'percentage',
         discountValue: 25,
         minimumPurchase: 200,

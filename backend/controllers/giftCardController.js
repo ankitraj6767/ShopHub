@@ -10,7 +10,7 @@ export const purchaseGiftCard = asyncHandler(async (req, res) => {
 
   if (amount < 10 || amount > 500) {
     res.status(400);
-    throw new Error('Gift card amount must be between $10 and $500');
+    throw new Error('Gift card amount must be between ₹500 and ₹25,000');
   }
 
   const code = GiftCard.generateCode();
