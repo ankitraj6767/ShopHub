@@ -25,10 +25,12 @@ export const createSubscription = asyncHandler(async (req, res) => {
       throw new Error(`Product not found: ${item.productId}`);
     }
 
-    if (!product.isSubscribable) {
-      res.status(400);
-      throw new Error(`Product ${product.name} is not available for subscription`);
-    }
+    // Allow subscriptions for all products
+    // Uncomment below if you want to limit to specific products
+    // if (!product.isSubscribable) {
+    //   res.status(400);
+    //   throw new Error(`Product ${product.name} is not available for subscription`);
+    // }
 
     const price = product.price;
     const discountPercent = product.subscriptionDiscount || 5;

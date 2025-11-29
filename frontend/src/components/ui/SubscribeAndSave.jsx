@@ -62,9 +62,11 @@ const SubscribeAndSave = ({ product, quantity = 1, selectedVariants = {} }) => {
     }
   };
 
-  if (!product.isSubscribable && product.isSubscribable !== undefined) {
-    return null;
-  }
+  // Show Subscribe & Save for all products (or only if explicitly marked as subscribable)
+  // Uncomment the condition below if you want to limit to specific products
+  // if (product.isSubscribable === false) {
+  //   return null;
+  // }
 
   return (
     <div className="border-2 border-primary-200 dark:border-primary-800 rounded-xl overflow-hidden bg-primary-50/50 dark:bg-primary-900/20">
