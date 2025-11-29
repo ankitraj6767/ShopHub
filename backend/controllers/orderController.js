@@ -164,7 +164,26 @@ const notifyAllAdmins = async (notification) => {
 // @route   POST /api/orders
 // @access  Private
 export const createOrder = asyncHandler(async (req, res) => {
-  const { orderItems, shippingAddress, paymentInfo, walletAmount = 0, couponCode = null, discountAmount = 0 } = req.body;
+  const { 
+    orderItems, 
+    shippingAddress, 
+    paymentInfo, 
+    walletAmount = 0, 
+    couponCode = null, 
+    discountAmount = 0,
+    // Gift options
+    giftWrap = false,
+    giftWrapPrice = 0,
+    giftMessage = '',
+    giftRecipientName = '',
+    giftRecipientEmail = '',
+    sendGiftReceipt = false,
+    // Delivery options
+    selectedDeliveryDate = null,
+    deliveryTimeSlot = '',
+    deliveryInstructions = '',
+    leaveAtDoor = false,
+  } = req.body;
 
   if (!orderItems || orderItems.length === 0) {
     res.status(400);
@@ -216,9 +235,12 @@ export const createOrder = asyncHandler(async (req, res) => {
   const taxPrice = Number((itemsPrice * taxRate).toFixed(2));
   const shippingPrice = itemsPrice > 100 ? 0 : 10; // Free shipping over $100
   
+  // Add gift wrap price
+  const actualGiftWrapPrice = giftWrap ? Number(giftWrapPrice) || 5.99 : 0;
+  
   // Apply coupon discount
   const couponDiscount = Number(discountAmount) || 0;
-  let totalPrice = Number((itemsPrice + taxPrice + shippingPrice - couponDiscount).toFixed(2));
+  let totalPrice = Number((itemsPrice + taxPrice + shippingPrice + actualGiftWrapPrice - couponDiscount).toFixed(2));
   totalPrice = Math.max(0, totalPrice); // Ensure non-negative
   
   // Handle wallet payment
@@ -268,6 +290,20 @@ export const createOrder = asyncHandler(async (req, res) => {
     walletAmount: walletUsed,
     totalPrice,
     status: totalPrice === 0 ? 'Confirmed' : 'Pending',
+    // Gift options
+    giftWrap: {
+      enabled: giftWrap,
+      price: actualGiftWrapPrice,
+      message: giftMessage,
+      recipientName: giftRecipientName,
+      recipientEmail: giftRecipientEmail,
+      sendGiftReceipt: sendGiftReceipt,
+    },
+    // Delivery options
+    selectedDeliveryDate: selectedDeliveryDate ? new Date(selectedDeliveryDate) : null,
+    deliveryTimeSlot,
+    deliveryInstructions,
+    leaveAtDoor,
   });
   
   // Update wallet history with order ID
@@ -1056,6 +1092,150 @@ export const processRefund = asyncHandler(async (req, res) => {
     success: true,
     message: 'Refund processed successfully',
     data: order,
+  });
+});
+
+// @desc    Get Buy Again items (products from past orders)
+// @route   GET /api/orders/buy-again
+// @access  Private
+export const getBuyAgainItems = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20 } = req.query;
+
+  // Get all delivered orders for this user
+  const orders = await Order.find({
+    user: req.user._id,
+    status: 'Delivered',
+  })
+    .sort({ deliveredAt: -1 })
+    .select('orderItems deliveredAt');
+
+  // Extract unique products with their latest purchase info
+  const productMap = new Map();
+
+  for (const order of orders) {
+    for (const item of order.orderItems) {
+      if (!productMap.has(item.product.toString())) {
+        productMap.set(item.product.toString(), {
+          productId: item.product,
+          name: item.name,
+          image: item.image,
+          lastPurchasePrice: item.price,
+          lastPurchaseDate: order.deliveredAt,
+          purchaseCount: 1,
+        });
+      } else {
+        const existing = productMap.get(item.product.toString());
+        existing.purchaseCount += 1;
+      }
+    }
+  }
+
+  // Get current product details
+  const productIds = Array.from(productMap.keys());
+  const products = await Product.find({
+    _id: { $in: productIds },
+    isActive: true,
+  }).select('name price images stock rating numReviews');
+
+  // Combine with purchase history
+  const buyAgainItems = products.map((product) => {
+    const history = productMap.get(product._id.toString());
+    return {
+      product: {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+        stock: product.stock,
+        rating: product.rating,
+        numReviews: product.numReviews,
+      },
+      lastPurchasePrice: history?.lastPurchasePrice,
+      lastPurchaseDate: history?.lastPurchaseDate,
+      purchaseCount: history?.purchaseCount || 1,
+      priceChanged: history?.lastPurchasePrice !== product.price,
+    };
+  });
+
+  // Sort by purchase count (most bought first)
+  buyAgainItems.sort((a, b) => b.purchaseCount - a.purchaseCount);
+
+  // Paginate
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const paginatedItems = buyAgainItems.slice(startIndex, endIndex);
+
+  res.json({
+    success: true,
+    count: buyAgainItems.length,
+    page: parseInt(page),
+    pages: Math.ceil(buyAgainItems.length / limit),
+    data: paginatedItems,
+  });
+});
+
+// @desc    Reorder - Add all items from a previous order to cart
+// @route   POST /api/orders/:id/reorder
+// @access  Private
+export const reorder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id).populate('orderItems.product');
+
+  if (!order) {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+
+  if (order.user.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+
+  // Check product availability
+  const cartItems = [];
+  const unavailableItems = [];
+
+  for (const item of order.orderItems) {
+    const product = await Product.findById(item.product);
+    
+    if (!product || !product.isActive) {
+      unavailableItems.push({
+        name: item.name,
+        reason: 'Product no longer available',
+      });
+      continue;
+    }
+
+    if (product.stock < 1) {
+      unavailableItems.push({
+        name: item.name,
+        reason: 'Out of stock',
+      });
+      continue;
+    }
+
+    const availableQty = Math.min(item.quantity, product.stock);
+    
+    cartItems.push({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.images?.[0]?.url,
+      quantity: availableQty,
+      stock: product.stock,
+      originalQuantity: item.quantity,
+      quantityAdjusted: availableQty < item.quantity,
+    });
+  }
+
+  res.json({
+    success: true,
+    data: {
+      cartItems,
+      unavailableItems,
+      message: unavailableItems.length > 0 
+        ? 'Some items are no longer available or have limited stock'
+        : 'All items added to cart',
+    },
   });
 });
 

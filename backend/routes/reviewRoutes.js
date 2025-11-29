@@ -8,6 +8,7 @@ import {
   canReviewProduct,
   voteReview,
   getProductReviewStats,
+  reportReview,
 } from '../controllers/reviewController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { reviewValidation, mongoIdValidation, validate } from '../middleware/validationMiddleware.js';
@@ -43,6 +44,20 @@ router.post(
   ],
   validate,
   voteReview
+);
+router.post(
+  '/:id/report',
+  protect,
+  mongoIdValidation,
+  [
+    body('reason')
+      .notEmpty()
+      .withMessage('Reason is required')
+      .isLength({ min: 10 })
+      .withMessage('Reason must be at least 10 characters'),
+  ],
+  validate,
+  reportReview
 );
 
 export default router;

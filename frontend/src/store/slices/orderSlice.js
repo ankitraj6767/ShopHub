@@ -185,6 +185,33 @@ export const processRefund = createAsyncThunk(
   }
 );
 
+// Fetch buy again items
+export const fetchBuyAgainItems = createAsyncThunk(
+  'orders/fetchBuyAgain',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const queryString = new URLSearchParams(params).toString();
+      const response = await api.get(`/orders/buy-again?${queryString}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch buy again items');
+    }
+  }
+);
+
+// Reorder from previous order
+export const reorderFromOrder = createAsyncThunk(
+  'orders/reorder',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/orders/${orderId}/reorder`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to reorder');
+    }
+  }
+);
+
 // Alias for admin dashboard
 export const fetchAdminStats = fetchOrderStats;
 
@@ -194,6 +221,10 @@ const initialState = {
   stats: null,
   adminStats: null,
   returnRequests: [],
+  buyAgainItems: [],
+  buyAgainPage: 1,
+  buyAgainPages: 1,
+  reorderData: null,
   pagination: null,
   page: 1,
   pages: 1,
@@ -436,6 +467,33 @@ const orderSlice = createSlice({
         }
       })
       .addCase(processRefund.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch Buy Again Items
+      .addCase(fetchBuyAgainItems.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchBuyAgainItems.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.buyAgainItems = action.payload.data;
+        state.buyAgainPage = action.payload.page;
+        state.buyAgainPages = action.payload.pages;
+      })
+      .addCase(fetchBuyAgainItems.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Reorder
+      .addCase(reorderFromOrder.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(reorderFromOrder.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.reorderData = action.payload;
+        state.success = true;
+      })
+      .addCase(reorderFromOrder.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

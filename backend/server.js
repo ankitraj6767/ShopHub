@@ -29,6 +29,7 @@ import giftCardRoutes from './routes/giftCardRoutes.js';
 import bundleRoutes from './routes/bundleRoutes.js';
 import referralRoutes from './routes/referralRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
+import subscriptionRoutes from './routes/subscriptionRoutes.js';
 
 dotenv.config();
 
@@ -80,6 +81,7 @@ app.use('/api/gift-cards', giftCardRoutes);
 app.use('/api/bundles', bundleRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

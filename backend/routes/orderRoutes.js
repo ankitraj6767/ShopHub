@@ -14,6 +14,8 @@ import {
   getReturnRequests,
   processRefund,
   downloadInvoice,
+  getBuyAgainItems,
+  reorder,
 } from '../controllers/orderController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { orderValidation, mongoIdValidation, validate } from '../middleware/validationMiddleware.js';
@@ -75,8 +77,10 @@ router.put(
 // User routes
 router.post('/', protect, orderLimiter, orderValidation, createOrder);
 router.get('/myorders', protect, getMyOrders);
+router.get('/buy-again', protect, getBuyAgainItems);
 router.get('/:id', protect, mongoIdValidation, getOrderById);
 router.put('/:id/pay', protect, mongoIdValidation, updateOrderToPaid);
+router.post('/:id/reorder', protect, mongoIdValidation, reorder);
 router.put(
   '/:id/cancel',
   protect,

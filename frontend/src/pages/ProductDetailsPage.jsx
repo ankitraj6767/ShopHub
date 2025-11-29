@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiMinus, FiPlus, FiShoppingCart, FiHeart, FiShare2, FiStar, FiCheck, FiZap } from 'react-icons/fi';
+import { FiMinus, FiPlus, FiShoppingCart, FiHeart, FiShare2, FiStar, FiCheck, FiZap, FiThumbsUp, FiThumbsDown, FiFlag } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { fetchProduct, clearProduct } from '../store/slices/productSlice';
 import { addToCart, setBuyNowItem } from '../store/slices/cartSlice';
@@ -17,6 +17,7 @@ import RecentlyViewed from '../components/ui/RecentlyViewed';
 import ProductCard from '../components/ui/ProductCard';
 import FrequentlyBoughtTogether from '../components/ui/FrequentlyBoughtTogether';
 import ShareProduct from '../components/ui/ShareProduct';
+import CustomersAlsoBought from '../components/ui/CustomersAlsoBought';
 import api from '../utils/api';
 
 const ProductDetailsPage = () => {
@@ -42,6 +43,8 @@ const ProductDetailsPage = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [flashSaleInfo, setFlashSaleInfo] = useState(null);
+  const [selectedVariants, setSelectedVariants] = useState({});
+  const [reviewVotes, setReviewVotes] = useState({});
 
   useEffect(() => {
     dispatch(fetchProduct(id));
@@ -232,6 +235,45 @@ const ProductDetailsPage = () => {
     }
   };
 
+  const handleVoteReview = async (reviewId, helpful) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to vote on reviews');
+      return;
+    }
+    try {
+      const response = await api.post(`/reviews/${reviewId}/vote`, { helpful });
+      setReviewVotes({
+        ...reviewVotes,
+        [reviewId]: { helpful: response.data.data.userVote, count: response.data.data.helpfulVotes }
+      });
+      // Update the review in the list
+      setReviews(reviews.map(r => 
+        r._id === reviewId ? { ...r, helpfulVotes: response.data.data.helpfulVotes } : r
+      ));
+      toast.success(helpful ? 'Marked as helpful' : 'Vote recorded');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to vote');
+    }
+  };
+
+  const handleReportReview = async (reviewId) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to report reviews');
+      return;
+    }
+    const reason = prompt('Please provide a reason for reporting this review:');
+    if (!reason || reason.trim().length < 10) {
+      toast.error('Please provide a valid reason (at least 10 characters)');
+      return;
+    }
+    try {
+      await api.post(`/reviews/${reviewId}/report`, { reason });
+      toast.success('Review reported successfully');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to report review');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -357,6 +399,50 @@ const ProductDetailsPage = () => {
           </div>
 
           <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">{product.description}</p>
+
+          {/* Product Variants Selection */}
+          {product.variants && product.variants.length > 0 && (
+            <div className="mb-6 space-y-4">
+              {product.variants.map((variant) => (
+                <div key={variant.name}>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {variant.name}: <span className="font-normal">{selectedVariants[variant.name] || 'Select'}</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {variant.options.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setSelectedVariants({ ...selectedVariants, [variant.name]: option.value })}
+                        disabled={!option.inStock}
+                        className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                          selectedVariants[variant.name] === option.value
+                            ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/30 text-primary-600'
+                            : option.inStock
+                              ? 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                              : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-400 cursor-not-allowed line-through'
+                        }`}
+                      >
+                        {variant.name.toLowerCase() === 'color' ? (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: option.value.toLowerCase() }}
+                            />
+                            <span>{option.value}</span>
+                          </div>
+                        ) : (
+                          option.value
+                        )}
+                        {option.priceModifier > 0 && (
+                          <span className="text-xs ml-1 text-gray-500">(+${option.priceModifier})</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Stock Status */}
           <div className="mb-6">
@@ -753,10 +839,42 @@ const ProductDetailsPage = () => {
                 )}
                 
                 {/* Helpful Votes */}
-                <div className="flex items-center gap-4 mt-4 pt-4 border-t">
-                  <span className="text-sm text-gray-500">
-                    {review.helpfulVotes || 0} people found this helpful
-                  </span>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t dark:border-gray-700">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {review.helpfulVotes || 0} people found this helpful
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleVoteReview(review._id, true)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition ${
+                          reviewVotes[review._id]?.helpful === true
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
+                        }`}
+                      >
+                        <FiThumbsUp className="w-4 h-4" />
+                        Helpful
+                      </button>
+                      <button
+                        onClick={() => handleVoteReview(review._id, false)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition ${
+                          reviewVotes[review._id]?.helpful === false
+                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
+                        }`}
+                      >
+                        <FiThumbsDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleReportReview(review._id)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                  >
+                    <FiFlag className="w-4 h-4" />
+                    Report
+                  </button>
                 </div>
               </div>
             ))}
@@ -771,6 +889,9 @@ const ProductDetailsPage = () => {
 
       {/* Frequently Bought Together */}
       <FrequentlyBoughtTogether productId={id} category={product.category} />
+
+      {/* Customers Also Bought */}
+      <CustomersAlsoBought productId={id} />
 
       {/* Related Products Section */}
       <RelatedProducts category={product.category} currentProductId={id} />

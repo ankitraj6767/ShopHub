@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiCreditCard, FiTruck, FiCheck, FiLock, FiTag, FiX, FiMapPin, FiPlus, FiEdit2, FiDollarSign } from 'react-icons/fi';
+import { FiCreditCard, FiTruck, FiCheck, FiLock, FiTag, FiX, FiMapPin, FiPlus, FiEdit2, FiDollarSign, FiGift, FiCalendar } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -11,6 +11,8 @@ import { getPaymentConfig, createPaymentIntent, confirmPayment, clearPaymentStat
 import { fetchWallet } from '../store/slices/userSlice';
 import { formatPrice } from '../utils/helpers';
 import Spinner from '../components/ui/Spinner';
+import GiftOptions from '../components/ui/GiftOptions';
+import DeliveryOptions from '../components/ui/DeliveryOptions';
 import api from '../utils/api';
 
 // Stripe Card Element styling
@@ -257,6 +259,23 @@ const CheckoutPage = () => {
   const [useWalletBalance, setUseWalletBalance] = useState(false);
   const [walletAmountToUse, setWalletAmountToUse] = useState(0);
 
+  // Gift options state
+  const [giftOptions, setGiftOptions] = useState({
+    enabled: false,
+    message: '',
+    recipientName: '',
+    recipientEmail: '',
+    sendGiftReceipt: false,
+  });
+
+  // Delivery options state
+  const [deliveryOptions, setDeliveryOptions] = useState({
+    preferredDeliveryDate: null,
+    preferredDeliverySlot: 'anytime',
+    deliveryInstructions: '',
+    leaveAtDoor: false,
+  });
+
   // Fetch wallet balance on mount
   useEffect(() => {
     if (user) {
@@ -480,8 +499,9 @@ const CheckoutPage = () => {
     toast.success('Coupon removed');
   };
 
-  // Calculate final total with discount and wallet
-  const totalAfterDiscount = Math.max(0, total - discount);
+  // Calculate final total with discount, wallet, and gift wrap
+  const giftWrapPrice = giftOptions.enabled ? 5.99 : 0;
+  const totalAfterDiscount = Math.max(0, total - discount + giftWrapPrice);
   const maxWalletUsable = Math.min(wallet?.balance || 0, totalAfterDiscount);
   const actualWalletUsed = useWalletBalance ? Math.min(walletAmountToUse, maxWalletUsable) : 0;
   const finalTotal = Math.max(0, totalAfterDiscount - actualWalletUsed);
@@ -539,7 +559,19 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || null,
       discountAmount: discount,
-      walletAmount: actualWalletUsed, // Add wallet amount to order
+      walletAmount: actualWalletUsed,
+      // Gift options
+      giftWrap: giftOptions.enabled,
+      giftWrapPrice: giftWrapPrice,
+      giftMessage: giftOptions.message,
+      giftRecipientName: giftOptions.recipientName,
+      giftRecipientEmail: giftOptions.recipientEmail,
+      sendGiftReceipt: giftOptions.sendGiftReceipt,
+      // Delivery options
+      selectedDeliveryDate: deliveryOptions.preferredDeliveryDate,
+      deliveryTimeSlot: deliveryOptions.preferredDeliverySlot,
+      deliveryInstructions: deliveryOptions.deliveryInstructions,
+      leaveAtDoor: deliveryOptions.leaveAtDoor,
     };
 
     const result = await dispatch(createOrder(orderData));
@@ -899,6 +931,22 @@ const CheckoutPage = () => {
                   )}
                 </>
               )}
+
+              {/* Gift Options Section */}
+              <div className="mt-6">
+                <GiftOptions 
+                  giftOptions={giftOptions} 
+                  onGiftOptionsChange={setGiftOptions} 
+                />
+              </div>
+
+              {/* Delivery Options Section */}
+              <div className="mt-6">
+                <DeliveryOptions 
+                  deliveryOptions={deliveryOptions} 
+                  onDeliveryOptionsChange={setDeliveryOptions} 
+                />
+              </div>
             </div>
           )}
 
@@ -1428,6 +1476,14 @@ const CheckoutPage = () => {
                 <span className="text-gray-600">Tax</span>
                 <span className="font-medium">{formatPrice(tax)}</span>
               </div>
+              {giftOptions.enabled && (
+                <div className="flex justify-between text-purple-600">
+                  <span className="flex items-center gap-1">
+                    <FiGift className="w-3 h-3" /> Gift Wrap
+                  </span>
+                  <span className="font-medium">{formatPrice(giftWrapPrice)}</span>
+                </div>
+              )}
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Coupon Discount</span>

@@ -41,6 +41,8 @@ import AddressBookPage from './pages/AddressBookPage';
 import NotificationsPage from './pages/NotificationsPage';
 import LoyaltyPage from './pages/LoyaltyPage';
 import ReferralPage from './pages/ReferralPage';
+import BuyAgainPage from './pages/BuyAgainPage';
+import SubscriptionsPage from './pages/SubscriptionsPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -123,6 +125,8 @@ function App() {
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="loyalty" element={<LoyaltyPage />} />
           <Route path="referrals" element={<ReferralPage />} />
+          <Route path="buy-again" element={<BuyAgainPage />} />
+          <Route path="subscriptions" element={<SubscriptionsPage />} />
           <Route path="help/ticket/:id" element={<TicketDetailPage />} />
         </Route>
 

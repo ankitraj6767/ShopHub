@@ -487,3 +487,49 @@ export const getProductReviewStats = asyncHandler(async (req, res) => {
     },
   });
 });
+
+// @desc    Report a review
+// @route   POST /api/reviews/:id/report
+// @access  Private
+export const reportReview = asyncHandler(async (req, res) => {
+  const { reason } = req.body;
+
+  const review = await Review.findById(req.params.id);
+
+  if (!review) {
+    res.status(404);
+    throw new Error('Review not found');
+  }
+
+  // Add report (you can expand this to a separate Report model)
+  if (!review.reports) {
+    review.reports = [];
+  }
+
+  const alreadyReported = review.reports.some(
+    (report) => report.user.toString() === req.user._id.toString()
+  );
+
+  if (alreadyReported) {
+    res.status(400);
+    throw new Error('You have already reported this review');
+  }
+
+  review.reports.push({
+    user: req.user._id,
+    reason,
+    reportedAt: new Date(),
+  });
+
+  // Auto-hide if too many reports
+  if (review.reports.length >= 5) {
+    review.isApproved = false;
+  }
+
+  await review.save();
+
+  res.json({
+    success: true,
+    message: 'Review reported successfully',
+  });
+});

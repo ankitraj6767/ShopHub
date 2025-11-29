@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiSearch, FiLogOut, FiPackage, FiSettings, FiHeart, FiHelpCircle, FiMapPin, FiGift, FiUsers, FiAward, FiHome } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiSearch, FiLogOut, FiPackage, FiSettings, FiHeart, FiHelpCircle, FiMapPin, FiGift, FiUsers, FiAward, FiHome, FiRefreshCw, FiRotateCcw } from 'react-icons/fi';
 import { logout } from '../../store/slices/authSlice';
 import { fetchWishlist, selectWishlistCount } from '../../store/slices/wishlistSlice';
 import { useNavigate } from 'react-router-dom';
@@ -155,6 +155,20 @@ const Layout = () => {
                         <FiUsers className="mr-2" /> Refer & Earn
                       </Link>
                       <Link
+                        to="/buy-again"
+                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FiRotateCcw className="mr-2" /> Buy Again
+                      </Link>
+                      <Link
+                        to="/subscriptions"
+                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FiRefreshCw className="mr-2" /> Subscriptions
+                      </Link>
+                      <Link
                         to="/help"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setUserMenuOpen(false)}
@@ -264,6 +278,20 @@ const Layout = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Refer & Earn
+                  </Link>
+                  <Link
+                    to="/buy-again"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Buy Again
+                  </Link>
+                  <Link
+                    to="/subscriptions"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Subscriptions
                   </Link>
                   <Link
                     to="/help"

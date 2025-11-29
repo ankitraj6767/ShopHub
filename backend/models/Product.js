@@ -1,5 +1,27 @@
 import mongoose from 'mongoose';
 
+// Variant option schema (e.g., Size: S, M, L or Color: Red, Blue)
+const variantOptionSchema = new mongoose.Schema({
+  name: { type: String, required: true }, // e.g., "Size", "Color"
+  value: { type: String, required: true }, // e.g., "Large", "Red"
+});
+
+// SKU variant schema for specific combinations
+const skuVariantSchema = new mongoose.Schema({
+  sku: { type: String, required: true },
+  options: [variantOptionSchema], // e.g., [{name: "Size", value: "L"}, {name: "Color", value: "Red"}]
+  price: { type: Number }, // Override price for this variant
+  stock: { type: Number, default: 0 },
+  image: { type: String }, // Variant-specific image
+  isAvailable: { type: Boolean, default: true },
+});
+
+// Specifications schema for product details
+const specificationSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  value: { type: String, required: true },
+});
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -46,6 +68,64 @@ const productSchema = new mongoose.Schema(
         alt: { type: String, default: '' },
       },
     ],
+    // Product variants (Size, Color, etc.)
+    hasVariants: {
+      type: Boolean,
+      default: false,
+    },
+    variantTypes: [{ type: String }], // e.g., ["Size", "Color"]
+    variants: [skuVariantSchema],
+    // Product specifications
+    specifications: [specificationSchema],
+    // Tags for better search
+    tags: [{ type: String, trim: true }],
+    // Weight for shipping calculation
+    weight: {
+      value: { type: Number },
+      unit: { type: String, enum: ['kg', 'lb', 'g', 'oz'], default: 'kg' },
+    },
+    // Dimensions for shipping
+    dimensions: {
+      length: { type: Number },
+      width: { type: Number },
+      height: { type: Number },
+      unit: { type: String, enum: ['cm', 'in'], default: 'cm' },
+    },
+    // Subscription options
+    isSubscribable: {
+      type: Boolean,
+      default: false,
+    },
+    subscriptionDiscount: {
+      type: Number,
+      default: 5, // 5% discount for subscription
+      min: 0,
+      max: 50,
+    },
+    // Warranty info
+    warranty: {
+      available: { type: Boolean, default: false },
+      duration: { type: String }, // e.g., "1 year", "6 months"
+      description: { type: String },
+    },
+    // Return policy
+    returnWindow: {
+      type: Number,
+      default: 30, // Days
+    },
+    isReturnable: {
+      type: Boolean,
+      default: true,
+    },
+    // Gift wrap available
+    giftWrapAvailable: {
+      type: Boolean,
+      default: true,
+    },
+    giftWrapPrice: {
+      type: Number,
+      default: 5.99,
+    },
     stock: {
       type: Number,
       required: [true, 'Please add stock quantity'],
@@ -62,7 +142,25 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // Rating breakdown
+    ratingBreakdown: {
+      5: { type: Number, default: 0 },
+      4: { type: Number, default: 0 },
+      3: { type: Number, default: 0 },
+      2: { type: Number, default: 0 },
+      1: { type: Number, default: 0 },
+    },
     featured: {
+      type: Boolean,
+      default: false,
+    },
+    // Best seller flag
+    isBestSeller: {
+      type: Boolean,
+      default: false,
+    },
+    // Amazon Choice equivalent
+    isTopRated: {
       type: Boolean,
       default: false,
     },

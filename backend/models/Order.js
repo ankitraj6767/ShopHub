@@ -112,12 +112,33 @@ const orderSchema = new mongoose.Schema(
     shippedAt: { type: Date },
     deliveredAt: { type: Date },
     estimatedDelivery: { type: Date },
+    // Preferred delivery date selected by customer
+    preferredDeliveryDate: { type: Date },
+    preferredDeliverySlot: {
+      type: String,
+      enum: ['morning', 'afternoon', 'evening', 'anytime'],
+      default: 'anytime',
+    },
     trackingNumber: { type: String },
     trackingUrl: { type: String },
     carrier: { type: String },
     notes: { type: String },
+    // Gift options
     giftMessage: { type: String },
     isGift: { type: Boolean, default: false },
+    giftWrap: {
+      enabled: { type: Boolean, default: false },
+      price: { type: Number, default: 0 },
+      message: { type: String },
+      recipientName: { type: String },
+      recipientEmail: { type: String },
+      sendGiftReceipt: { type: Boolean, default: false },
+    },
+    // Delivery options
+    selectedDeliveryDate: { type: Date },
+    deliveryTimeSlot: { type: String },
+    deliveryInstructions: { type: String },
+    leaveAtDoor: { type: Boolean, default: false },
   },
   {
     timestamps: true,
