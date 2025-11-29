@@ -8,6 +8,7 @@ import Notification from '../models/Notification.js';
 import { notifyOrderStatus } from './notificationController.js';
 import LoyaltyPoint from '../models/LoyaltyPoint.js';
 import Referral from '../models/Referral.js';
+import PremiumSubscription from '../models/PremiumSubscription.js';
 
 // Points configuration
 const LOYALTY_CONFIG = {
@@ -53,29 +54,52 @@ const addLoyaltyPointsForOrder = async (userId, orderTotal, orderId) => {
       }
     }
     
+    // Check for premium subscription bonus
+    const premiumSubscription = await PremiumSubscription.findOne({
+      user: userId,
+      status: 'active',
+      endDate: { $gt: new Date() },
+    });
+    const premiumMultiplier = premiumSubscription?.extraLoyaltyPoints || 1;
+    
     // Calculate points based on tier
     const benefits = loyalty.getTierBenefits();
     const basePoints = Math.floor(orderTotal * LOYALTY_CONFIG.purchaseRate);
-    const bonusPoints = Math.floor(basePoints * (benefits.pointsMultiplier - 1));
-    const totalPoints = basePoints + bonusPoints;
+    const tierBonusPoints = Math.floor(basePoints * (benefits.pointsMultiplier - 1));
+    const premiumBonusPoints = premiumMultiplier > 1 ? Math.floor(basePoints * (premiumMultiplier - 1)) : 0;
+    const totalPoints = basePoints + tierBonusPoints + premiumBonusPoints;
+    
+    // Build description
+    let description = `Order #${orderId.toString().slice(-8).toUpperCase()}: ${basePoints} base`;
+    if (tierBonusPoints > 0) description += ` + ${tierBonusPoints} tier bonus`;
+    if (premiumBonusPoints > 0) description += ` + ${premiumBonusPoints} premium bonus`;
     
     // Add points for purchase
     await loyalty.addPoints(
       totalPoints,
       'earned',
-      `Order #${orderId.toString().slice(-8).toUpperCase()}: ${basePoints} base + ${bonusPoints} tier bonus`,
+      description,
       orderId
     );
     
     // Create notification for points earned
+    let notifMessage = `You earned ${totalPoints} points from your order!`;
+    if (tierBonusPoints > 0 || premiumBonusPoints > 0) {
+      notifMessage += ` (Includes`;
+      if (tierBonusPoints > 0) notifMessage += ` ${tierBonusPoints} tier bonus`;
+      if (tierBonusPoints > 0 && premiumBonusPoints > 0) notifMessage += ` +`;
+      if (premiumBonusPoints > 0) notifMessage += ` ${premiumBonusPoints} premium bonus`;
+      notifMessage += `!)`;
+    }
+    
     await Notification.create({
       user: userId,
       type: 'info',
       title: 'Loyalty Points Earned! ⭐',
-      message: `You earned ${totalPoints} points from your order! ${bonusPoints > 0 ? `(Includes ${bonusPoints} tier bonus!)` : ''}`,
+      message: notifMessage,
     });
     
-    return { basePoints, bonusPoints, totalPoints, newBalance: loyalty.points, tier: loyalty.tier };
+    return { basePoints, tierBonusPoints, premiumBonusPoints, totalPoints, newBalance: loyalty.points, tier: loyalty.tier };
   } catch (error) {
     console.error('Failed to add loyalty points:', error);
     return null;
@@ -171,6 +195,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     walletAmount = 0, 
     couponCode = null, 
     discountAmount = 0,
+    premiumDiscount = 0,
     // Gift options
     giftWrap = false,
     giftWrapPrice = 0,
@@ -233,14 +258,33 @@ export const createOrder = asyncHandler(async (req, res) => {
   // Calculate prices
   const taxRate = 0.08; // 8% tax
   const taxPrice = Number((itemsPrice * taxRate).toFixed(2));
-  const shippingPrice = itemsPrice > 100 ? 0 : 10; // Free shipping over $100
+  
+  // Check premium subscription for free shipping
+  const premiumSubscription = await PremiumSubscription.findOne({
+    user: req.user._id,
+    status: 'active',
+    endDate: { $gt: new Date() },
+  });
+  
+  // Free shipping for premium members or orders over $100
+  const shippingPrice = premiumSubscription?.freeShipping || itemsPrice > 100 ? 0 : 10;
   
   // Add gift wrap price
   const actualGiftWrapPrice = giftWrap ? Number(giftWrapPrice) || 5.99 : 0;
   
   // Apply coupon discount
   const couponDiscount = Number(discountAmount) || 0;
-  let totalPrice = Number((itemsPrice + taxPrice + shippingPrice + actualGiftWrapPrice - couponDiscount).toFixed(2));
+  
+  // Apply premium discount (verify server-side)
+  let actualPremiumDiscount = 0;
+  if (premiumSubscription) {
+    const serverCalculatedDiscount = (itemsPrice * premiumSubscription.discountPercent) / 100;
+    // Use the minimum of client-sent and server-calculated to prevent manipulation
+    actualPremiumDiscount = Math.min(Number(premiumDiscount) || 0, serverCalculatedDiscount);
+    actualPremiumDiscount = Number(actualPremiumDiscount.toFixed(2));
+  }
+  
+  let totalPrice = Number((itemsPrice + taxPrice + shippingPrice + actualGiftWrapPrice - couponDiscount - actualPremiumDiscount).toFixed(2));
   totalPrice = Math.max(0, totalPrice); // Ensure non-negative
   
   // Handle wallet payment
@@ -287,6 +331,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     shippingPrice,
     couponCode,
     discountAmount,
+    premiumDiscount: actualPremiumDiscount,
     walletAmount: walletUsed,
     totalPrice,
     status: totalPrice === 0 ? 'Confirmed' : 'Pending',

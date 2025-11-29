@@ -87,6 +87,10 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       default: 0.0,
     },
+    premiumDiscount: {
+      type: Number,
+      default: 0.0,
+    },
     couponCode: { type: String },
     walletAmount: {
       type: Number,

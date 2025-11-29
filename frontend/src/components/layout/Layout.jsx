@@ -1,7 +1,8 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiSearch, FiLogOut, FiPackage, FiSettings, FiHeart, FiHelpCircle, FiMapPin, FiGift, FiUsers, FiAward, FiHome, FiRefreshCw, FiRotateCcw } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiSearch, FiLogOut, FiPackage, FiSettings, FiHeart, FiHelpCircle, FiMapPin, FiGift, FiUsers, FiAward, FiHome, FiRotateCcw } from 'react-icons/fi';
+import { FaCrown } from 'react-icons/fa';
 import { logout } from '../../store/slices/authSlice';
 import { fetchWishlist, selectWishlistCount } from '../../store/slices/wishlistSlice';
 import { useNavigate } from 'react-router-dom';
@@ -162,11 +163,11 @@ const Layout = () => {
                         <FiRotateCcw className="mr-2" /> Buy Again
                       </Link>
                       <Link
-                        to="/subscriptions"
-                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        to="/premium"
+                        className="flex items-center px-4 py-2 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 font-medium"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <FiRefreshCw className="mr-2" /> Subscriptions
+                        <FaCrown className="mr-2" /> Premium
                       </Link>
                       <Link
                         to="/gift-cards"
@@ -294,11 +295,11 @@ const Layout = () => {
                     Buy Again
                   </Link>
                   <Link
-                    to="/subscriptions"
-                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                    to="/premium"
+                    className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Subscriptions
+                    <FaCrown /> Premium
                   </Link>
                   <Link
                     to="/gift-cards"

@@ -42,9 +42,8 @@ import NotificationsPage from './pages/NotificationsPage';
 import LoyaltyPage from './pages/LoyaltyPage';
 import ReferralPage from './pages/ReferralPage';
 import BuyAgainPage from './pages/BuyAgainPage';
-import SubscriptionsPage from './pages/SubscriptionsPage';
 import GiftCardsPage from './pages/GiftCardsPage';
-import SubscriptionCheckoutPage from './pages/SubscriptionCheckoutPage';
+import PremiumPage from './pages/PremiumPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -107,6 +106,7 @@ function App() {
         <Route path="bundles" element={<BundlesPage />} />
         <Route path="bundles/:id" element={<BundleDetailsPage />} />
         <Route path="gift-cards" element={<GiftCardsPage />} />
+        <Route path="premium" element={<PremiumPage />} />
         
         {/* Guest Only Routes */}
         <Route element={<GuestRoute />}>
@@ -129,8 +129,6 @@ function App() {
           <Route path="loyalty" element={<LoyaltyPage />} />
           <Route path="referrals" element={<ReferralPage />} />
           <Route path="buy-again" element={<BuyAgainPage />} />
-          <Route path="subscriptions" element={<SubscriptionsPage />} />
-          <Route path="checkout/subscription" element={<SubscriptionCheckoutPage />} />
           <Route path="help/ticket/:id" element={<TicketDetailPage />} />
         </Route>
 

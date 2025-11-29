@@ -18,7 +18,6 @@ import ProductCard from '../components/ui/ProductCard';
 import FrequentlyBoughtTogether from '../components/ui/FrequentlyBoughtTogether';
 import ShareProduct from '../components/ui/ShareProduct';
 import CustomersAlsoBought from '../components/ui/CustomersAlsoBought';
-import SubscribeAndSave from '../components/ui/SubscribeAndSave';
 import api from '../utils/api';
 
 const ProductDetailsPage = () => {
@@ -517,17 +516,6 @@ const ProductDetailsPage = () => {
           {/* Stock Alert for out of stock items */}
           {product.stock === 0 && (
             <StockAlertButton productId={product._id} inStock={product.stock > 0} />
-          )}
-
-          {/* Subscribe & Save Option */}
-          {product.stock > 0 && (
-            <div className="mt-4">
-              <SubscribeAndSave 
-                product={product} 
-                quantity={quantity}
-                selectedVariants={selectedVariants}
-              />
-            </div>
           )}
 
           {/* Compare button */}

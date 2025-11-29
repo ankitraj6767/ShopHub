@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiCreditCard, FiTruck, FiCheck, FiLock, FiTag, FiX, FiMapPin, FiPlus, FiEdit2, FiDollarSign, FiGift, FiCalendar } from 'react-icons/fi';
+import { FaCrown } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -254,6 +255,10 @@ const CheckoutPage = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [discount, setDiscount] = useState(0);
 
+  // Premium discount state
+  const [premiumBenefits, setPremiumBenefits] = useState(null);
+  const [premiumDiscount, setPremiumDiscount] = useState(0);
+
   // Wallet state
   const { wallet } = useSelector((state) => state.users);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
@@ -282,6 +287,26 @@ const CheckoutPage = () => {
       dispatch(fetchWallet());
     }
   }, [dispatch, user]);
+
+  // Fetch premium benefits and calculate discount
+  useEffect(() => {
+    const fetchPremiumBenefits = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await api.get('/premium/benefits');
+        if (data.isPremium && data.benefits) {
+          setPremiumBenefits(data.benefits);
+          const discountAmount = (subtotal * data.benefits.discountPercent) / 100;
+          setPremiumDiscount(Math.round(discountAmount * 100) / 100);
+        }
+      } catch (error) {
+        console.error('Failed to fetch premium benefits:', error);
+      }
+    };
+
+    fetchPremiumBenefits();
+  }, [user, subtotal]);
 
   // Fetch saved addresses on mount
   useEffect(() => {
@@ -499,9 +524,13 @@ const CheckoutPage = () => {
     toast.success('Coupon removed');
   };
 
-  // Calculate final total with discount, wallet, and gift wrap
+  // Calculate final total with discount, premium discount, wallet, and gift wrap
   const giftWrapPrice = giftOptions.enabled ? 5.99 : 0;
-  const totalAfterDiscount = Math.max(0, total - discount + giftWrapPrice);
+  const actualShipping = premiumBenefits?.freeShipping ? 0 : shipping;
+  const totalBeforeDiscounts = subtotal + tax + actualShipping;
+  const totalAfterCouponDiscount = Math.max(0, totalBeforeDiscounts - discount);
+  const totalAfterPremiumDiscount = Math.max(0, totalAfterCouponDiscount - premiumDiscount);
+  const totalAfterDiscount = totalAfterPremiumDiscount + giftWrapPrice;
   const maxWalletUsable = Math.min(wallet?.balance || 0, totalAfterDiscount);
   const actualWalletUsed = useWalletBalance ? Math.min(walletAmountToUse, maxWalletUsable) : 0;
   const finalTotal = Math.max(0, totalAfterDiscount - actualWalletUsed);
@@ -559,6 +588,7 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || null,
       discountAmount: discount,
+      premiumDiscount: premiumDiscount, // Premium member discount
       walletAmount: actualWalletUsed,
       // Gift options
       giftWrap: giftOptions.enabled,
@@ -1361,6 +1391,19 @@ const CheckoutPage = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h2>
             
+            {/* Premium Member Badge */}
+            {premiumBenefits && (
+              <div className="mb-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <FaCrown className="text-yellow-500" />
+                  <span className="font-medium text-yellow-800">Premium Member</span>
+                </div>
+                <p className="text-xs text-yellow-700 mt-1">
+                  You're getting {premiumBenefits.discountPercent}% off + free shipping!
+                </p>
+              </div>
+            )}
+            
             {/* Coupon Code Input */}
             <div className="mb-4 pb-4 border-b">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1469,7 +1512,16 @@ const CheckoutPage = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium">
-                  {shipping === 0 ? 'Free' : formatPrice(shipping)}
+                  {shipping === 0 || premiumBenefits?.freeShipping ? (
+                    <span className="flex items-center gap-1">
+                      <span className="text-green-600">Free</span>
+                      {premiumBenefits?.freeShipping && shipping > 0 && (
+                        <span className="text-xs text-yellow-600 flex items-center gap-0.5">
+                          <FaCrown className="w-2 h-2" />
+                        </span>
+                      )}
+                    </span>
+                  ) : formatPrice(shipping)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1490,6 +1542,14 @@ const CheckoutPage = () => {
                   <span className="font-medium">-{formatPrice(discount)}</span>
                 </div>
               )}
+              {premiumDiscount > 0 && (
+                <div className="flex justify-between text-yellow-600">
+                  <span className="flex items-center gap-1">
+                    <FaCrown className="w-3 h-3" /> Premium Discount ({premiumBenefits?.discountPercent}%)
+                  </span>
+                  <span className="font-medium">-{formatPrice(premiumDiscount)}</span>
+                </div>
+              )}
               {actualWalletUsed > 0 && (
                 <div className="flex justify-between text-emerald-600">
                   <span>Wallet Payment</span>
@@ -1501,8 +1561,8 @@ const CheckoutPage = () => {
                   <span>Total</span>
                   <span className="text-primary-600">{formatPrice(finalTotal)}</span>
                 </div>
-                {(discount > 0 || actualWalletUsed > 0) && (
-                  <p className="text-xs text-green-600 mt-1">You're saving {formatPrice(discount + actualWalletUsed)}!</p>
+                {(discount > 0 || premiumDiscount > 0 || actualWalletUsed > 0) && (
+                  <p className="text-xs text-green-600 mt-1">You're saving {formatPrice(discount + premiumDiscount + actualWalletUsed)}!</p>
                 )}
               </div>
             </div>

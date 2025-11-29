@@ -68,6 +68,11 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    // Premium subscription status
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
     walletHistory: [
       {
         type: {

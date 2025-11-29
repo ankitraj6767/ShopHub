@@ -30,6 +30,7 @@ import bundleRoutes from './routes/bundleRoutes.js';
 import referralRoutes from './routes/referralRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import premiumRoutes from './routes/premiumRoutes.js';
 
 dotenv.config();
 
@@ -85,6 +86,7 @@ app.use('/api/bundles', bundleRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/premium', premiumRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

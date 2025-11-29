@@ -168,15 +168,15 @@ const BuyAgainPage = () => {
           </Link>
 
           <Link
-            to="/subscriptions"
+            to="/premium"
             className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition flex items-center gap-4"
           >
-            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
-              <Clock className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
+              <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Subscribe & Save</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Set up auto-deliveries</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Premium Membership</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Get extra discounts</p>
             </div>
             <ArrowRight className="w-5 h-5 ml-auto text-gray-400" />
           </Link>
