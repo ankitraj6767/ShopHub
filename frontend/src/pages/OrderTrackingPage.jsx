@@ -9,6 +9,7 @@ import {
   FiDownload,
   FiArrowLeft,
 } from 'react-icons/fi';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import { formatPrice, formatDate } from '../utils/helpers';
 import Spinner from '../components/ui/Spinner';
@@ -30,6 +31,27 @@ const OrderTrackingPage = () => {
       console.error('Failed to fetch order');
     }
     setLoading(false);
+  };
+
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await api.get(`/orders/${id}/invoice`, {
+        responseType: 'blob',
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${order.orderNumber || id.slice(-8)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Invoice downloaded successfully');
+    } catch (error) {
+      toast.error('Failed to download invoice');
+    }
   };
 
   const getTrackingSteps = () => {
@@ -101,7 +123,7 @@ const OrderTrackingPage = () => {
                   : formatDate(new Date(new Date(order.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000))}
               </p>
             </div>
-            <button className="btn-secondary flex items-center gap-2">
+            <button onClick={handleDownloadInvoice} className="btn-secondary flex items-center gap-2">
               <FiDownload /> Invoice
             </button>
           </div>

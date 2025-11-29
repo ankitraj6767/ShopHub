@@ -185,8 +185,8 @@ const FlashSale = () => {
 
                   {/* Prices */}
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg font-bold text-red-600">${item.salePrice.toFixed(2)}</span>
-                    <span className="text-sm text-gray-400 line-through">${item.originalPrice.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-red-600">₹{item.salePrice.toFixed(2)}</span>
+                    <span className="text-sm text-gray-400 line-through">₹{item.originalPrice.toFixed(2)}</span>
                   </div>
 
                   {/* Stock Progress Bar */}

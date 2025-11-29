@@ -156,7 +156,7 @@ const SearchAutocomplete = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.name}</p>
-                    <p className="text-sm text-primary-600 font-bold">${product.price}</p>
+                    <p className="text-sm text-primary-600 font-bold">₹{product.price}</p>
                   </div>
                 </button>
               ))}

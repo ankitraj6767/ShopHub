@@ -55,7 +55,7 @@ export const applyCoupon = asyncHandler(async (req, res) => {
   if (cartTotal < coupon.minimumPurchase) {
     res.status(400);
     throw new Error(
-      `Minimum purchase of $${coupon.minimumPurchase.toFixed(2)} required`
+      `Minimum purchase of ₹${coupon.minimumPurchase.toFixed(2)} required`
     );
   }
 

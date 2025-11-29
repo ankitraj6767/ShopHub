@@ -108,11 +108,11 @@ const BuyAgainPage = () => {
                   {/* Price */}
                   <div className="mt-3">
                     <span className="text-xl font-bold text-gray-900 dark:text-white">
-                      ${item.product.price?.toFixed(2)}
+                      ₹{item.product.price?.toFixed(2)}
                     </span>
                     {item.priceChanged && item.lastPurchasePrice !== item.product.price && (
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400 line-through">
-                        ${item.lastPurchasePrice?.toFixed(2)}
+                        ₹{item.lastPurchasePrice?.toFixed(2)}
                       </span>
                     )}
                   </div>

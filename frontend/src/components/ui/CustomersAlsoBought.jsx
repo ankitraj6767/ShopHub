@@ -137,7 +137,7 @@ const CustomersAlsoBought = ({ productId }) => {
               </div>
             </div>
             <span className="font-semibold text-gray-900 dark:text-white">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toFixed(2)}
             </span>
           </div>
         ))}
@@ -150,7 +150,7 @@ const CustomersAlsoBought = ({ productId }) => {
             Total for {selectedProducts.size} items:
           </span>
           <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-            ${calculateTotal().toFixed(2)}
+            ₹{calculateTotal().toFixed(2)}
           </span>
         </div>
         <button

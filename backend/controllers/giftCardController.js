@@ -318,7 +318,7 @@ export const applyGiftCard = asyncHandler(async (req, res) => {
 
   if (amount > giftCard.currentBalance) {
     res.status(400);
-    throw new Error(`Insufficient balance. Available: $${giftCard.currentBalance.toFixed(2)}`);
+    throw new Error(`Insufficient balance. Available: ₹${giftCard.currentBalance.toFixed(2)}`);
   }
 
   await giftCard.use(amount, orderId, req.user._id);

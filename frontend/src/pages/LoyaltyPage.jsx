@@ -142,7 +142,7 @@ const LoyaltyPage = () => {
           <div className="text-center md:text-right">
             <p className="text-white/80 text-sm">Available Points</p>
             <p className="text-5xl font-bold">{loyalty?.points.toLocaleString()}</p>
-            <p className="text-white/80">= ${(loyalty?.points / 100).toFixed(2)} value</p>
+            <p className="text-white/80">= ₹{(loyalty?.points / 100).toFixed(2)} value</p>
           </div>
         </div>
 
@@ -206,7 +206,7 @@ const LoyaltyPage = () => {
                   <h2 className="text-xl font-bold">My Wallet</h2>
                 </div>
                 <p className="text-white/80 text-sm mb-1">Available Balance</p>
-                <p className="text-4xl font-bold">${(wallet?.balance || 0).toFixed(2)}</p>
+                <p className="text-4xl font-bold">₹{(wallet?.balance || 0).toFixed(2)}</p>
               </div>
               <div className="text-right">
                 <p className="text-white/80 text-sm">Use at checkout</p>

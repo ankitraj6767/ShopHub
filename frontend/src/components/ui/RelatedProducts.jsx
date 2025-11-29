@@ -107,7 +107,7 @@ const RelatedProducts = ({ productId, title = 'Related Products' }) => {
 
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-lg font-bold text-gray-900 dark:text-white">
-                  ${product.price.toFixed(2)}
+                  ₹{product.price.toFixed(2)}
                 </span>
                 {product.stock > 0 ? (
                   <span className="text-xs text-green-600 dark:text-green-400">In Stock</span>

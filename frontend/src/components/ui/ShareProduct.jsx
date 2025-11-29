@@ -83,7 +83,7 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
           />
           <div className="flex-1">
             <h4 className="font-medium text-gray-900 dark:text-white line-clamp-2">{product.name}</h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400">${product.price?.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">₹{product.price?.toFixed(2)}</p>
           </div>
         </div>
 

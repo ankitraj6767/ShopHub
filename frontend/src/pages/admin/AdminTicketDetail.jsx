@@ -345,7 +345,7 @@ const AdminTicketDetail = () => {
                 </p>
                 <p className="text-sm dark:text-gray-300">
                   <span className="text-gray-500 dark:text-gray-400">Total:</span>{' '}
-                  ${ticket.order.totalPrice?.toFixed(2)}
+                  ₹{ticket.order.totalPrice?.toFixed(2)}
                 </p>
               </div>
             </div>

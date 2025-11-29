@@ -185,11 +185,11 @@ const FeaturedBundles = () => {
                   {/* Prices */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-purple-600">${bundle.bundlePrice?.toFixed(2)}</span>
-                      <span className="text-sm text-gray-400 line-through ml-2">${bundle.originalPrice?.toFixed(2)}</span>
+                      <span className="text-2xl font-bold text-purple-600">₹{bundle.bundlePrice?.toFixed(2)}</span>
+                      <span className="text-sm text-gray-400 line-through ml-2">₹{bundle.originalPrice?.toFixed(2)}</span>
                     </div>
                     <div className="text-sm text-green-600 font-medium">
-                      Save ${savings.toFixed(2)}
+                      Save ₹{savings.toFixed(2)}
                     </div>
                   </div>
                 </Link>

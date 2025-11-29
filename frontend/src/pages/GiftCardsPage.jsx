@@ -234,7 +234,7 @@ const GiftCardsPage = () => {
     setRedeeming(true);
     try {
       const response = await api.post('/gift-cards/redeem', { code: redeemCode });
-      toast.success(`Gift card redeemed! $${response.data.data.amount} added to your wallet.`);
+      toast.success(`Gift card redeemed! ₹${response.data.data.amount} added to your wallet.`);
       setRedeemCode('');
       fetchMyCards();
     } catch (error) {
