@@ -113,6 +113,10 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Add refresh token
 userSchema.methods.addRefreshToken = async function (token) {
+  // Initialize refreshTokens if undefined
+  if (!this.refreshTokens) {
+    this.refreshTokens = [];
+  }
   // Limit to 5 refresh tokens (5 devices)
   if (this.refreshTokens.length >= 5) {
     this.refreshTokens.shift();
@@ -123,12 +127,20 @@ userSchema.methods.addRefreshToken = async function (token) {
 
 // Remove refresh token
 userSchema.methods.removeRefreshToken = async function (token) {
+  // Initialize refreshTokens if undefined
+  if (!this.refreshTokens) {
+    this.refreshTokens = [];
+  }
   this.refreshTokens = this.refreshTokens.filter((t) => t.token !== token);
   await this.save();
 };
 
 // Check if refresh token exists
 userSchema.methods.hasRefreshToken = function (token) {
+  // Return false if refreshTokens is undefined
+  if (!this.refreshTokens) {
+    return false;
+  }
   return this.refreshTokens.some((t) => t.token === token);
 };
 

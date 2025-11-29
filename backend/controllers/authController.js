@@ -129,18 +129,20 @@ export const logoutUser = asyncHandler(async (req, res) => {
     console.log('Error removing refresh token:', error.message);
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   // Clear cookies regardless of any errors
   res.cookie('accessToken', '', {
     httpOnly: true,
     expires: new Date(0),
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
   });
   res.cookie('refreshToken', '', {
     httpOnly: true,
     expires: new Date(0),
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
   });
 
   res.json({
@@ -222,17 +224,19 @@ export const getMe = asyncHandler(async (req, res) => {
 
 // Helper function to set token cookies
 const setTokenCookies = (res, accessToken, refreshToken) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'strict',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-site cookies in production
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'strict',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-site cookies in production
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
