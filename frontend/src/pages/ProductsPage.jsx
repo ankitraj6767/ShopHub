@@ -116,13 +116,13 @@ const ProductsPage = () => {
             showFilters ? 'block' : 'hidden md:block'
           }`}
         >
-          <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sticky top-24">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg">Filters</h2>
+              <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Filters</h2>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="text-sm text-primary-600 hover:text-primary-700"
+                  className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                 >
                   Clear All
                 </button>
@@ -131,12 +131,12 @@ const ProductsPage = () => {
 
             {/* Category Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-3">Category</h3>
+              <h3 className="font-medium mb-3 text-gray-900 dark:text-white">Category</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => updateFilter('category', '')}
                   className={`block w-full text-left px-3 py-2 rounded-lg transition ${
-                    !category ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100'
+                    !category ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   All Categories
@@ -147,8 +147,8 @@ const ProductsPage = () => {
                     onClick={() => updateFilter('category', cat)}
                     className={`block w-full text-left px-3 py-2 rounded-lg transition ${
                       category === cat
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'hover:bg-gray-100'
+                        ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     {cat}
@@ -159,23 +159,23 @@ const ProductsPage = () => {
 
             {/* Price Range Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-3">Price Range</h3>
+              <h3 className="font-medium mb-3 text-gray-900 dark:text-white">Price Range</h3>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
                   placeholder="Min"
                   value={minPrice}
                   onChange={(e) => updateFilter('minPrice', e.target.value)}
-                  className="input text-sm"
+                  className="input text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   min="0"
                 />
-                <span>-</span>
+                <span className="text-gray-600 dark:text-gray-400">-</span>
                 <input
                   type="number"
                   placeholder="Max"
                   value={maxPrice}
                   onChange={(e) => updateFilter('maxPrice', e.target.value)}
-                  className="input text-sm"
+                  className="input text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   min="0"
                 />
               </div>
@@ -183,12 +183,12 @@ const ProductsPage = () => {
 
             {/* Rating Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-3">Rating</h3>
+              <h3 className="font-medium mb-3 text-gray-900 dark:text-white">Rating</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => updateFilter('rating', '')}
                   className={`block w-full text-left px-3 py-2 rounded-lg transition ${
-                    !rating ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100'
+                    !rating ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   All Ratings
@@ -199,12 +199,12 @@ const ProductsPage = () => {
                     onClick={() => updateFilter('rating', r.toString())}
                     className={`flex items-center w-full text-left px-3 py-2 rounded-lg transition ${
                       rating === r.toString()
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'hover:bg-gray-100'
+                        ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     <span className="text-yellow-400">{'★'.repeat(r)}</span>
-                    <span className="text-gray-300">{'★'.repeat(5 - r)}</span>
+                    <span className="text-gray-300 dark:text-gray-600">{'★'.repeat(5 - r)}</span>
                     <span className="ml-2">& Up</span>
                   </button>
                 ))}

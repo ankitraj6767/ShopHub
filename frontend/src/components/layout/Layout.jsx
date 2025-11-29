@@ -11,11 +11,13 @@ import RecentlyViewed from '../ui/RecentlyViewed';
 import SearchAutocomplete from '../ui/SearchAutocomplete';
 import NotificationCenter from '../ui/NotificationCenter';
 import ThemeToggle from '../ui/ThemeToggle';
+import { useTheme } from '../../context/ThemeContext';
 
 const Layout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isDarkMode } = useTheme();
   const authState = useSelector((state) => state.auth) || {};
   const { user = null, isAuthenticated = false } = authState;
   const cartState = useSelector((state) => state.cart) || {};
@@ -238,7 +240,7 @@ const Layout = () => {
               
               {/* Mobile Theme Toggle */}
               <div className="flex items-center justify-between py-2">
-                <span className="text-gray-600 dark:text-gray-300">Dark Mode</span>
+                <span className="text-gray-600 dark:text-gray-300">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
                 <ThemeToggle />
               </div>
 
