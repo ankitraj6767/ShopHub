@@ -106,7 +106,8 @@ const GiftCardsPage = () => {
 
     setLoading(true);
     try {
-      const response = await api.post('/gift-cards', {
+      // Create Razorpay order
+      const { data: paymentData } = await api.post('/gift-cards/create-order', {
         amount,
         recipientEmail: purchaseForm.recipientEmail,
         recipientName: purchaseForm.recipientName,
@@ -115,23 +116,86 @@ const GiftCardsPage = () => {
         theme: purchaseForm.theme,
       });
 
-      toast.success('Gift card purchased successfully!');
-      setPurchaseForm({
-        amount: 1000,
-        customAmount: '',
-        recipientEmail: '',
-        recipientName: '',
-        senderName: '',
-        message: '',
-        theme: 'general',
-      });
+      // Load Razorpay script if not already loaded
+      if (!window.Razorpay) {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+        await new Promise((resolve) => {
+          script.onload = resolve;
+        });
+      }
+
+      // Configure Razorpay options
+      const options = {
+        key: paymentData.key_id,
+        amount: paymentData.order.amount,
+        currency: paymentData.order.currency,
+        name: 'ShopHub Gift Card',
+        description: `Gift Card worth ₹${amount}`,
+        order_id: paymentData.order.id,
+        handler: async function (response) {
+          try {
+            // Verify payment with backend
+            const verifyData = await api.post('/gift-cards/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount,
+              recipientEmail: purchaseForm.recipientEmail,
+              recipientName: purchaseForm.recipientName,
+              senderName: purchaseForm.senderName,
+              message: purchaseForm.message,
+              theme: purchaseForm.theme,
+            });
+            
+            toast.success('Gift card purchased successfully!');
+            
+            // Show the gift card code
+            const card = verifyData.data.data;
+            toast.success(`Gift Card Code: ${card.code}`, { duration: 10000 });
+            
+            setPurchaseForm({
+              amount: 1000,
+              customAmount: '',
+              recipientEmail: '',
+              recipientName: '',
+              senderName: '',
+              message: '',
+              theme: 'general',
+            });
+            
+            // Refresh my cards if on that tab
+            if (activeTab === 'my-cards') {
+              fetchMyCards();
+            }
+            
+            setLoading(false);
+          } catch (error) {
+            toast.error(error.response?.data?.message || 'Payment verification failed');
+            setLoading(false);
+          }
+        },
+        prefill: {
+          email: purchaseForm.recipientEmail,
+        },
+        theme: {
+          color: '#7c3aed'
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+            toast.error('Payment cancelled');
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
       
-      // Show the gift card code
-      const card = response.data.data;
-      toast.success(`Gift Card Code: ${card.code}`, { duration: 10000 });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to purchase gift card');
-    } finally {
+      toast.error(error.response?.data?.message || 'Failed to initiate payment');
       setLoading(false);
     }
   };

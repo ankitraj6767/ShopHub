@@ -1,6 +1,8 @@
 import express from 'express';
 import {
   purchaseGiftCard,
+  createGiftCardOrder,
+  verifyGiftCardPayment,
   getPurchasedGiftCards,
   getRedeemedGiftCards,
   checkGiftCardBalance,
@@ -14,6 +16,8 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.route('/').post(protect, purchaseGiftCard);
+router.post('/create-order', protect, createGiftCardOrder);
+router.post('/verify-payment', protect, verifyGiftCardPayment);
 router.get('/purchased', protect, getPurchasedGiftCards);
 router.get('/redeemed', protect, getRedeemedGiftCards);
 router.get('/check/:code', checkGiftCardBalance);

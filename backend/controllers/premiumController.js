@@ -8,7 +8,6 @@ import crypto from 'crypto';
 import config from '../config/config.js';
 
 // Initialize Razorpay
-console.log('Initializing Razorpay with key:', config.razorpayKeyId ? 'Present' : 'Missing');
 let razorpay = null;
 try {
   if (config.razorpayKeyId && config.razorpayKeySecret) {
@@ -16,9 +15,6 @@ try {
       key_id: config.razorpayKeyId,
       key_secret: config.razorpayKeySecret,
     });
-    console.log('Razorpay initialized successfully');
-  } else {
-    console.error('Razorpay keys not found in config');
   }
 } catch (err) {
   console.error('Failed to initialize Razorpay:', err);

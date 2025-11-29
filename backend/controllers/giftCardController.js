@@ -1,18 +1,119 @@
 import asyncHandler from 'express-async-handler';
 import GiftCard from '../models/GiftCard.js';
 import User from '../models/User.js';
+import Revenue from '../models/Revenue.js';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+import config from '../config/config.js';
 
-// @desc    Purchase a gift card
-// @route   POST /api/gift-cards
+// Initialize Razorpay
+let razorpay = null;
+try {
+  if (config.razorpayKeyId && config.razorpayKeySecret) {
+    razorpay = new Razorpay({
+      key_id: config.razorpayKeyId,
+      key_secret: config.razorpayKeySecret,
+    });
+  }
+} catch (err) {
+  console.error('Failed to initialize Razorpay for gift cards:', err);
+}
+
+// @desc    Create Razorpay order for gift card purchase
+// @route   POST /api/gift-cards/create-order
 // @access  Private
-export const purchaseGiftCard = asyncHandler(async (req, res) => {
+export const createGiftCardOrder = asyncHandler(async (req, res) => {
   const { amount, recipientEmail, recipientName, senderName, message, theme } = req.body;
 
-  if (amount < 10 || amount > 500) {
+  if (amount < 500 || amount > 50000) {
     res.status(400);
-    throw new Error('Gift card amount must be between ₹500 and ₹25,000');
+    throw new Error('Gift card amount must be between ₹500 and ₹50,000');
   }
 
+  if (!recipientEmail) {
+    res.status(400);
+    throw new Error('Recipient email is required');
+  }
+
+  if (!razorpay) {
+    res.status(500);
+    throw new Error('Payment system not configured');
+  }
+
+  // Create Razorpay order
+  const shortUserId = req.user._id.toString().slice(-8);
+  const options = {
+    amount: Math.round(amount * 100), // Convert to paise
+    currency: 'INR',
+    receipt: `gc_${shortUserId}_${Date.now().toString().slice(-10)}`,
+    notes: {
+      userId: req.user._id.toString(),
+      type: 'gift_card',
+      recipientEmail,
+      recipientName: recipientName || '',
+      senderName: senderName || req.user.name,
+      message: message || '',
+      theme: theme || 'general',
+    },
+  };
+
+  try {
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    res.json({
+      success: true,
+      order: razorpayOrder,
+      key_id: config.razorpayKeyId,
+      giftCardDetails: {
+        amount,
+        recipientEmail,
+        recipientName,
+        senderName: senderName || req.user.name,
+        message,
+        theme,
+      },
+    });
+  } catch (error) {
+    console.error('Razorpay gift card order creation failed:', error);
+    res.status(500);
+    throw new Error('Failed to create payment order: ' + (error.error?.description || error.message || 'Unknown error'));
+  }
+});
+
+// @desc    Verify payment and create gift card
+// @route   POST /api/gift-cards/verify-payment
+// @access  Private
+export const verifyGiftCardPayment = asyncHandler(async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    amount,
+    recipientEmail,
+    recipientName,
+    senderName,
+    message,
+    theme,
+  } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    res.status(400);
+    throw new Error('Missing payment verification data');
+  }
+
+  // Verify signature
+  const body = razorpay_order_id + '|' + razorpay_payment_id;
+  const expectedSignature = crypto
+    .createHmac('sha256', config.razorpayKeySecret)
+    .update(body.toString())
+    .digest('hex');
+
+  if (expectedSignature !== razorpay_signature) {
+    res.status(400);
+    throw new Error('Payment verification failed - Invalid signature');
+  }
+
+  // Create the gift card
   const code = GiftCard.generateCode();
   
   // Set expiry to 1 year from now
@@ -30,6 +131,8 @@ export const purchaseGiftCard = asyncHandler(async (req, res) => {
     message,
     theme: theme || 'general',
     expiryDate,
+    paymentId: razorpay_payment_id,
+    orderId: razorpay_order_id,
     transactions: [
       {
         type: 'purchase',
@@ -39,12 +142,48 @@ export const purchaseGiftCard = asyncHandler(async (req, res) => {
     ],
   });
 
+  // Record revenue
+  try {
+    await Revenue.create({
+      type: 'gift_card',
+      amount: amount,
+      sourceId: giftCard._id,
+      sourceModel: 'GiftCard',
+      user: req.user._id,
+      paymentMethod: 'razorpay',
+      transactionId: razorpay_payment_id,
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      description: `Gift Card Purchase - ${code}`,
+      status: 'completed',
+    });
+  } catch (revenueError) {
+    console.error('Failed to record gift card revenue:', revenueError);
+  }
+
   // TODO: Send email to recipient with gift card details
 
   res.status(201).json({
     success: true,
+    message: 'Gift card purchased successfully!',
     data: giftCard,
   });
+});
+
+// @desc    Purchase a gift card (legacy - without payment)
+// @route   POST /api/gift-cards
+// @access  Private
+export const purchaseGiftCard = asyncHandler(async (req, res) => {
+  const { amount, recipientEmail, recipientName, senderName, message, theme } = req.body;
+
+  if (amount < 500 || amount > 50000) {
+    res.status(400);
+    throw new Error('Gift card amount must be between ₹500 and ₹50,000');
+  }
+
+  // Redirect to payment flow
+  res.status(400);
+  throw new Error('Please use the payment flow to purchase gift cards');
 });
 
 // @desc    Get user's purchased gift cards
