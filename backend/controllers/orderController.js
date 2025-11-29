@@ -500,7 +500,17 @@ export const getOrders = asyncHandler(async (req, res) => {
 
   // Filter by status
   if (req.query.status) {
-    query.status = req.query.status;
+    // Valid statuses from Order model
+    const validStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Return Requested', 'Returned'];
+    const requestedStatus = req.query.status;
+    
+    // Find matching status (case-insensitive)
+    const matchedStatus = validStatuses.find(s => s.toLowerCase() === requestedStatus.toLowerCase());
+    if (matchedStatus) {
+      query.status = matchedStatus;
+    } else {
+      query.status = requestedStatus; // Use as-is if no match found
+    }
   }
 
   // Filter by payment status
