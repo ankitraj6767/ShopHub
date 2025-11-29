@@ -46,7 +46,13 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await axios.post(`${API_URL}/auth/refresh`, {}, { withCredentials: true });
+        // Send refresh token in body as fallback for mobile browsers where cookies may not work
+        const refreshToken = localStorage.getItem('refreshToken');
+        const response = await axios.post(
+          `${API_URL}/auth/refresh`, 
+          { refreshToken }, 
+          { withCredentials: true }
+        );
         const { accessToken } = response.data.data;
         
         localStorage.setItem('accessToken', accessToken);
@@ -57,6 +63,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         isRefreshing = false;
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         // Don't redirect, just reject the promise - let the component handle it
         return Promise.reject(refreshError);
       }

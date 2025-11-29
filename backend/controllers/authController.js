@@ -48,6 +48,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       console.error('Failed to send welcome email:', emailError);
     });
 
+    // Return tokens in response body as well (for mobile browsers where cookies may not work)
     res.status(201).json({
       success: true,
       data: {
@@ -56,6 +57,7 @@ export const registerUser = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
         accessToken,
+        refreshToken, // Include for mobile fallback
       },
     });
   } else {
@@ -104,6 +106,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Set cookies
   setTokenCookies(res, accessToken, refreshToken);
 
+  // Return tokens in response body as well (for mobile browsers where cookies may not work)
   res.json({
     success: true,
     data: {
@@ -112,6 +115,7 @@ export const loginUser = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       accessToken,
+      refreshToken, // Include for mobile fallback
     },
   });
 });
@@ -134,18 +138,20 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
   const isProduction = process.env.NODE_ENV === 'production';
   
-  // Clear cookies regardless of any errors
+  // Clear cookies regardless of any errors - must match the same path/domain used when setting
   res.cookie('accessToken', '', {
     httpOnly: true,
     expires: new Date(0),
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
   });
   res.cookie('refreshToken', '', {
     httpOnly: true,
     expires: new Date(0),
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
   });
 
   res.json({
@@ -185,11 +191,14 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     // Generate new access token
     const accessToken = generateAccessToken(user._id);
 
-    // Set new access token cookie
+    // Use consistent cookie settings
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: config.cookieSecure,
-      sameSite: 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
@@ -229,22 +238,40 @@ export const getMe = asyncHandler(async (req, res) => {
 const setTokenCookies = (res, accessToken, refreshToken) => {
   const isProduction = process.env.NODE_ENV === 'production';
   
-  // Cookie settings for cross-origin requests
+  // For cross-origin (frontend on different domain than backend), we need:
+  // - secure: true (HTTPS only)
+  // - sameSite: 'none' (allow cross-site)
+  // - domain should NOT be set (let browser handle it)
+  // - path: '/' to ensure cookies are sent for all routes
+  
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction, // HTTPS only in production
-    sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site, 'lax' for same-site
+    secure: isProduction, // Must be true for sameSite: 'none'
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
   };
   
+  // Access token - short lived
   res.cookie('accessToken', accessToken, {
     ...cookieOptions,
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
+  // Refresh token - longer lived
   res.cookie('refreshToken', refreshToken, {
     ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
+  
+  // Debug logging for troubleshooting
+  if (isProduction) {
+    console.log('🍪 Setting cookies with options:', {
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite,
+      path: cookieOptions.path,
+      httpOnly: cookieOptions.httpOnly
+    });
+  }
 };
 
 // Generate 6-digit OTP

@@ -24,6 +24,9 @@ export const register = createAsyncThunk('auth/register', async (userData, { rej
   try {
     const response = await api.post('/auth/register', userData);
     localStorage.setItem('accessToken', response.data.data.accessToken);
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.data.refreshToken);
+    }
     return response.data.data;
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || 'Registration failed');
@@ -35,6 +38,9 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
   try {
     const response = await api.post('/auth/login', credentials);
     localStorage.setItem('accessToken', response.data.data.accessToken);
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.data.refreshToken);
+    }
     return response.data.data;
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -46,9 +52,11 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
   try {
     await api.post('/auth/logout');
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     return null;
   } catch (error) {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     return rejectWithValue(error.response?.data?.message || 'Logout failed');
   }
 });
