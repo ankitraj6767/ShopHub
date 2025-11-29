@@ -111,10 +111,10 @@ const ProductCard = ({ product }) => {
         {/* Compare Button */}
         <button
           onClick={handleToggleCompare}
-          className={`absolute top-12 right-2 p-2 rounded-full transition-all ${
+          className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 ${
             isInCompare
-              ? 'bg-blue-500 text-white'
-              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-blue-500'
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg ring-2 ring-purple-300'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-purple-500'
           }`}
           title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
         >
