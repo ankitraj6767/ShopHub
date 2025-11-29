@@ -20,7 +20,16 @@ const SmartRecommendations = ({ limit = 8 }) => {
   }, [dispatch, isAuthenticated, limit]);
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart({ ...product, quantity: 1 }));
+    dispatch(addToCart({ 
+      product: {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+        stock: product.stock,
+      }, 
+      quantity: 1 
+    }));
     toast.success('Added to cart!');
   };
 
