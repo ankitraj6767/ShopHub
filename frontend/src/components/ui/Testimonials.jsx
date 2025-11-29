@@ -26,7 +26,7 @@ const testimonials = [
     role: 'Verified Buyer',
     avatar: 'https://i.pravatar.cc/100?img=3',
     rating: 5,
-    text: "The flash sales are incredible! I saved over $200 on my last purchase. The app is so easy to use, and tracking my order was seamless.",
+    text: "The flash sales are incredible! I saved over ₹15000 on my last purchase. The app is so easy to use, and tracking my order was seamless.",
     product: 'Designer Handbag',
   },
   {

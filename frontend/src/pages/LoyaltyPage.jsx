@@ -222,7 +222,7 @@ const LoyaltyPage = () => {
               Redeem Points to Wallet
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Convert your points to wallet balance! 100 points = $1.00. Use wallet balance at checkout.
+              Convert your points to wallet balance! 100 points = ₹10. Use wallet balance at checkout.
             </p>
             <div className="flex gap-4">
               <div className="flex-1">
@@ -247,7 +247,7 @@ const LoyaltyPage = () => {
             {redeemAmount && (
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 <FiDollarSign className="inline w-4 h-4" />
-                You'll get ${(parseInt(redeemAmount) / 100).toFixed(2)} added to your wallet
+                You'll get ₹{(parseInt(redeemAmount) / 10).toFixed(2)} added to your wallet
               </p>
             )}
           </div>
@@ -414,7 +414,7 @@ const LoyaltyPage = () => {
                 </div>
                 <div>
                   <p className="font-medium dark:text-white">Shop & Earn</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">10 points per $1 spent</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">10 points per ₹100 spent</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

@@ -146,7 +146,7 @@ const ProductDetailsPage = () => {
     }));
     
     if (flashSaleInfo) {
-      toast.success(`Added to cart at flash sale price: $${flashSaleInfo.salePrice.toFixed(2)}!`);
+      toast.success(`Added to cart at flash sale price: ₹${flashSaleInfo.salePrice.toFixed(2)}!`);
     } else {
       toast.success('Added to cart');
     }
@@ -434,7 +434,7 @@ const ProductDetailsPage = () => {
                           option.value
                         )}
                         {option.priceModifier > 0 && (
-                          <span className="text-xs ml-1 text-gray-500">(+${option.priceModifier})</span>
+                          <span className="text-xs ml-1 text-gray-500">(+₹{option.priceModifier})</span>
                         )}
                       </button>
                     ))}

@@ -1,9 +1,19 @@
 import Stripe from 'stripe';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
 import Order from '../models/Order.js';
 import config from '../config/config.js';
 import { sendEmail, emailTemplates } from '../utils/email.js';
 
 const stripe = config.stripeSecretKey ? new Stripe(config.stripeSecretKey) : null;
+
+// Initialize Razorpay
+const razorpay = config.razorpayKeyId && config.razorpayKeySecret
+  ? new Razorpay({
+      key_id: config.razorpayKeyId,
+      key_secret: config.razorpayKeySecret,
+    })
+  : null;
 
 // @desc    Create payment intent
 // @route   POST /api/payments/create-intent
@@ -236,7 +246,318 @@ export const getPaymentConfig = async (req, res) => {
     success: true,
     publishableKey: config.stripePublishableKey || null,
     stripeEnabled: !!config.stripeSecretKey,
+    razorpayKeyId: config.razorpayKeyId || null,
+    razorpayEnabled: !!razorpay,
   });
+};
+
+// ==================== RAZORPAY FUNCTIONS ====================
+
+// @desc    Create Razorpay order
+// @route   POST /api/payments/razorpay/create-order
+// @access  Private
+export const createRazorpayOrder = async (req, res) => {
+  try {
+    if (!razorpay) {
+      return res.status(500).json({
+        success: false,
+        message: 'Razorpay payment system not configured',
+      });
+    }
+
+    const { amount, currency = 'INR', orderId } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid amount',
+      });
+    }
+
+    // Create Razorpay order
+    const options = {
+      amount: Math.round(amount * 100), // Convert to paise
+      currency,
+      receipt: orderId || `receipt_${Date.now()}`,
+      notes: {
+        userId: req.user._id.toString(),
+        orderId: orderId || '',
+      },
+    };
+
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    res.json({
+      success: true,
+      order: razorpayOrder,
+      key_id: config.razorpayKeyId,
+    });
+  } catch (error) {
+    console.error('Create Razorpay order error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to create Razorpay order',
+    });
+  }
+};
+
+// @desc    Verify Razorpay payment
+// @route   POST /api/payments/razorpay/verify
+// @access  Private
+export const verifyRazorpayPayment = async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      orderId,
+    } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing payment verification data',
+      });
+    }
+
+    // Verify signature
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', config.razorpayKeySecret)
+      .update(body.toString())
+      .digest('hex');
+
+    const isAuthentic = expectedSignature === razorpay_signature;
+
+    if (!isAuthentic) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment verification failed - Invalid signature',
+      });
+    }
+
+    // Update order if orderId is provided
+    if (orderId) {
+      const order = await Order.findById(orderId).populate('user', 'name email');
+      
+      if (order) {
+        order.paymentInfo.status = 'paid';
+        order.paymentInfo.paidAt = new Date();
+        order.paymentInfo.transactionId = razorpay_payment_id;
+        order.paymentInfo.razorpayOrderId = razorpay_order_id;
+        order.status = 'Confirmed';
+        order.addStatusHistory('Confirmed', req.user._id, 'Payment received via Razorpay');
+        
+        await order.save();
+
+        // Send confirmation email
+        try {
+          const emailData = emailTemplates.orderConfirmation(order, order.user);
+          await sendEmail({
+            to: order.user.email,
+            subject: emailData.subject,
+            html: emailData.html,
+          });
+        } catch (emailError) {
+          console.error('Failed to send order confirmation email:', emailError);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Payment verified successfully',
+      paymentId: razorpay_payment_id,
+    });
+  } catch (error) {
+    console.error('Verify Razorpay payment error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Payment verification failed',
+    });
+  }
+};
+
+// @desc    Razorpay webhook handler
+// @route   POST /api/payments/razorpay/webhook
+// @access  Public
+export const razorpayWebhook = async (req, res) => {
+  try {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    
+    if (webhookSecret) {
+      const signature = req.headers['x-razorpay-signature'];
+      const body = JSON.stringify(req.body);
+      
+      const expectedSignature = crypto
+        .createHmac('sha256', webhookSecret)
+        .update(body)
+        .digest('hex');
+
+      if (signature !== expectedSignature) {
+        return res.status(400).json({ message: 'Invalid webhook signature' });
+      }
+    }
+
+    const event = req.body;
+    
+    switch (event.event) {
+      case 'payment.captured':
+        await handleRazorpayPaymentCaptured(event.payload.payment.entity);
+        break;
+        
+      case 'payment.failed':
+        await handleRazorpayPaymentFailed(event.payload.payment.entity);
+        break;
+        
+      case 'refund.created':
+        await handleRazorpayRefund(event.payload.refund.entity);
+        break;
+        
+      default:
+        console.log(`Unhandled Razorpay event: ${event.event}`);
+    }
+
+    res.json({ status: 'ok' });
+  } catch (error) {
+    console.error('Razorpay webhook error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Handle Razorpay payment captured
+const handleRazorpayPaymentCaptured = async (payment) => {
+  try {
+    const order = await Order.findOne({
+      $or: [
+        { 'paymentInfo.transactionId': payment.id },
+        { 'paymentInfo.razorpayOrderId': payment.order_id },
+      ],
+    }).populate('user', 'name email');
+
+    if (order && order.paymentInfo.status !== 'paid') {
+      order.paymentInfo.status = 'paid';
+      order.paymentInfo.paidAt = new Date();
+      order.paymentInfo.transactionId = payment.id;
+      order.status = 'Confirmed';
+      order.addStatusHistory('Confirmed', null, 'Payment captured via Razorpay');
+      await order.save();
+
+      // Send confirmation email
+      try {
+        const emailData = emailTemplates.orderConfirmation(order, order.user);
+        await sendEmail({
+          to: order.user.email,
+          subject: emailData.subject,
+          html: emailData.html,
+        });
+      } catch (emailError) {
+        console.error('Failed to send order confirmation email:', emailError);
+      }
+    }
+  } catch (error) {
+    console.error('Handle Razorpay payment captured error:', error);
+  }
+};
+
+// Handle Razorpay payment failed
+const handleRazorpayPaymentFailed = async (payment) => {
+  try {
+    const order = await Order.findOne({
+      'paymentInfo.razorpayOrderId': payment.order_id,
+    });
+
+    if (order) {
+      order.paymentInfo.status = 'failed';
+      order.addStatusHistory('Pending', null, 'Payment failed via Razorpay');
+      await order.save();
+    }
+  } catch (error) {
+    console.error('Handle Razorpay payment failed error:', error);
+  }
+};
+
+// Handle Razorpay refund
+const handleRazorpayRefund = async (refund) => {
+  try {
+    const order = await Order.findOne({
+      'paymentInfo.transactionId': refund.payment_id,
+    });
+
+    if (order) {
+      const refundAmount = refund.amount / 100; // Convert from paise
+      order.paymentInfo.status = refundAmount >= order.totalPrice ? 'refunded' : 'partial_refund';
+      order.paymentInfo.refundedAmount = (order.paymentInfo.refundedAmount || 0) + refundAmount;
+      order.paymentInfo.refundedAt = new Date();
+      await order.save();
+    }
+  } catch (error) {
+    console.error('Handle Razorpay refund error:', error);
+  }
+};
+
+// @desc    Process Razorpay refund
+// @route   POST /api/payments/razorpay/refund
+// @access  Private/Admin
+export const processRazorpayRefund = async (req, res) => {
+  try {
+    if (!razorpay) {
+      return res.status(500).json({
+        success: false,
+        message: 'Razorpay payment system not configured',
+      });
+    }
+
+    const { orderId, amount, reason } = req.body;
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    if (order.paymentInfo.status !== 'paid') {
+      return res.status(400).json({
+        success: false,
+        message: 'Order has not been paid',
+      });
+    }
+
+    // Create refund
+    const refundAmount = amount ? Math.round(amount * 100) : Math.round(order.totalPrice * 100);
+    
+    const refund = await razorpay.payments.refund(order.paymentInfo.transactionId, {
+      amount: refundAmount,
+      notes: {
+        reason: reason || 'Requested by customer',
+        orderId: order._id.toString(),
+      },
+    });
+
+    // Update order
+    const actualRefundAmount = refundAmount / 100;
+    order.paymentInfo.status = actualRefundAmount >= order.totalPrice ? 'refunded' : 'partial_refund';
+    order.paymentInfo.refundedAmount = (order.paymentInfo.refundedAmount || 0) + actualRefundAmount;
+    order.paymentInfo.refundedAt = new Date();
+    order.addStatusHistory('Returned', req.user._id, `Refund processed: ₹${actualRefundAmount}`);
+    
+    await order.save();
+
+    res.json({
+      success: true,
+      message: 'Refund processed successfully',
+      refund,
+      order,
+    });
+  } catch (error) {
+    console.error('Process Razorpay refund error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // @desc    Process refund

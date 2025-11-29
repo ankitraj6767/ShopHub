@@ -239,7 +239,7 @@ const ProductsPage = () => {
               )}
               {(minPrice || maxPrice) && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-sm">
-                  ${minPrice || '0'} - ${maxPrice || '∞'}
+                  ₹{minPrice || '0'} - ₹{maxPrice || '∞'}
                   <button
                     onClick={() => {
                       updateFilter('minPrice', '');

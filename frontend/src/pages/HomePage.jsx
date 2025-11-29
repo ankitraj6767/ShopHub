@@ -43,7 +43,7 @@ const HomePage = () => {
     {
       icon: FiTruck,
       title: 'Free Shipping',
-      description: 'Free shipping on orders over $100',
+      description: 'Free shipping on orders over ₹5000',
     },
     {
       icon: FiShield,

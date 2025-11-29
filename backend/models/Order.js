@@ -34,14 +34,15 @@ const paymentInfoSchema = new mongoose.Schema({
   method: {
     type: String,
     required: true,
-    enum: ['Credit Card', 'PayPal', 'Cash on Delivery', 'Stripe', 'UPI'],
+    enum: ['Credit Card', 'PayPal', 'Cash on Delivery', 'Stripe', 'UPI', 'Razorpay'],
   },
   status: {
     type: String,
-    enum: ['unpaid', 'paid', 'refunded', 'partial_refund', 'pending'],
+    enum: ['unpaid', 'paid', 'refunded', 'partial_refund', 'pending', 'failed'],
     default: 'unpaid',
   },
   transactionId: { type: String },
+  razorpayOrderId: { type: String },
   paidAt: { type: Date },
   refundedAmount: { type: Number, default: 0 },
   refundedAt: { type: Date },

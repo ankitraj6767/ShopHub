@@ -54,7 +54,7 @@ const GiftOptions = ({ giftOptions, onGiftOptionsChange }) => {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-primary-600 dark:text-primary-400 font-medium">
-                +$5.99
+                +₹499
               </span>
               <input
                 type="checkbox"

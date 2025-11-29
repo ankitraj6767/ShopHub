@@ -30,7 +30,7 @@ const GiftCardsPage = () => {
   
   // Purchase form state
   const [purchaseForm, setPurchaseForm] = useState({
-    amount: 50,
+    amount: 1000,
     customAmount: '',
     recipientEmail: '',
     recipientName: '',
@@ -53,7 +53,7 @@ const GiftCardsPage = () => {
   const [myRedeemedCards, setMyRedeemedCards] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
 
-  const predefinedAmounts = [25, 50, 100, 150, 200, 500];
+  const predefinedAmounts = [500, 1000, 2000, 5000, 10000, 25000];
 
   const themes = [
     { id: 'general', label: 'General', icon: Gift, color: 'bg-gradient-to-br from-primary-500 to-purple-600' },
@@ -94,8 +94,8 @@ const GiftCardsPage = () => {
 
     const amount = purchaseForm.customAmount ? parseFloat(purchaseForm.customAmount) : purchaseForm.amount;
     
-    if (amount < 10 || amount > 500) {
-      toast.error('Amount must be between $10 and $500');
+    if (amount < 500 || amount > 50000) {
+      toast.error('Amount must be between ₹500 and ₹50000');
       return;
     }
 
@@ -117,7 +117,7 @@ const GiftCardsPage = () => {
 
       toast.success('Gift card purchased successfully!');
       setPurchaseForm({
-        amount: 50,
+        amount: 1000,
         customAmount: '',
         recipientEmail: '',
         recipientName: '',
@@ -278,17 +278,17 @@ const GiftCardsPage = () => {
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                         }`}
                       >
-                        ${amount}
+                        ₹{amount}
                       </button>
                     ))}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-600 dark:text-gray-400">$</span>
+                    <span className="text-gray-600 dark:text-gray-400">₹</span>
                     <input
                       type="number"
-                      min="10"
-                      max="500"
-                      placeholder="Custom amount (10-500)"
+                      min="500"
+                      max="50000"
+                      placeholder="Custom amount (500-50000)"
                       value={purchaseForm.customAmount}
                       onChange={(e) => setPurchaseForm({ ...purchaseForm, customAmount: e.target.value })}
                       className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"

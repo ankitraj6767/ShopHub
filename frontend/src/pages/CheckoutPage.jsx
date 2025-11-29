@@ -8,7 +8,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { createOrder, clearSuccess } from '../store/slices/orderSlice';
 import { clearCart, clearBuyNowItem } from '../store/slices/cartSlice';
-import { getPaymentConfig, createPaymentIntent, confirmPayment, clearPaymentState } from '../store/slices/paymentSlice';
+import { getPaymentConfig, createPaymentIntent, confirmPayment, clearPaymentState, createRazorpayOrder, verifyRazorpayPayment } from '../store/slices/paymentSlice';
 import { fetchWallet } from '../store/slices/userSlice';
 import { formatPrice } from '../utils/helpers';
 import Spinner from '../components/ui/Spinner';
@@ -223,10 +223,11 @@ const CheckoutPage = () => {
   const ordersState = useSelector((state) => state.orders) || {};
   const { isLoading = false, error = null, success = false, order = null } = ordersState;
   const paymentState = useSelector((state) => state.payment) || {};
-  const { publishableKey, clientSecret, isLoading: paymentLoading } = paymentState;
+  const { publishableKey, clientSecret, isLoading: paymentLoading, razorpayKeyId, razorpayEnabled } = paymentState;
 
   const [stripePromise, setStripePromise] = useState(null);
   const [stripeLoading, setStripeLoading] = useState(true);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState(null);
@@ -455,6 +456,28 @@ const CheckoutPage = () => {
     });
   }, [dispatch]);
 
+  // Load Razorpay script
+  useEffect(() => {
+    if (razorpayEnabled && razorpayKeyId) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => setRazorpayLoaded(true);
+      script.onerror = () => {
+        console.error('Failed to load Razorpay script');
+        setRazorpayLoaded(false);
+      };
+      document.body.appendChild(script);
+
+      return () => {
+        const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+        if (existingScript) {
+          document.body.removeChild(existingScript);
+        }
+      };
+    }
+  }, [razorpayEnabled, razorpayKeyId]);
+
   useEffect(() => {
     // Redirect to cart if no items (and not in buyNow mode with items)
     if (items.length === 0 && !success && !createdOrderId) {
@@ -665,6 +688,104 @@ const CheckoutPage = () => {
         toast.error('Failed to place order', { id: 'order' });
       }
     });
+  };
+
+  // Razorpay payment handler
+  const handleRazorpayPayment = async () => {
+    if (!razorpayLoaded || !razorpayKeyId) {
+      toast.error('Razorpay is not available. Please try another payment method.');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // First create the order in our database
+      const newOrder = await handlePlaceOrder();
+      if (!newOrder) {
+        setIsProcessing(false);
+        return;
+      }
+
+      // Create Razorpay order
+      const razorpayResult = await dispatch(createRazorpayOrder({
+        amount: Math.round(finalTotal), // Amount in rupees, backend converts to paise
+        currency: 'INR',
+        orderId: newOrder._id,
+      }));
+
+      if (!createRazorpayOrder.fulfilled.match(razorpayResult)) {
+        toast.error('Failed to create Razorpay order');
+        setIsProcessing(false);
+        return;
+      }
+
+      const { order: razorpayOrder } = razorpayResult.payload;
+      const razorpayOrderId = razorpayOrder.id;
+      const amount = razorpayOrder.amount;
+      const currency = razorpayOrder.currency;
+
+      // Configure Razorpay options
+      const options = {
+        key: razorpayKeyId,
+        amount: amount,
+        currency: currency,
+        name: 'ShopHub',
+        description: `Order #${newOrder._id.slice(-8).toUpperCase()}`,
+        order_id: razorpayOrderId,
+        handler: async function (response) {
+          // Verify payment
+          const verifyResult = await dispatch(verifyRazorpayPayment({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            orderId: newOrder._id,
+          }));
+
+          if (verifyRazorpayPayment.fulfilled.match(verifyResult)) {
+            toast.success('Payment successful!');
+            // Clear cart and navigate
+            if (isBuyNowMode) {
+              dispatch(clearBuyNowItem());
+            } else {
+              dispatch(clearCart());
+            }
+            dispatch(clearPaymentState());
+            navigate(`/order-success/${newOrder._id}`);
+          } else {
+            toast.error('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: shippingAddress.fullName,
+          email: user?.email || '',
+          contact: shippingAddress.phone,
+        },
+        notes: {
+          orderId: newOrder._id,
+        },
+        theme: {
+          color: '#6366f1',
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+            toast.error('Payment cancelled');
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response) {
+        toast.error(`Payment failed: ${response.error.description}`);
+        setIsProcessing(false);
+      });
+      razorpay.open();
+    } catch (error) {
+      console.error('Razorpay payment error:', error);
+      toast.error('Payment failed. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   const steps = [
@@ -1054,6 +1175,46 @@ const CheckoutPage = () => {
                   </div>
                 </label>
 
+                {/* Razorpay Option */}
+                {razorpayEnabled && (
+                  <label
+                    className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                      paymentMethod === 'Razorpay'
+                        ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-600'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="Razorpay"
+                      checked={paymentMethod === 'Razorpay'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mr-4 w-4 h-4 text-primary-600"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M22.436 0H1.564C.7 0 0 .7 0 1.564v20.872C0 23.3.7 24 1.564 24h20.872c.864 0 1.564-.7 1.564-1.564V1.564C24 .7 23.3 0 22.436 0zM7.2 18.6H4.8V9h2.4v9.6zm-1.2-10.8c-.8 0-1.44-.64-1.44-1.44S5.2 4.92 6 4.92s1.44.64 1.44 1.44S6.8 7.8 6 7.8zM19.2 18.6h-2.4v-4.8c0-1.16-.04-2.64-1.6-2.64-1.6 0-1.84 1.24-1.84 2.56v4.88H11V9h2.28v1.32h.04c.32-.6 1.08-1.24 2.24-1.24 2.4 0 2.84 1.56 2.84 3.6v5.92h-.2z"/>
+                        </svg>
+                        <span className="font-medium">Razorpay</span>
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Recommended</span>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-1">Pay with Cards, UPI, Wallets, NetBanking & more</p>
+                    </div>
+                    <div className="flex items-center gap-1 ml-2">
+                      <svg className="h-6" viewBox="0 0 100 30" fill="none">
+                        <rect width="100" height="30" rx="4" fill="#072654"/>
+                        <path d="M15 8L10 22h4l1-3h6l1 3h4L21 8h-6zm1.5 8l1.5-5 1.5 5h-3z" fill="white"/>
+                        <path d="M35 8h-8v14h4v-5h4c3 0 5-2 5-4.5S38 8 35 8zm0 6h-4v-3h4c1 0 2 .5 2 1.5s-1 1.5-2 1.5z" fill="white"/>
+                        <path d="M50 8l-4 14h4l1-4h5l1 4h4l-4-14h-7zm1.5 7l1.5-5 1.5 5h-3z" fill="white"/>
+                        <path d="M70 8v14h4v-5l4 5h5l-5-6 4-8h-4l-4 8V8h-4z" fill="white"/>
+                        <path d="M85 8v14h9v-3h-5V8h-4z" fill="white"/>
+                      </svg>
+                    </div>
+                  </label>
+                )}
+
                 {/* Cash on Delivery Option */}
                 <label
                   className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
@@ -1335,6 +1496,66 @@ const CheckoutPage = () => {
                         />
                       </Elements>
                     </div>
+                  )}
+                </div>
+              )}
+
+              {/* Razorpay Payment */}
+              {paymentMethod === 'Razorpay' && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Pay with Razorpay</h2>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-blue-900">Secure Payment via Razorpay</p>
+                        <p className="text-sm text-blue-700">Cards, UPI, Wallets, NetBanking & more</p>
+                      </div>
+                    </div>
+                  </div>
+                  <ul className="text-sm text-gray-600 space-y-2 mb-4">
+                    <li className="flex items-center gap-2">
+                      <FiCheck className="text-green-500" /> 100% Secure payments
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FiCheck className="text-green-500" /> Multiple payment options
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FiCheck className="text-green-500" /> Instant confirmation
+                    </li>
+                  </ul>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setStep(2)}
+                      disabled={isProcessing}
+                      className="btn-secondary flex-1 py-3"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleRazorpayPayment}
+                      disabled={isLoading || isProcessing || !razorpayLoaded}
+                      className="btn-primary flex-1 py-3 flex items-center justify-center bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Spinner size="sm" className="mr-2" /> Processing...
+                        </>
+                      ) : (
+                        <>
+                          Pay {formatPrice(finalTotal)}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {!razorpayLoaded && (
+                    <p className="text-sm text-yellow-600 mt-2 text-center">
+                      Loading Razorpay... Please wait.
+                    </p>
                   )}
                 </div>
               )}
