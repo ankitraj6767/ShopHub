@@ -245,10 +245,10 @@ const CheckoutPage = () => {
     city: '',
     state: '',
     postalCode: '',
-    country: 'United States',
+    country: 'India',
     phone: '',
   });
-  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+  const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -1142,114 +1142,34 @@ const CheckoutPage = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Payment Method</h2>
               <form onSubmit={handlePaymentSubmit} className="space-y-4">
-                {/* Credit/Debit Card Option */}
-                <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
-                    paymentMethod === 'Credit Card'
-                      ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-600'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="Credit Card"
-                    checked={paymentMethod === 'Credit Card'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-4 w-4 h-4 text-primary-600"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <FiCreditCard className="w-5 h-5 text-primary-600" />
-                      <span className="font-medium">Credit/Debit Card</span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">Pay securely with Visa, Mastercard, or Amex</p>
-                  </div>
-                  <div className="flex gap-1 ml-2">
-                    <img src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg" alt="Visa" className="h-8" />
-                    <img src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" alt="Mastercard" className="h-8" />
-                    <img src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg" alt="Amex" className="h-8" />
-                  </div>
-                </label>
-
-                {/* UPI Option */}
-                <label
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
-                    paymentMethod === 'UPI'
-                      ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-600'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="UPI"
-                    checked={paymentMethod === 'UPI'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-4 w-4 h-4 text-primary-600"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-primary-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
-                      <span className="font-medium">UPI</span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">Pay using Google Pay, PhonePe, Paytm, or any UPI app</p>
-                  </div>
-                  <div className="flex gap-2 ml-2">
-                    <div className="bg-white border rounded p-1">
-                      <svg className="h-6 w-6" viewBox="0 0 24 24">
-                        <path fill="#5F6368" d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-                      </svg>
-                    </div>
-                    <div className="bg-white border rounded p-1">
-                      <svg className="h-6 w-6" viewBox="0 0 24 24">
-                        <path fill="#5f259f" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
-                      </svg>
-                    </div>
-                  </div>
-                </label>
-
                 {/* Razorpay Option */}
-                {razorpayEnabled && (
-                  <label
-                    className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
-                      paymentMethod === 'Razorpay'
-                        ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-600'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="Razorpay"
-                      checked={paymentMethod === 'Razorpay'}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mr-4 w-4 h-4 text-primary-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M22.436 0H1.564C.7 0 0 .7 0 1.564v20.872C0 23.3.7 24 1.564 24h20.872c.864 0 1.564-.7 1.564-1.564V1.564C24 .7 23.3 0 22.436 0zM7.2 18.6H4.8V9h2.4v9.6zm-1.2-10.8c-.8 0-1.44-.64-1.44-1.44S5.2 4.92 6 4.92s1.44.64 1.44 1.44S6.8 7.8 6 7.8zM19.2 18.6h-2.4v-4.8c0-1.16-.04-2.64-1.6-2.64-1.6 0-1.84 1.24-1.84 2.56v4.88H11V9h2.28v1.32h.04c.32-.6 1.08-1.24 2.24-1.24 2.4 0 2.84 1.56 2.84 3.6v5.92h-.2z"/>
-                        </svg>
-                        <span className="font-medium">Razorpay</span>
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Recommended</span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">Pay with Cards, UPI, Wallets, NetBanking & more</p>
+                <label
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                    paymentMethod === 'Razorpay'
+                      ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-600'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="Razorpay"
+                    checked={paymentMethod === 'Razorpay'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mr-4 w-4 h-4 text-primary-600"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <FiCreditCard className="w-5 h-5 text-blue-600" />
+                      <span className="font-medium">Pay Online</span>
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Recommended</span>
                     </div>
-                    <div className="flex items-center gap-1 ml-2">
-                      <svg className="h-6" viewBox="0 0 100 30" fill="none">
-                        <rect width="100" height="30" rx="4" fill="#072654"/>
-                        <path d="M15 8L10 22h4l1-3h6l1 3h4L21 8h-6zm1.5 8l1.5-5 1.5 5h-3z" fill="white"/>
-                        <path d="M35 8h-8v14h4v-5h4c3 0 5-2 5-4.5S38 8 35 8zm0 6h-4v-3h4c1 0 2 .5 2 1.5s-1 1.5-2 1.5z" fill="white"/>
-                        <path d="M50 8l-4 14h4l1-4h5l1 4h4l-4-14h-7zm1.5 7l1.5-5 1.5 5h-3z" fill="white"/>
-                        <path d="M70 8v14h4v-5l4 5h5l-5-6 4-8h-4l-4 8V8h-4z" fill="white"/>
-                        <path d="M85 8v14h9v-3h-5V8h-4z" fill="white"/>
-                      </svg>
-                    </div>
-                  </label>
-                )}
+                    <p className="text-sm text-gray-500 mt-1">Cards, UPI, Wallets, NetBanking & more</p>
+                  </div>
+                  <div className="flex items-center gap-2 ml-2">
+                    <img src="https://cdn.razorpay.com/static/assets/logo/payment.svg" alt="Payment methods" className="h-6" onError={(e) => e.target.style.display = 'none'} />
+                  </div>
+                </label>
 
                 {/* Cash on Delivery Option */}
                 <label
@@ -1279,12 +1199,10 @@ const CheckoutPage = () => {
                   </div>
                 </label>
 
-                {/* Powered by Stripe badge */}
+                {/* Secure Payment Badge */}
                 <div className="flex items-center justify-center pt-4 border-t mt-4">
-                  <span className="text-xs text-gray-400 mr-2">Secured by</span>
-                  <svg className="h-5" viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#635bff" d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a10.9 10.9 0 0 1-4.56 1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.02 1.04-.06 1.58zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.65 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-5.13L32.37 0v3.77l-4.13.88V.44zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.07-1.41 3.62-1.22v3.79c-.52-.17-2.29-.45-3.32.43zm-8.55 4.72c0 1.94 2.31 1.27 2.77 1.06v3.57c-.48.23-1.53.5-2.84.5-2.63 0-4.13-1.36-4.13-4.09l.02-13.71 4.12-.87v3.92h2.8v3.57h-2.8l.06 6.05zM4.58 8.31c-.96 0-1.6.43-1.6 1.14 0 .76.65 1.03 1.72 1.4l.69.23c2.82.9 4.27 2.2 4.27 4.68 0 3.1-2.53 4.54-5.95 4.54a11.9 11.9 0 0 1-3.71-.6V16.08a9.53 9.53 0 0 0 3.47.77c1.05 0 1.76-.34 1.76-1.14 0-.68-.64-1-1.85-1.42l-.57-.18c-2.37-.77-4.12-1.9-4.12-4.6 0-2.94 2.33-4.66 5.61-4.66 1.28 0 2.51.17 3.54.53v3.58a9.64 9.64 0 0 0-3.26-.65z"/>
-                  </svg>
+                  <FiLock className="w-4 h-4 text-green-500 mr-2" />
+                  <span className="text-xs text-gray-500">100% Secure Payments</span>
                 </div>
 
                 <div className="flex gap-4 mt-6">
@@ -1354,187 +1272,6 @@ const CheckoutPage = () => {
                   ))}
                 </div>
               </div>
-
-              {/* Payment Section */}
-              {paymentMethod === 'Credit Card' && stripePromise && !clientSecret && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Complete Payment</h2>
-                  <p className="text-gray-600 mb-4">
-                    Click below to securely pay with your card.
-                  </p>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setStep(2)}
-                      disabled={isProcessing}
-                      className="btn-secondary flex-1 py-3"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={handleStripePayment}
-                      disabled={isLoading || isProcessing}
-                      className="btn-primary flex-1 py-3 flex items-center justify-center"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Spinner size="sm" className="mr-2" /> Processing...
-                        </>
-                      ) : (
-                        <>
-                          <FiCreditCard className="mr-2" /> Proceed to Payment
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Stripe Card Form */}
-              {paymentMethod === 'Credit Card' && stripePromise && clientSecret && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Enter Card Details</h2>
-                  <Elements stripe={stripePromise} options={{ clientSecret }}>
-                    <StripePaymentForm
-                      onPaymentSuccess={handlePaymentSuccess}
-                      onBack={() => {
-                        dispatch(clearPaymentState());
-                        setStep(2);
-                      }}
-                      isProcessing={isProcessing}
-                      setIsProcessing={setIsProcessing}
-                      amount={finalTotal}
-                    />
-                  </Elements>
-                </div>
-              )}
-
-              {/* No Stripe Available */}
-              {paymentMethod === 'Credit Card' && !stripePromise && !stripeLoading && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-center gap-3">
-                      <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                      <div>
-                        <p className="font-medium text-yellow-800">Payment system unavailable</p>
-                        <p className="text-sm text-yellow-700">Please try refreshing or choose another payment method.</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="btn-secondary flex-1 py-3"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={() => {
-                        setStripeLoading(true);
-                        dispatch(getPaymentConfig()).then((result) => {
-                          if (getPaymentConfig.fulfilled.match(result) && result.payload.publishableKey) {
-                            setStripePromise(loadStripe(result.payload.publishableKey));
-                          } else {
-                            toast.error('Failed to load payment system. Please try another payment method.');
-                          }
-                          setStripeLoading(false);
-                        });
-                      }}
-                      className="btn-primary flex-1 py-3"
-                    >
-                      Retry Loading
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Stripe Loading */}
-              {paymentMethod === 'Credit Card' && stripeLoading && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <Spinner size="lg" className="mb-4" />
-                    <p className="text-gray-600">Loading payment system...</p>
-                  </div>
-                </div>
-              )}
-
-              {/* UPI Payment */}
-              {paymentMethod === 'UPI' && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Pay with UPI</h2>
-                  {!clientSecret ? (
-                    <>
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg className="w-6 h-6 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="font-medium text-purple-900">UPI Payment</p>
-                            <p className="text-sm text-purple-700">You'll be redirected to complete payment</p>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-gray-600 mb-4 text-sm">
-                        After clicking "Pay Now", you'll receive a payment request on your UPI app. 
-                        Complete the payment within 5 minutes.
-                      </p>
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => setStep(2)}
-                          disabled={isProcessing}
-                          className="btn-secondary flex-1 py-3"
-                        >
-                          Back
-                        </button>
-                        <button
-                          onClick={handleStripePayment}
-                          disabled={isLoading || isProcessing}
-                          className="btn-primary flex-1 py-3 flex items-center justify-center bg-purple-600 hover:bg-purple-700"
-                        >
-                          {isProcessing ? (
-                            <>
-                              <Spinner size="sm" className="mr-2" /> Processing...
-                            </>
-                          ) : (
-                            <>
-                              Pay {formatPrice(finalTotal)} with UPI
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="bg-gray-50 border rounded-lg p-6 text-center">
-                        <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <svg className="w-8 h-8 text-purple-600 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                          </svg>
-                        </div>
-                        <p className="font-medium text-gray-900 mb-2">Complete Payment in UPI App</p>
-                        <p className="text-sm text-gray-500">Check your UPI app for the payment request</p>
-                        <p className="text-2xl font-bold text-purple-600 mt-4">{formatPrice(finalTotal)}</p>
-                      </div>
-                      <Elements stripe={stripePromise} options={{ clientSecret }}>
-                        <StripePaymentForm
-                          onPaymentSuccess={handlePaymentSuccess}
-                          onBack={() => {
-                            dispatch(clearPaymentState());
-                            setStep(2);
-                          }}
-                          isProcessing={isProcessing}
-                          setIsProcessing={setIsProcessing}
-                          amount={finalTotal}
-                        />
-                      </Elements>
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* Razorpay Payment */}
               {paymentMethod === 'Razorpay' && (
