@@ -53,7 +53,7 @@ export const getDashboardAnalytics = asyncHandler(async (req, res) => {
   const userGrowth = previousNewUsers ? ((newUsers - previousNewUsers) / previousNewUsers * 100) : (newUsers > 0 ? 100 : 0);
 
   // Daily revenue for chart
-  const dailyRevenue = await Order.aggregate([
+  const dailyRevenueRaw = await Order.aggregate([
     {
       $match: {
         createdAt: { $gte: currentPeriodStart }
@@ -68,6 +68,21 @@ export const getDashboardAnalytics = asyncHandler(async (req, res) => {
     },
     { $sort: { _id: 1 } }
   ]);
+
+  // Fill in missing days with zero values
+  const dailyRevenue = [];
+  const revenueMap = new Map(dailyRevenueRaw.map(d => [d._id, d]));
+  
+  for (let i = 0; i < daysNum; i++) {
+    const date = new Date(currentPeriodStart.getTime() + i * 24 * 60 * 60 * 1000);
+    const dateStr = date.toISOString().split('T')[0];
+    const dayData = revenueMap.get(dateStr);
+    dailyRevenue.push({
+      _id: dateStr,
+      revenue: dayData?.revenue || 0,
+      orders: dayData?.orders || 0
+    });
+  }
 
   // Daily orders for chart
   const dailyOrders = await Order.aggregate([

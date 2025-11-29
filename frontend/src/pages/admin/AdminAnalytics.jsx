@@ -264,43 +264,64 @@ const AdminAnalytics = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Revenue Trend</h2>
           {dailyRevenue.length > 0 ? (
-            <div className="h-64 flex items-end gap-1">
-              {dailyRevenue.slice(-14).map((day, idx) => {
-                const maxRevenue = Math.max(...dailyRevenue.map(d => d.revenue));
-                const height = maxRevenue ? (day.revenue / maxRevenue * 100) : 0;
-                return (
-                  <div key={idx} className="flex-1 flex flex-col items-center">
-                    <div 
-                      className="w-full bg-primary-500 rounded-t hover:bg-primary-600 transition-colors relative group cursor-pointer"
-                      style={{ height: `${Math.max(height, 2)}%`, minHeight: '4px' }}
-                    >
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 pointer-events-none">
-                        {formatPrice(day.revenue)}
-                        <br />
-                        <span className="text-gray-300">{day.orders} orders</span>
+            <div className="relative">
+              {/* Chart Container */}
+              <div className="h-48 sm:h-56 md:h-64 flex items-end justify-between gap-0.5 sm:gap-1 px-1">
+                {dailyRevenue.slice(-7).map((day, idx) => {
+                  const visibleData = dailyRevenue.slice(-7);
+                  const maxRevenue = Math.max(...visibleData.map(d => d.revenue), 1);
+                  const height = (day.revenue / maxRevenue) * 100;
+                  return (
+                    <div key={idx} className="flex-1 h-full flex flex-col justify-end items-center group">
+                      <div 
+                        className="w-full max-w-[40px] bg-gradient-to-t from-primary-600 to-primary-400 rounded-t hover:from-primary-700 hover:to-primary-500 transition-all duration-200 cursor-pointer relative"
+                        style={{ 
+                          height: `${Math.max(height, 3)}%`,
+                          minHeight: '6px'
+                        }}
+                      >
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs py-1.5 px-2.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-30 pointer-events-none">
+                          <div className="font-medium">{formatPrice(day.revenue)}</div>
+                          <div className="text-gray-300 text-[10px]">{day.orders} orders</div>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
                     </div>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-2 -rotate-45 origin-left whitespace-nowrap">
-                      {new Date(day.date).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+                  );
+                })}
+              </div>
+              {/* Date Labels */}
+              <div className="flex justify-between gap-0.5 sm:gap-1 mt-3 px-1 border-t border-gray-100 dark:border-gray-700 pt-2">
+                {dailyRevenue.slice(-7).map((day, idx) => (
+                  <div key={idx} className="flex-1 text-center overflow-hidden">
+                    <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 block">
+                      {new Date(day.date).toLocaleDateString('en', { weekday: 'short' })}
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] text-gray-400 dark:text-gray-500 block">
+                      {new Date(day.date).getDate()}
                     </span>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
-              No revenue data for this period
+            <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <div className="text-center">
+                <FiTrendingUp className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p>No revenue data for this period</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Order Status */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Order Status Distribution</h2>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {Object.entries(statusCounts).length > 0 ? (
               Object.entries(statusCounts).map(([status, count]) => {
                 const total = Object.values(statusCounts).reduce((a, b) => a + b, 0);
