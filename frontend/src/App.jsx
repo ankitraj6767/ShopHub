@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadUserCart, clearUserCart } from './store/slices/cartSlice';
 import { checkAuth } from './store/slices/authSlice';
+import { tokenStorage } from './utils/api';
 
 // Utils
 import ScrollToTop from './components/utils/ScrollToTop';
@@ -78,6 +79,20 @@ function App() {
 
   // Check auth on app load
   useEffect(() => {
+    // Debug: Check localStorage availability on mobile
+    console.log('=== APP INIT DEBUG ===');
+    console.log('localStorage available:', typeof localStorage !== 'undefined');
+    try {
+      localStorage.setItem('test', 'test');
+      localStorage.removeItem('test');
+      console.log('localStorage working: true');
+    } catch (e) {
+      console.error('localStorage working: false -', e.message);
+    }
+    console.log('accessToken in storage:', !!tokenStorage.getAccessToken());
+    console.log('refreshToken in storage:', !!tokenStorage.getRefreshToken());
+    console.log('Dispatching checkAuth...');
+    
     dispatch(checkAuth());
   }, [dispatch]);
 

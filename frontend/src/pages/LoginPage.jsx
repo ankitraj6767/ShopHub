@@ -33,11 +33,25 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const result = await dispatch(login(formData));
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Cookies enabled:', navigator.cookieEnabled);
+    console.log('localStorage available:', typeof localStorage !== 'undefined');
     
-    if (login.fulfilled.match(result)) {
-      toast.success('Welcome back!');
-      navigate(from, { replace: true });
+    try {
+      const result = await dispatch(login(formData));
+      
+      console.log('Login result:', result.type, result.payload ? 'has payload' : 'no payload');
+      
+      if (login.fulfilled.match(result)) {
+        console.log('Login fulfilled, navigating to:', from);
+        toast.success('Welcome back!');
+        navigate(from, { replace: true });
+      } else if (login.rejected.match(result)) {
+        console.error('Login rejected:', result.payload || result.error);
+      }
+    } catch (err) {
+      console.error('Login exception:', err);
     }
   };
 

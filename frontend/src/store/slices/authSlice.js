@@ -1,20 +1,24 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../utils/api';
+import api, { tokenStorage } from '../../utils/api';
 
 // Check if user is authenticated
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
   // Skip if no token exists - no need to make API call
-  const token = localStorage.getItem('accessToken');
+  const token = tokenStorage.getAccessToken();
   if (!token) {
+    console.log('checkAuth: No access token in storage');
     return rejectWithValue(null);
   }
   
   try {
+    console.log('checkAuth: Attempting to verify token...');
     const response = await api.get('/auth/me');
+    console.log('checkAuth: Token verified successfully');
     return response.data.data;
   } catch (error) {
-    // Clear invalid token
-    localStorage.removeItem('accessToken');
+    console.log('checkAuth: Token verification failed:', error.response?.status, error.message);
+    // Clear invalid tokens
+    tokenStorage.clearTokens();
     return rejectWithValue(null);
   }
 });
@@ -23,9 +27,9 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
 export const register = createAsyncThunk('auth/register', async (userData, { rejectWithValue }) => {
   try {
     const response = await api.post('/auth/register', userData);
-    localStorage.setItem('accessToken', response.data.data.accessToken);
+    tokenStorage.setAccessToken(response.data.data.accessToken);
     if (response.data.data.refreshToken) {
-      localStorage.setItem('refreshToken', response.data.data.refreshToken);
+      tokenStorage.setRefreshToken(response.data.data.refreshToken);
     }
     return response.data.data;
   } catch (error) {
@@ -36,13 +40,41 @@ export const register = createAsyncThunk('auth/register', async (userData, { rej
 // Login user
 export const login = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
   try {
+    console.log('login: Attempting login...');
+    console.log('login: API URL will be:', import.meta.env.VITE_API_URL || 'default');
+    
     const response = await api.post('/auth/login', credentials);
-    localStorage.setItem('accessToken', response.data.data.accessToken);
-    if (response.data.data.refreshToken) {
-      localStorage.setItem('refreshToken', response.data.data.refreshToken);
+    console.log('login: Response received:', {
+      status: response.status,
+      hasData: !!response.data,
+      hasAccessToken: !!response.data?.data?.accessToken,
+      hasRefreshToken: !!response.data?.data?.refreshToken
+    });
+    
+    const { accessToken, refreshToken } = response.data.data;
+    
+    if (accessToken) {
+      tokenStorage.setAccessToken(accessToken);
+      // Verify it was stored
+      const stored = tokenStorage.getAccessToken();
+      console.log('login: Access token stored:', !!stored, stored === accessToken ? 'matches' : 'MISMATCH');
+    } else {
+      console.error('login: No access token in response!');
     }
+    
+    if (refreshToken) {
+      tokenStorage.setRefreshToken(refreshToken);
+      const stored = tokenStorage.getRefreshToken();
+      console.log('login: Refresh token stored:', !!stored, stored === refreshToken ? 'matches' : 'MISMATCH');
+    }
+    
     return response.data.data;
   } catch (error) {
+    console.error('login: Login failed:', {
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message,
+      isNetworkError: !error.response
+    });
     return rejectWithValue(error.response?.data?.message || 'Login failed');
   }
 });
@@ -51,12 +83,10 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
 export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await api.post('/auth/logout');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    tokenStorage.clearTokens();
     return null;
   } catch (error) {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    tokenStorage.clearTokens();
     return rejectWithValue(error.response?.data?.message || 'Logout failed');
   }
 });
