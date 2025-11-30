@@ -57,9 +57,28 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+// CRITICAL: Handle OPTIONS preflight requests FIRST, before any other middleware
+// This is essential for mobile browsers which are stricter about CORS
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  console.log('📱 OPTIONS preflight request from:', origin, '| User-Agent:', req.headers['user-agent']?.substring(0, 50));
+  
+  // Set CORS headers for preflight
+  res.header('Access-Control-Allow-Origin', origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
+  
+  res.status(204).end();
+});
+
 // Middleware
 app.use(cors({
   origin: function (origin, callback) {
+    // Log all CORS requests for debugging
+    console.log('🌐 CORS request from origin:', origin);
+    
     // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
     
@@ -82,8 +101,10 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Set-Cookie'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 }));
 
 // Stripe webhook needs raw body
@@ -124,9 +145,22 @@ app.use('/api/premium', premiumRoutes);
 app.use('/api/deals', dealRoutes);
 app.use('/api/activity', activityRoutes);
 
-// Health check
+// Health check - detailed for debugging mobile issues
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'API is running' });
+  const clientInfo = {
+    ip: req.ip || req.connection.remoteAddress,
+    forwardedFor: req.headers['x-forwarded-for'],
+    userAgent: req.headers['user-agent'],
+    origin: req.headers.origin,
+    referer: req.headers.referer,
+  };
+  console.log('🏥 Health check from:', clientInfo);
+  res.json({ 
+    success: true, 
+    message: 'API is running',
+    timestamp: new Date().toISOString(),
+    client: clientInfo
+  });
 });
 
 // Root route

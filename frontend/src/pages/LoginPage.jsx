@@ -4,12 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { login, clearError } from '../store/slices/authSlice';
+import api from '../utils/api';
+
 // login
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoading, error } = useSelector((state) => state.auth);
+  const [connectionStatus, setConnectionStatus] = useState('checking');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -18,6 +21,26 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
+
+  // Test API connectivity on mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        console.log('🔗 Testing API connectivity...');
+        const response = await api.get('/health');
+        console.log('✅ API connection successful:', response.data);
+        setConnectionStatus('connected');
+      } catch (err) {
+        console.error('❌ API connection failed:', {
+          message: err.message,
+          status: err.response?.status,
+          isNetworkError: !err.response
+        });
+        setConnectionStatus('failed');
+      }
+    };
+    testConnection();
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -61,6 +84,10 @@ const LoginPage = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
           <p className="text-gray-600 dark:text-gray-400">Sign in to your account to continue</p>
+          {/* Connection status indicator for debugging */}
+          {connectionStatus === 'failed' && (
+            <p className="text-red-500 text-sm mt-2">⚠️ Cannot connect to server. Please check your internet connection.</p>
+          )}
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
