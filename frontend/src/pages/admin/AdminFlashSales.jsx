@@ -208,16 +208,18 @@ const AdminFlashSales = () => {
 
       {/* Flash Sales List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Duration</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Products</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
-            </tr>
-          </thead>
+        {/* Scrollable table container for mobile */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px] divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase whitespace-nowrap">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase whitespace-nowrap">Duration</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase whitespace-nowrap">Products</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase whitespace-nowrap">Status</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase whitespace-nowrap">Actions</th>
+              </tr>
+            </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {flashSales.length === 0 ? (
               <tr>
@@ -267,7 +269,8 @@ const AdminFlashSales = () => {
               })
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
 
       {/* Modal */}
