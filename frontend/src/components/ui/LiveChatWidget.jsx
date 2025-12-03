@@ -103,9 +103,10 @@ const LiveChatWidget = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-all ${
-            isMinimized ? 'w-72 h-14' : 'w-96 h-[500px]'
-          }`}
+          className={`fixed z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-all
+            ${isMinimized ? 'w-72 h-14' : 'w-[calc(100%-2rem)] sm:w-96 h-[500px] max-h-[80vh]'}
+            bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6
+          `}
         >
           {/* Header */}
           <div
