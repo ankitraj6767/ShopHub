@@ -19,7 +19,7 @@ const Layout = () => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
   const authState = useSelector((state) => state.auth) || {};
-  const { user = null, isAuthenticated = false } = authState;
+  const { user = null, isAuthenticated = false, isLoading: authLoading = true } = authState;
   const cartState = useSelector((state) => state.cart) || {};
   const { itemsCount = 0 } = cartState;
   const wishlistCount = useSelector(selectWishlistCount) || 0;
@@ -240,6 +240,11 @@ const Layout = () => {
                     </div>
                   )}
                 </div>
+              ) : authLoading ? (
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                  <div className="w-20 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                </div>
               ) : (
                 <div className="flex items-center space-x-4">
                   <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
@@ -389,6 +394,11 @@ const Layout = () => {
                   >
                     Logout
                   </button>
+                </>
+              ) : authLoading ? (
+                <>
+                  <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                  <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                 </>
               ) : (
                 <>
