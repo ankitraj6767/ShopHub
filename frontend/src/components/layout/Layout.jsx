@@ -36,6 +36,18 @@ const Layout = () => {
     }
   }, [dispatch, isAuthenticated]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     await dispatch(logout());
     navigate('/');
@@ -340,7 +352,7 @@ const Layout = () => {
                   </Link>
                   <Link
                     to="/help"
-                    className="block text-gray-600 hover:text-primary-600"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Help & Support
@@ -348,7 +360,7 @@ const Layout = () => {
                   {user?.role === 'admin' && (
                     <Link
                       to="/admin"
-                      className="block text-gray-600 hover:text-primary-600"
+                      className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Admin Dashboard
@@ -359,7 +371,7 @@ const Layout = () => {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="block text-gray-600 hover:text-primary-600"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
                   >
                     Logout
                   </button>
@@ -368,14 +380,14 @@ const Layout = () => {
                 <>
                   <Link
                     to="/login"
-                    className="block text-gray-600 hover:text-primary-600"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="block text-gray-600 hover:text-primary-600"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign Up
