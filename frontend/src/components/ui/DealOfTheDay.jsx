@@ -130,7 +130,7 @@ const DealOfTheDay = () => {
               <Link
                 key={deal._id}
                 to={`/products/${productId}`}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition group"
+                className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition group"
               >
                 <div className="relative">
                   <img
@@ -148,7 +148,7 @@ const DealOfTheDay = () => {
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-medium text-gray-900 line-clamp-2 mb-2">{productName}</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 mb-2">{productName}</h3>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-lg font-bold text-red-600">{formatPrice(deal.salePrice)}</span>
                     <span className="text-sm text-gray-400 line-through">{formatPrice(deal.originalPrice)}</span>
@@ -157,11 +157,11 @@ const DealOfTheDay = () => {
                   {/* Progress bar for stock */}
                   {purchaseLimit > 0 && (
                     <div className="mb-3">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                         <span>Sold: {soldCount}</span>
                         <span>Available: {stockLeft}</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div 
                           className="bg-red-500 h-2 rounded-full transition-all"
                           style={{ width: `${Math.min((soldCount / purchaseLimit) * 100, 100)}%` }}

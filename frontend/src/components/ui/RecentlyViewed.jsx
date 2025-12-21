@@ -17,10 +17,10 @@ const RecentlyViewed = ({ excludeId }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
       <div className="flex items-center gap-2 mb-4">
-        <FiClock className="w-5 h-5 text-gray-500" />
-        <h2 className="text-lg font-semibold text-gray-900">Recently Viewed</h2>
+        <FiClock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recently Viewed</h2>
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -40,7 +40,7 @@ const RecentlyViewed = ({ excludeId }) => {
                 }}
               />
             </div>
-            <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-primary-600">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400">
               {item.name}
             </h3>
             <p className="text-sm font-bold text-primary-600">

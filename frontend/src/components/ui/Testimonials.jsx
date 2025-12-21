@@ -74,22 +74,22 @@ const Testimonials = () => {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             What Our Customers Say
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Join thousands of satisfied customers who trust ShopHub for their shopping needs
           </p>
         </div>
 
         <div className="relative max-w-4xl mx-auto">
           {/* Main Testimonial */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 relative overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12 relative overflow-hidden">
             {/* Quote Icon */}
-            <div className="absolute top-0 right-0 text-primary-100 text-[200px] font-serif leading-none -mr-8 -mt-16 select-none">
+            <div className="absolute top-0 right-0 text-primary-100 dark:text-primary-900/30 text-[200px] font-serif leading-none -mr-8 -mt-16 select-none">
               "
             </div>
             
@@ -98,10 +98,10 @@ const Testimonials = () => {
                 <img
                   src={testimonials[currentIndex].avatar}
                   alt={testimonials[currentIndex].name}
-                  className="w-16 h-16 rounded-full object-cover border-4 border-primary-100"
+                  className="w-16 h-16 rounded-full object-cover border-4 border-primary-100 dark:border-primary-800"
                 />
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 dark:text-white">
                     {testimonials[currentIndex].name}
                   </h3>
                   <p className="text-sm text-primary-600">
@@ -122,12 +122,12 @@ const Testimonials = () => {
                 </div>
               </div>
               
-              <p className="text-lg text-gray-700 leading-relaxed mb-4">
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                 "{testimonials[currentIndex].text}"
               </p>
               
-              <p className="text-sm text-gray-500">
-                Purchased: <span className="font-medium text-gray-700">{testimonials[currentIndex].product}</span>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Purchased: <span className="font-medium text-gray-700 dark:text-gray-200">{testimonials[currentIndex].product}</span>
               </p>
             </div>
           </div>
@@ -135,13 +135,13 @@ const Testimonials = () => {
           {/* Navigation Buttons */}
           <button
             onClick={goToPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 w-12 h-12 bg-white dark:bg-gray-700 rounded-full shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
             <FiChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 w-12 h-12 bg-white dark:bg-gray-700 rounded-full shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
             <FiChevronRight className="w-6 h-6" />
           </button>
@@ -158,7 +158,7 @@ const Testimonials = () => {
                 className={`w-2.5 h-2.5 rounded-full transition-all ${
                   index === currentIndex
                     ? 'bg-primary-600 w-8'
-                    : 'bg-gray-300 hover:bg-gray-400'
+                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
                 }`}
               />
             ))}
@@ -166,22 +166,22 @@ const Testimonials = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-16 border-t">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-16 border-t dark:border-gray-700">
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary-600">50K+</p>
-            <p className="text-gray-600 mt-1">Happy Customers</p>
+            <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">50K+</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Happy Customers</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary-600">4.8</p>
-            <p className="text-gray-600 mt-1">Average Rating</p>
+            <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">4.8</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Average Rating</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary-600">99%</p>
-            <p className="text-gray-600 mt-1">Satisfaction Rate</p>
+            <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">99%</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Satisfaction Rate</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary-600">24/7</p>
-            <p className="text-gray-600 mt-1">Customer Support</p>
+            <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">24/7</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Customer Support</p>
           </div>
         </div>
       </div>

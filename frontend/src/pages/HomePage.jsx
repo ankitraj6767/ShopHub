@@ -151,7 +151,7 @@ const HomePage = () => {
                     {category === 'Other' && '📦'}
                   </span>
                 </div>
-                <h3 className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 transition">
+                <h3 className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">
                   {category}
                 </h3>
               </Link>

@@ -581,9 +581,9 @@ const ProductDetailsPage = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="border-t pt-12">
+      <div className="border-t dark:border-gray-700 pt-12">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Customer Reviews</h2>
           {isAuthenticated ? (
             canReview ? (
               <button
@@ -593,7 +593,7 @@ const ProductDetailsPage = () => {
                 {showReviewForm ? 'Cancel' : 'Write a Review'}
               </button>
             ) : (
-              <p className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-lg">
+              <p className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg">
                 ✓ You have already reviewed this product
               </p>
             )
@@ -780,44 +780,44 @@ const ProductDetailsPage = () => {
 
         {/* Reviews List */}
         {reviews.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">No reviews yet. Be the first to review!</p>
         ) : (
           <div className="space-y-6">
             {reviews.map((review) => (
-              <div key={review._id} className="bg-white border rounded-lg p-6">
+              <div key={review._id} className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">{review.user?.name || 'Anonymous'}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">{review.user?.name || 'Anonymous'}</p>
                       {review.isVerifiedPurchase && (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Verified Purchase</span>
+                        <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Verified Purchase</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">{formatDate(review.createdAt)}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(review.createdAt)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Rating value={review.rating} />
                     {review.isRecommended && (
-                      <span className="text-xs text-green-600">👍 Recommends</span>
+                      <span className="text-xs text-green-600 dark:text-green-400">👍 Recommends</span>
                     )}
                   </div>
                 </div>
                 
                 {review.title && (
-                  <h4 className="font-medium text-gray-900 mb-2">{review.title}</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">{review.title}</h4>
                 )}
                 
-                <p className="text-gray-600 mb-4">{review.comment}</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">{review.comment}</p>
                 
                 {/* Pros & Cons */}
                 {(review.pros?.length > 0 || review.cons?.length > 0) && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {review.pros?.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-green-700 mb-1">Pros</p>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">Pros</p>
                         <ul className="space-y-1">
                           {review.pros.map((pro, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 flex items-start gap-1">
+                            <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-1">
                               <span className="text-green-500">✓</span> {pro}
                             </li>
                           ))}
@@ -826,7 +826,7 @@ const ProductDetailsPage = () => {
                     )}
                     {review.cons?.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-red-700 mb-1">Cons</p>
+                        <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-1">Cons</p>
                         <ul className="space-y-1">
                           {review.cons.map((con, idx) => (
                             <li key={idx} className="text-sm text-gray-600 flex items-start gap-1">
@@ -957,8 +957,8 @@ const RelatedProducts = ({ category, currentProductId }) => {
   }
 
   return (
-    <div className="border-t pt-12">
-      <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Products</h2>
+    <div className="border-t dark:border-gray-700 pt-12">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Related Products</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <ProductCard key={product._id} product={product} />

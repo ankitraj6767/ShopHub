@@ -98,9 +98,9 @@ const FlashSalePage = () => {
   if (!flashSale) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <FiZap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Flash Sale Not Found</h2>
-        <p className="text-gray-600 mb-6">This flash sale may have ended or doesn't exist.</p>
+        <FiZap className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Flash Sale Not Found</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">This flash sale may have ended or doesn't exist.</p>
         <Link to="/" className="btn-primary">
           Back to Home
         </Link>
@@ -113,14 +113,14 @@ const FlashSalePage = () => {
       <div className="bg-red-600 text-white px-4 py-3 rounded-lg min-w-[60px] text-center">
         <span className="text-2xl font-bold">{String(value).padStart(2, '0')}</span>
       </div>
-      <span className="text-sm text-gray-500 mt-1">{label}</span>
+      <span className="text-sm text-gray-500 dark:text-gray-400 mt-1">{label}</span>
     </div>
   );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Back Button */}
-      <Link to="/" className="inline-flex items-center text-gray-600 hover:text-primary-600 mb-6">
+      <Link to="/" className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 mb-6">
         <FiArrowLeft className="mr-2" />
         Back to Home
       </Link>
@@ -197,7 +197,7 @@ const FlashSalePage = () => {
               {/* Product Info */}
               <div className="p-4">
                 <Link to={`/products/${item.product._id}`}>
-                  <h3 className="font-semibold text-gray-900 mb-2 hover:text-primary-600 line-clamp-2">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-2">
                     {item.product.name}
                   </h3>
                 </Link>
@@ -206,7 +206,7 @@ const FlashSalePage = () => {
                 {item.product.rating > 0 && (
                   <div className="flex items-center gap-1 mb-2">
                     <span className="text-yellow-500">★</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
                       {item.product.rating.toFixed(1)} ({item.product.numReviews})
                     </span>
                   </div>

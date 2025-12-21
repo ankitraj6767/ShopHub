@@ -122,43 +122,43 @@ const BundlesPage = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Navigation Breadcrumbs */}
       <div className="flex items-center gap-4 mb-6 text-sm">
-        <Link to="/" className="flex items-center gap-1 text-gray-600 hover:text-primary-600">
+        <Link to="/" className="flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
           <FiHome className="w-4 h-4" />
           Home
         </Link>
-        <span className="text-gray-400">/</span>
-        <span className="text-gray-900 font-medium">Bundles</span>
+        <span className="text-gray-400 dark:text-gray-500">/</span>
+        <span className="text-gray-900 dark:text-white font-medium">Bundles</span>
       </div>
 
       {/* Quick Navigation */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <Link to="/" className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">
+        <Link to="/" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <FiHome className="inline w-3 h-3 mr-1" /> Home
         </Link>
-        <Link to="/products" className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">
+        <Link to="/products" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <FiGrid className="inline w-3 h-3 mr-1" /> Products
         </Link>
-        <Link to="/cart" className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">
+        <Link to="/cart" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <FiShoppingCart className="inline w-3 h-3 mr-1" /> Cart
         </Link>
       </div>
 
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-          <FiPackage className="w-8 h-8 text-primary-600" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full mb-4">
+          <FiPackage className="w-8 h-8 text-primary-600 dark:text-primary-400" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Bundles</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Product Bundles</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Save more with our specially curated product bundles. Get everything you need at discounted prices!
         </p>
       </div>
 
       {bundles.length === 0 ? (
         <div className="text-center py-16">
-          <FiPackage className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">No Bundles Available</h2>
-          <p className="text-gray-600 mb-6">Check back later for exciting bundle deals!</p>
+          <FiPackage className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Bundles Available</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">Check back later for exciting bundle deals!</p>
           <Link to="/products" className="btn-primary">
             Browse Products
           </Link>
@@ -172,10 +172,10 @@ const BundlesPage = () => {
             return (
               <div
                 key={bundle._id}
-                className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all group"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all group"
               >
                 {/* Bundle Image */}
-                <div className="relative bg-gradient-to-br from-primary-50 to-purple-50 p-6 h-48">
+                <div className="relative bg-gradient-to-br from-primary-50 to-purple-50 dark:from-primary-900/20 dark:to-purple-900/20 p-6 h-48">
                   {/* Discount Badge */}
                   <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
                     <FiPercent className="w-4 h-4" />
@@ -213,13 +213,13 @@ const BundlesPage = () => {
                   </div>
 
                   <Link to={`/bundles/${bundle._id}`}>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                       {bundle.name}
                     </h3>
                   </Link>
 
                   {bundle.description && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{bundle.description}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">{bundle.description}</p>
                   )}
 
                   {/* Pricing */}

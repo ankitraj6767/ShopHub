@@ -211,11 +211,11 @@ const OrderDetailsPage = () => {
       </div>
 
       {/* Order Items */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-4">Order Items</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Order Items</h2>
         <div className="space-y-4">
           {order.orderItems.map((item, index) => (
-            <div key={index} className="flex items-center gap-4 pb-4 border-b last:border-0 last:pb-0">
+            <div key={index} className="flex items-center gap-4 pb-4 border-b dark:border-gray-700 last:border-0 last:pb-0">
               <img
                 src={item.image}
                 alt={item.name}
@@ -227,35 +227,35 @@ const OrderDetailsPage = () => {
               <div className="flex-1">
                 <Link
                   to={`/products/${item.product}`}
-                  className="font-medium hover:text-primary-600"
+                  className="font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400"
                 >
                   {item.name}
                 </Link>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {formatPrice(item.price)} × {item.quantity}
                 </p>
               </div>
-              <p className="font-bold">{formatPrice(item.price * item.quantity)}</p>
+              <p className="font-bold text-gray-900 dark:text-white">{formatPrice(item.price * item.quantity)}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Order Summary */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-4">Order Summary</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Order Summary</h2>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-gray-600">Subtotal</span>
-            <span>{formatPrice(order.itemsPrice)}</span>
+            <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+            <span className="text-gray-900 dark:text-white">{formatPrice(order.itemsPrice)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Shipping</span>
-            <span>{order.shippingPrice === 0 ? 'Free' : formatPrice(order.shippingPrice)}</span>
+            <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+            <span className="text-gray-900 dark:text-white">{order.shippingPrice === 0 ? 'Free' : formatPrice(order.shippingPrice)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Tax</span>
-            <span>{formatPrice(order.taxPrice)}</span>
+            <span className="text-gray-600 dark:text-gray-400">Tax</span>
+            <span className="text-gray-900 dark:text-white">{formatPrice(order.taxPrice)}</span>
           </div>
           {(order.discountApplied > 0 || order.discountAmount > 0) && (
             <div className="flex justify-between text-green-600">
