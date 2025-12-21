@@ -47,6 +47,7 @@ import GiftCardsPage from './pages/GiftCardsPage';
 import PremiumPage from './pages/PremiumPage';
 import PriceAlertsPage from './pages/PriceAlertsPage';
 import SavedCartsPage from './pages/SavedCartsPage';
+import TestimonialPage from './pages/TestimonialPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -63,6 +64,7 @@ import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminDeals from './pages/admin/AdminDeals';
 import AdminRevenue from './pages/admin/AdminRevenue';
+import AdminTestimonialPage from './pages/admin/AdminTestimonialPage';
 
 // Route Guards
 import PrivateRoute from './components/routes/PrivateRoute';
@@ -150,6 +152,7 @@ function App() {
           <Route path="buy-again" element={<BuyAgainPage />} />
           <Route path="price-alerts" element={<PriceAlertsPage />} />
           <Route path="saved-carts" element={<SavedCartsPage />} />
+          <Route path="testimonials" element={<TestimonialPage />} />
           <Route path="help/ticket/:id" element={<TicketDetailPage />} />
         </Route>
 
@@ -175,6 +178,7 @@ function App() {
           <Route path="revenue" element={<AdminRevenue />} />
           <Route path="support" element={<AdminSupport />} />
           <Route path="support/:id" element={<AdminTicketDetail />} />
+          <Route path="testimonials" element={<AdminTestimonialPage />} />
         </Route>
       </Route>
     </Routes>

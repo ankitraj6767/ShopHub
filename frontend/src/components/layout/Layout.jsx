@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiSearch, FiLogOut, FiPackage, FiSettings, FiHeart, FiHelpCircle, FiMapPin, FiGift, FiUsers, FiAward, FiHome, FiRotateCcw, FiBell, FiSave } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiSearch, FiLogOut, FiPackage, FiSettings, FiHeart, FiHelpCircle, FiMapPin, FiGift, FiUsers, FiAward, FiHome, FiRotateCcw, FiBell, FiSave, FiMessageSquare } from 'react-icons/fi';
 import { FaCrown } from 'react-icons/fa';
 import { logout } from '../../store/slices/authSlice';
 import { fetchWishlist, selectWishlistCount } from '../../store/slices/wishlistSlice';
@@ -170,6 +170,13 @@ const Layout = () => {
                         <FiUsers className="mr-2" /> Refer & Earn
                       </Link>
                       <Link
+                        to="/testimonials"
+                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FiMessageSquare className="mr-2" /> My Testimonials
+                      </Link>
+                      <Link
                         to="/buy-again"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setUserMenuOpen(false)}
@@ -314,6 +321,13 @@ const Layout = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Refer & Earn
+                  </Link>
+                  <Link
+                    to="/testimonials"
+                    className="block text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My Testimonials
                   </Link>
                   <Link
                     to="/buy-again"
