@@ -7,10 +7,14 @@ import { formatPrice } from '../../utils/helpers';
 const RecentlyViewed = ({ excludeId }) => {
   const items = useSelector(selectRecentlyViewed) || [];
   
-  // Filter out current product if provided
-  const filteredItems = excludeId 
-    ? items.filter((item) => item._id !== excludeId)
-    : items;
+  // Filter out current product if provided and ensure items have valid IDs
+  const filteredItems = items.filter((item) => {
+    // Must have a valid _id
+    if (!item || !item._id) return false;
+    // Exclude current product if specified
+    if (excludeId && item._id === excludeId) return false;
+    return true;
+  });
 
   if (filteredItems.length === 0) {
     return null;
@@ -30,10 +34,10 @@ const RecentlyViewed = ({ excludeId }) => {
             to={`/products/${item._id}`}
             className="group"
           >
-            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2">
+            <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-2">
               <img
-                src={item.images?.[0]?.url || '/placeholder.jpg'}
-                alt={item.name}
+                src={item.images?.[0]?.url || 'https://via.placeholder.com/200?text=Product'}
+                alt={item.name || 'Product'}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 onError={(e) => {
                   e.target.src = 'https://via.placeholder.com/200?text=Product';
@@ -41,10 +45,10 @@ const RecentlyViewed = ({ excludeId }) => {
               />
             </div>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400">
-              {item.name}
+              {item.name || 'Unknown Product'}
             </h3>
             <p className="text-sm font-bold text-primary-600">
-              {formatPrice(item.price)}
+              {formatPrice(item.price || 0)}
             </p>
           </Link>
         ))}

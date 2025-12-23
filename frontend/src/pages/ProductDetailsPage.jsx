@@ -290,8 +290,12 @@ const ProductDetailsPage = () => {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Product Not Found</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
+        <div className="text-6xl mb-4">😕</div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Product Not Found</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-6 text-center">
+          This product may have been removed or is no longer available.
+        </p>
         <Link to="/products" className="btn-primary">
           Browse Products
         </Link>

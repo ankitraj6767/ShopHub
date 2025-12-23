@@ -7,8 +7,14 @@ const STORAGE_KEY = 'recentlyViewed';
 const loadFromStorage = () => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    
+    const items = JSON.parse(stored);
+    // Validate items have required fields
+    return items.filter(item => item && item._id && item.name);
   } catch {
+    // Clear corrupted data
+    localStorage.removeItem(STORAGE_KEY);
     return [];
   }
 };
@@ -33,18 +39,24 @@ const recentlyViewedSlice = createSlice({
     addToRecentlyViewed: (state, action) => {
       const product = action.payload;
       
+      // Validate product has required fields
+      if (!product || !product._id || !product.name) {
+        console.warn('Invalid product data for recently viewed:', product);
+        return;
+      }
+      
       // Remove if already exists
       state.items = state.items.filter((item) => item._id !== product._id);
       
-      // Add to beginning
+      // Add to beginning with all required data
       state.items.unshift({
         _id: product._id,
         name: product.name,
-        price: product.price,
-        images: product.images,
-        rating: product.rating,
-        numReviews: product.numReviews,
-        brand: product.brand,
+        price: product.price || 0,
+        images: product.images || [],
+        rating: product.rating || 0,
+        numReviews: product.numReviews || 0,
+        brand: product.brand || '',
         viewedAt: new Date().toISOString(),
       });
       
@@ -56,6 +68,11 @@ const recentlyViewedSlice = createSlice({
       // Save to localStorage
       saveToStorage(state.items);
     },
+    removeFromRecentlyViewed: (state, action) => {
+      const productId = action.payload;
+      state.items = state.items.filter((item) => item._id !== productId);
+      saveToStorage(state.items);
+    },
     clearRecentlyViewed: (state) => {
       state.items = [];
       localStorage.removeItem(STORAGE_KEY);
@@ -63,7 +80,7 @@ const recentlyViewedSlice = createSlice({
   },
 });
 
-export const { addToRecentlyViewed, clearRecentlyViewed } = recentlyViewedSlice.actions;
+export const { addToRecentlyViewed, removeFromRecentlyViewed, clearRecentlyViewed } = recentlyViewedSlice.actions;
 
 export const selectRecentlyViewed = (state) => state.recentlyViewed?.items || [];
 
