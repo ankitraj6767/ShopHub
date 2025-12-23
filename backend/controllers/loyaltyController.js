@@ -15,7 +15,7 @@ const POINTS_CONFIG = {
     Platinum: 500,
     Diamond: 1000,
   },
-  redemptionRate: 100, // 100 points = ₹1
+  redemptionRate: 10, // 100 points = ₹10 (divide by 10)
 };
 
 // @desc    Get user's loyalty points
