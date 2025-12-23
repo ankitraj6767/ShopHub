@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiTruck, FiShield, FiHeadphones, FiAward, FiGift } from 'react-icons/fi';
-import { fetchFeaturedProducts, fetchCategories } from '../store/slices/productSlice';
+import { fetchProducts, fetchFeaturedProducts, fetchCategories } from '../store/slices/productSlice';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import DealOfTheDay from '../components/ui/DealOfTheDay';
@@ -17,11 +17,12 @@ import toast from 'react-hot-toast';
 const HomePage = () => {
   const dispatch = useDispatch();
   const productsState = useSelector((state) => state.products) || {};
-  const { featuredProducts = [], categories = [], isLoading = false } = productsState;
+  const { products = [], featuredProducts = [], categories = [], isLoading = false } = productsState;
   const [email, setEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
+    dispatch(fetchProducts({ limit: 100 })); // Fetch all products
     dispatch(fetchFeaturedProducts(8));
     dispatch(fetchCategories());
   }, [dispatch]);
@@ -180,6 +181,33 @@ const HomePage = () => {
             </div>
           ) : (
             <p className="text-center text-gray-500 dark:text-gray-400 py-12">No featured products available</p>
+          )}
+        </div>
+      </section>
+
+      {/* All Products Section */}
+      <section className="py-16 bg-white dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">All Products</h2>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">{products.length} products available</p>
+            </div>
+            <Link to="/products" className="text-primary-600 hover:text-primary-700 flex items-center">
+              Browse All <FiArrowRight className="ml-2" />
+            </Link>
+          </div>
+          
+          {isLoading ? (
+            <Spinner size="lg" className="py-12" />
+          ) : products && products.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+              {products.map((product) => (
+                product && <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 dark:text-gray-400 py-12">No products available</p>
           )}
         </div>
       </section>
