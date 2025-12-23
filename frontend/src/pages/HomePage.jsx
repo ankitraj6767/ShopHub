@@ -71,14 +71,14 @@ const HomePage = () => {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary-600 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Discover Amazing Products
             </h1>
             <p className="text-lg md:text-xl text-primary-100 mb-8">
               Shop the latest trends with exclusive deals. Quality products at unbeatable prices.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/products" className="btn bg-white text-primary-600 hover:bg-gray-100 px-8 py-3">
                 Shop Now
               </Link>
