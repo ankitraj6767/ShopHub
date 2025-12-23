@@ -184,16 +184,20 @@ export const redeemPoints = asyncHandler(async (req, res) => {
 // @access  Public
 export const getLeaderboard = asyncHandler(async (req, res) => {
   const leaderboard = await LoyaltyPoint.find()
-    .populate('user', 'name')
+    .populate('user', 'name isActive')
     .sort({ lifetimePoints: -1 })
-    .limit(10)
     .select('lifetimePoints tier user');
+
+  // Filter out entries where user doesn't exist or is inactive, then limit to 10
+  const validEntries = leaderboard
+    .filter((entry) => entry.user && entry.user.name && entry.user.isActive !== false)
+    .slice(0, 10);
 
   res.json({
     success: true,
-    data: leaderboard.map((entry, index) => ({
+    data: validEntries.map((entry, index) => ({
       rank: index + 1,
-      name: entry.user?.name || 'Anonymous',
+      name: entry.user.name,
       points: entry.lifetimePoints,
       tier: entry.tier,
     })),

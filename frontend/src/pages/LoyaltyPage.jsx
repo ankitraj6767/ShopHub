@@ -370,37 +370,43 @@ const LoyaltyPage = () => {
               Top Members
             </h2>
             <div className="space-y-3">
-              {leaderboard.map((entry, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between py-2"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        index === 0
-                          ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400'
-                          : index === 1
-                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                          : index === 2
-                          ? 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400'
-                          : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                      }`}
-                    >
-                      {entry.rank}
-                    </span>
-                    <div>
-                      <p className="font-medium text-sm dark:text-white">{entry.name}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${getTierColor(entry.tier)} text-white`}>
-                        {entry.tier}
+              {leaderboard.length > 0 ? (
+                leaderboard.map((entry, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                          index === 0
+                            ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400'
+                            : index === 1
+                            ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            : index === 2
+                            ? 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400'
+                            : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                        }`}
+                      >
+                        {entry.rank}
                       </span>
+                      <div>
+                        <p className="font-medium text-sm dark:text-white">{entry.name}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${getTierColor(entry.tier)} text-white`}>
+                          {entry.tier}
+                        </span>
+                      </div>
                     </div>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {entry.points.toLocaleString()}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {entry.points.toLocaleString()}
-                  </span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                  No members on the leaderboard yet. Be the first!
+                </p>
+              )}
             </div>
           </div>
 

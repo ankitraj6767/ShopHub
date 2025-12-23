@@ -259,16 +259,20 @@ export const completeReferral = asyncHandler(async (req, res) => {
 // @access  Public
 export const getReferralLeaderboard = asyncHandler(async (req, res) => {
   const leaderboard = await Referral.find({ successfulReferrals: { $gt: 0 } })
-    .populate('referrer', 'name')
+    .populate('referrer', 'name isActive')
     .sort({ successfulReferrals: -1 })
-    .limit(10)
     .select('successfulReferrals totalEarnings referrer');
+
+  // Filter out entries where user doesn't exist or is inactive, then limit to 10
+  const validEntries = leaderboard
+    .filter((entry) => entry.referrer && entry.referrer.name && entry.referrer.isActive !== false)
+    .slice(0, 10);
 
   res.json({
     success: true,
-    data: leaderboard.map((entry, index) => ({
+    data: validEntries.map((entry, index) => ({
       rank: index + 1,
-      name: entry.referrer?.name || 'Anonymous',
+      name: entry.referrer.name,
       referrals: entry.successfulReferrals,
       earnings: entry.totalEarnings,
     })),
