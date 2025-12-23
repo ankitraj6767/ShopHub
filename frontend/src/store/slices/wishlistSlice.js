@@ -26,7 +26,7 @@ export const addToWishlist = createAsyncThunk(
         priority,
         notifyOnSale,
       });
-      return data.data;
+      return { ...data.data, addedProductId: productId };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || 'Failed to add to wishlist'
@@ -136,11 +136,12 @@ const wishlistSlice = createSlice({
       .addCase(fetchWishlist.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload?.items || [];
-        // Update check status for all items
+        // Update check status for all items - handle both populated and unpopulated
         state.checkStatus = {};
         state.items.forEach((item) => {
-          if (item.product?._id) {
-            state.checkStatus[item.product._id] = true;
+          const productId = item.product?._id || item.product;
+          if (productId) {
+            state.checkStatus[productId] = true;
           }
         });
       })
@@ -156,10 +157,15 @@ const wishlistSlice = createSlice({
       .addCase(addToWishlist.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload?.items || [];
-        // Update check status
+        // Update check status - ensure the added product is marked
+        if (action.payload?.addedProductId) {
+          state.checkStatus[action.payload.addedProductId] = true;
+        }
+        // Also update from items
         state.items.forEach((item) => {
-          if (item.product?._id) {
-            state.checkStatus[item.product._id] = true;
+          const productId = item.product?._id || item.product;
+          if (productId) {
+            state.checkStatus[productId] = true;
           }
         });
       })

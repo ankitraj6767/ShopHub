@@ -89,6 +89,12 @@ export const addToWishlist = asyncHandler(async (req, res) => {
 
   await wishlist.save();
 
+  // Populate the items before returning
+  await wishlist.populate({
+    path: 'items.product',
+    select: 'name images price stock brand category isActive',
+  });
+
   res.status(201).json({
     success: true,
     message: 'Product added to wishlist',
