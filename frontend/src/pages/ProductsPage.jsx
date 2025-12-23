@@ -448,6 +448,7 @@ const ProductsPage = () => {
   const maxPrice = searchParams.get('maxPrice') || '';
   const rating = searchParams.get('rating') || '';
   const sort = searchParams.get('sort') || 'newest';
+  const featured = searchParams.get('featured') || '';
   const currentPage = parseInt(searchParams.get('page')) || 1;
 
   useEffect(() => {
@@ -462,10 +463,11 @@ const ProductsPage = () => {
     if (maxPrice) params.maxPrice = maxPrice;
     if (rating) params.rating = rating;
     if (sort) params.sort = sort;
+    if (featured) params.featured = featured;
     params.page = currentPage;
 
     dispatch(fetchProducts(params));
-  }, [dispatch, keyword, category, minPrice, maxPrice, rating, sort, currentPage]);
+  }, [dispatch, keyword, category, minPrice, maxPrice, rating, sort, featured, currentPage]);
 
   const updateFilter = useCallback((key, value) => {
     const newParams = new URLSearchParams(searchParams);
@@ -515,10 +517,11 @@ const ProductsPage = () => {
           <div className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-700/50">
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                {keyword ? `Results for "${keyword}"` : 'All Products'}
+                {keyword ? `Results for "${keyword}"` : featured ? '⭐ Featured Products' : 'All Products'}
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 {total.toLocaleString()} {total === 1 ? 'product' : 'products'} found
+                {featured && ' • Showing featured products only'}
               </p>
             </div>
             

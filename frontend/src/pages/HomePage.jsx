@@ -22,8 +22,8 @@ const HomePage = () => {
   const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchProducts({ limit: 100 })); // Fetch all products
-    dispatch(fetchFeaturedProducts(8));
+    dispatch(fetchProducts({ limit: 10, sort: 'rating' })); // Fetch top 10 best rated products
+    dispatch(fetchFeaturedProducts(8)); // Fetch 8 featured products
     dispatch(fetchCategories());
   }, [dispatch]);
 
@@ -165,17 +165,20 @@ const HomePage = () => {
       <section className="py-16 bg-gray-100 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Featured Products</h2>
-            <Link to="/products?featured=true" className="text-primary-600 hover:text-primary-700 flex items-center">
-              View All <FiArrowRight className="ml-2" />
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">⭐ Featured Products</h2>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Hand-picked products just for you</p>
+            </div>
+            <Link to="/products?featured=true" className="text-primary-600 hover:text-primary-700 flex items-center font-medium">
+              View All Featured <FiArrowRight className="ml-2" />
             </Link>
           </div>
           
           {isLoading ? (
             <Spinner size="lg" className="py-12" />
           ) : featuredProducts && featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {featuredProducts.slice(0, 8).map((product) => (
                 product && <ProductCard key={product._id} product={product} />
               ))}
             </div>
@@ -190,11 +193,11 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">All Products</h2>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">{products.length} products available</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">🔥 Best Sellers</h2>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Top rated products by our customers</p>
             </div>
-            <Link to="/products" className="text-primary-600 hover:text-primary-700 flex items-center">
-              Browse All <FiArrowRight className="ml-2" />
+            <Link to="/products" className="text-primary-600 hover:text-primary-700 flex items-center font-medium">
+              Browse All Products <FiArrowRight className="ml-2" />
             </Link>
           </div>
           
@@ -202,7 +205,7 @@ const HomePage = () => {
             <Spinner size="lg" className="py-12" />
           ) : products && products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-              {products.map((product) => (
+              {products.slice(0, 10).map((product) => (
                 product && <ProductCard key={product._id} product={product} />
               ))}
             </div>

@@ -23,7 +23,8 @@ const AdminProductForm = () => {
     category: '',
     brand: '',
     stock: '',
-    images: ['']
+    images: [''],
+    featured: false
   });
 
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -71,7 +72,8 @@ const AdminProductForm = () => {
         category: product.category || '',
         brand: product.brand || '',
         stock: product.stock?.toString() || '',
-        images: ['']  // Empty for new URL inputs only
+        images: [''],  // Empty for new URL inputs only
+        featured: product.featured || false
       });
     }
   }, [product, isEditing]);
@@ -209,7 +211,8 @@ const AdminProductForm = () => {
         category: formData.category,
         brand: formData.brand.trim(),
         stock: stockValue,
-        images: allImages
+        images: allImages,
+        featured: formData.featured
       };
 
       // Debug log
@@ -365,6 +368,40 @@ const AdminProductForm = () => {
               />
               {errors.brand && <p className="text-red-500 text-sm mt-1">{errors.brand}</p>}
             </div>
+          </div>
+
+          {/* Featured Toggle */}
+          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center">
+                <span className="text-xl">⭐</span>
+              </div>
+              <div>
+                <label htmlFor="featured" className="font-medium text-gray-900 dark:text-white cursor-pointer">
+                  Featured Product
+                </label>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Display this product in the Featured section on homepage
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={formData.featured}
+              onClick={() => setFormData(prev => ({ ...prev, featured: !prev.featured }))}
+              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                formData.featured 
+                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
+                  : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${
+                  formData.featured ? 'translate-x-8' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Images */}
