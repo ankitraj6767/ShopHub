@@ -16,6 +16,7 @@ import {
   getBestSellers,
   getNewArrivals,
   getDeals,
+  validateProductIds,
 } from '../controllers/productController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { productValidation, mongoIdValidation } from '../middleware/validationMiddleware.js';
@@ -30,6 +31,7 @@ router.get('/brands', getBrands);
 router.get('/best-sellers', getBestSellers);
 router.get('/new-arrivals', getNewArrivals);
 router.get('/deals', getDeals);
+router.post('/validate-ids', validateProductIds);
 
 // Admin routes (must be before :id route)
 router.get('/admin/all', protect, admin, getAdminProducts);

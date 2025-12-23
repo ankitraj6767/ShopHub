@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../../utils/api';
 
 const MAX_ITEMS = 12;
 const STORAGE_KEY = 'recentlyViewed';
@@ -27,6 +28,34 @@ const saveToStorage = (items) => {
     console.error('Failed to save recently viewed:', error);
   }
 };
+
+// Async thunk to validate recently viewed products against database
+export const validateRecentlyViewed = createAsyncThunk(
+  'recentlyViewed/validate',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { recentlyViewed } = getState();
+      const items = recentlyViewed?.items || [];
+      
+      if (items.length === 0) return [];
+      
+      // Get all product IDs
+      const productIds = items.map(item => item._id);
+      
+      // Fetch products to check which ones still exist
+      const { data } = await api.post('/products/validate-ids', { ids: productIds });
+      
+      // Filter to only valid product IDs
+      const validIds = new Set(data.validIds || []);
+      const validItems = items.filter(item => validIds.has(item._id));
+      
+      return validItems;
+    } catch (error) {
+      // If the endpoint doesn't exist, fall back to checking individual products
+      return rejectWithValue('Validation endpoint not available');
+    }
+  }
+);
 
 const initialState = {
   items: loadFromStorage(),
@@ -77,6 +106,13 @@ const recentlyViewedSlice = createSlice({
       state.items = [];
       localStorage.removeItem(STORAGE_KEY);
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(validateRecentlyViewed.fulfilled, (state, action) => {
+        state.items = action.payload;
+        saveToStorage(action.payload);
+      });
   },
 });
 

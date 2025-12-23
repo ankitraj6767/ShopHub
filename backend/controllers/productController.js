@@ -133,6 +133,31 @@ export const getFeaturedProducts = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Validate product IDs (check which ones exist and are active)
+// @route   POST /api/products/validate-ids
+// @access  Public
+export const validateProductIds = asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    res.status(400);
+    throw new Error('Product IDs array is required');
+  }
+
+  // Find all active products with the given IDs
+  const validProducts = await Product.find({
+    _id: { $in: ids },
+    isActive: true,
+  }).select('_id');
+
+  const validIds = validProducts.map((p) => p._id.toString());
+
+  res.json({
+    success: true,
+    validIds,
+  });
+});
+
 // @desc    Get product categories
 // @route   GET /api/products/categories
 // @access  Public

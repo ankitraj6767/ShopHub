@@ -1,11 +1,20 @@
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import { FiClock } from 'react-icons/fi';
-import { selectRecentlyViewed } from '../../store/slices/recentlyViewedSlice';
+import { selectRecentlyViewed, validateRecentlyViewed } from '../../store/slices/recentlyViewedSlice';
 import { formatPrice } from '../../utils/helpers';
 
 const RecentlyViewed = ({ excludeId }) => {
+  const dispatch = useDispatch();
   const items = useSelector(selectRecentlyViewed) || [];
+  
+  // Validate products on mount to remove deleted/inactive products
+  useEffect(() => {
+    if (items.length > 0) {
+      dispatch(validateRecentlyViewed());
+    }
+  }, []); // Only run on mount
   
   // Filter out current product if provided and ensure items have valid IDs
   const filteredItems = items.filter((item) => {
