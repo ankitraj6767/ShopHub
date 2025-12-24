@@ -5,7 +5,8 @@ import {
   getCustomerAnalytics,
   getProductAnalytics,
   getRevenueAnalytics,
-  getRevenueStats
+  getRevenueStats,
+  getReturnAnalytics
 } from '../controllers/analyticsController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -20,5 +21,6 @@ router.get('/customers', getCustomerAnalytics);
 router.get('/products', getProductAnalytics);
 router.get('/revenue-analytics', getRevenueAnalytics);
 router.get('/revenue-stats', getRevenueStats);
+router.get('/returns', getReturnAnalytics);
 
 export default router;

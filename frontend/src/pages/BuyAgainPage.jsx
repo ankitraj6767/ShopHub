@@ -21,11 +21,18 @@ const BuyAgainPage = () => {
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    if (!date) return 'N/A';
+    try {
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return 'N/A';
+      return dateObj.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return 'N/A';
+    }
   };
 
   if (isLoading) {

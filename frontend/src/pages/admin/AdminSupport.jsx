@@ -14,6 +14,7 @@ import api from '../../utils/api';
 import Spinner from '../../components/ui/Spinner';
 import Pagination from '../../components/ui/Pagination';
 import toast from 'react-hot-toast';
+import { safeToLocaleDateString } from '../../utils/helpers';
 
 const AdminSupport = () => {
   const [tickets, setTickets] = useState([]);
@@ -311,7 +312,7 @@ const AdminSupport = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(ticket.createdAt).toLocaleDateString()}
+                      {safeToLocaleDateString(ticket.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link

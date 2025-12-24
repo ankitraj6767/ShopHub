@@ -203,20 +203,25 @@ const NotificationCenter = () => {
 
   const formatTime = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    
-    if (diff < 60 * 1000) {
-      return 'Just now';
-    } else if (diff < 60 * 60 * 1000) {
-      return `${Math.floor(diff / (60 * 1000))}m ago`;
-    } else if (diff < 24 * 60 * 60 * 1000) {
-      return `${Math.floor(diff / (60 * 60 * 1000))}h ago`;
-    } else if (diff < 7 * 24 * 60 * 60 * 1000) {
-      return `${Math.floor(diff / (24 * 60 * 60 * 1000))}d ago`;
-    } else {
-      return date.toLocaleDateString();
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 60 * 1000) {
+        return 'Just now';
+      } else if (diff < 60 * 60 * 1000) {
+        return `${Math.floor(diff / (60 * 1000))}m ago`;
+      } else if (diff < 24 * 60 * 60 * 1000) {
+        return `${Math.floor(diff / (60 * 60 * 1000))}h ago`;
+      } else if (diff < 7 * 24 * 60 * 60 * 1000) {
+        return `${Math.floor(diff / (24 * 60 * 60 * 1000))}d ago`;
+      } else {
+        return date.toLocaleDateString();
+      }
+    } catch {
+      return '';
     }
   };
 

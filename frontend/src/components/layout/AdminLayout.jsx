@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { 
   FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiArrowLeft, 
   FiMessageCircle, FiTag, FiZap, FiLayers, FiBarChart2, FiMenu, FiX,
-  FiChevronRight, FiShield, FiDollarSign, FiPercent, FiMessageSquare
+  FiChevronRight, FiShield, FiDollarSign, FiPercent, FiMessageSquare, FiRotateCcw
 } from 'react-icons/fi';
 import { logout } from '../../store/slices/authSlice';
 
@@ -37,6 +37,7 @@ const AdminLayout = () => {
     { path: '/admin', icon: FiHome, label: 'Dashboard', exact: true, color: 'from-blue-500 to-blue-600' },
     { path: '/admin/products', icon: FiPackage, label: 'Products', color: 'from-emerald-500 to-emerald-600' },
     { path: '/admin/orders', icon: FiShoppingBag, label: 'Orders', color: 'from-orange-500 to-orange-600' },
+    { path: '/admin/returns', icon: FiRotateCcw, label: 'Returns', color: 'from-amber-500 to-amber-600' },
     { path: '/admin/users', icon: FiUsers, label: 'Users', color: 'from-purple-500 to-purple-600' },
     { path: '/admin/coupons', icon: FiTag, label: 'Coupons', color: 'from-pink-500 to-pink-600' },
     { path: '/admin/flash-sales', icon: FiZap, label: 'Flash Sales', color: 'from-yellow-500 to-yellow-600' },

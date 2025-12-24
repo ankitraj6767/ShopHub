@@ -17,7 +17,7 @@ import {
 import api from '../utils/api';
 import Spinner from '../components/ui/Spinner';
 import toast from 'react-hot-toast';
-
+import { safeToLocaleDateString } from '../utils/helpers';
 const ReferralPage = () => {
   const { user } = useSelector((state) => state.auth);
   const [referralData, setReferralData] = useState(null);
@@ -271,7 +271,7 @@ const ReferralPage = () => {
                       <div>
                         <p className="font-medium dark:text-white">{referral.user}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Joined {new Date(referral.date).toLocaleDateString()}
+                          Joined {safeToLocaleDateString(referral.date)}
                         </p>
                       </div>
                     </div>

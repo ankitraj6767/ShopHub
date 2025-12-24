@@ -182,8 +182,14 @@ export const paginationValidation = [
   handleValidation,
 ];
 
-// MongoDB ID validation
+// MongoDB ID validation for :id parameter
 export const mongoIdValidation = [
   param('id').isMongoId().withMessage('Invalid ID format'),
+  handleValidation,
+];
+
+// MongoDB ID validation for :orderId parameter
+export const mongoOrderIdValidation = [
+  param('orderId').isMongoId().withMessage('Invalid order ID format'),
   handleValidation,
 ];

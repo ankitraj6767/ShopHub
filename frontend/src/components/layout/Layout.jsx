@@ -142,6 +142,13 @@ const Layout = () => {
                         <FiPackage className="mr-2" /> Orders
                       </Link>
                       <Link
+                        to="/returns"
+                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FiRotateCcw className="mr-2" /> My Returns
+                      </Link>
+                      <Link
                         to="/wishlist"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setUserMenuOpen(false)}

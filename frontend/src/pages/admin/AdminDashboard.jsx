@@ -10,18 +10,23 @@ import {
   FiTrendingDown,
   FiArrowRight,
   FiCheckCircle,
-  FiClock
+  FiClock,
+  FiRotateCcw,
+  FiAlertCircle
 } from 'react-icons/fi';
 import { fetchAdminStats } from '../../store/slices/orderSlice';
+import { fetchReturnStats } from '../../store/slices/returnSlice';
 import { formatPrice, formatDate, getOrderStatusColor } from '../../utils/helpers';
 import Spinner from '../../components/ui/Spinner';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const { adminStats, isLoading: ordersLoading } = useSelector((state) => state.orders);
+  const { stats: returnStats } = useSelector((state) => state.returns);
 
   useEffect(() => {
     dispatch(fetchAdminStats());
+    dispatch(fetchReturnStats());
   }, [dispatch]);
 
   if (ordersLoading) {
@@ -214,6 +219,60 @@ const AdminDashboard = () => {
               <p className={`text-sm ${getOrderStatusColor(status)}`}>{status}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Returns Overview */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <FiRotateCcw className="w-5 h-5" />
+            Returns Overview
+          </h2>
+          <Link
+            to="/admin/returns"
+            className="text-primary-600 hover:text-primary-700 text-sm flex items-center"
+          >
+            View All <FiArrowRight className="ml-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+            <div className="flex justify-center mb-2">
+              <FiAlertCircle className="w-6 h-6 text-yellow-600" />
+            </div>
+            <p className="text-2xl font-bold text-yellow-600">
+              {returnStats?.pendingReturns || 0}
+            </p>
+            <p className="text-sm text-yellow-700 dark:text-yellow-400">Pending Review</p>
+          </div>
+          <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="flex justify-center mb-2">
+              <FiRotateCcw className="w-6 h-6 text-blue-600" />
+            </div>
+            <p className="text-2xl font-bold text-blue-600">
+              {returnStats?.processingReturns || 0}
+            </p>
+            <p className="text-sm text-blue-700 dark:text-blue-400">In Progress</p>
+          </div>
+          <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <div className="flex justify-center mb-2">
+              <FiCheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <p className="text-2xl font-bold text-green-600">
+              {returnStats?.completedReturns || 0}
+            </p>
+            <p className="text-sm text-green-700 dark:text-green-400">Completed</p>
+          </div>
+          <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+            <div className="flex justify-center mb-2">
+              <FiDollarSign className="w-6 h-6 text-purple-600" />
+            </div>
+            <p className="text-2xl font-bold text-purple-600">
+              {formatPrice(returnStats?.totalRefundAmount || 0)}
+            </p>
+            <p className="text-sm text-purple-700 dark:text-purple-400">Total Refunds</p>
+          </div>
         </div>
       </div>
     </div>

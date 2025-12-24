@@ -8,7 +8,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['order', 'order_update', 'delivery', 'promo', 'promotion', 'price_drop', 'back_in_stock', 'review', 'system', 'alert', 'return_request', 'success', 'info', 'loyalty', 'referral', 'gift_card', 'subscription'],
+    enum: ['order', 'order_update', 'delivery', 'promo', 'promotion', 'price_drop', 'back_in_stock', 'review', 'system', 'alert', 'return_request', 'return_approved', 'return_rejected', 'return_update', 'refund_completed', 'success', 'info', 'loyalty', 'referral', 'gift_card', 'subscription'],
     default: 'system'
   },
   title: {

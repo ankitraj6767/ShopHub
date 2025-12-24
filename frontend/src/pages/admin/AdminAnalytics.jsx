@@ -15,7 +15,30 @@ import {
 } from 'react-icons/fi';
 import api from '../../utils/api';
 import Spinner from '../../components/ui/Spinner';
-import { formatPrice } from '../../utils/helpers';
+import { formatPrice, formatDate, safeToLocaleDateString, isValidDate } from '../../utils/helpers';
+
+// Safe date helper for this component
+const safeDatePart = (date, options = {}) => {
+  if (!date) return '';
+  try {
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
+    return dateObj.toLocaleDateString('en', options);
+  } catch {
+    return '';
+  }
+};
+
+const safeGetDate = (date) => {
+  if (!date) return '';
+  try {
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
+    return dateObj.getDate();
+  } catch {
+    return '';
+  }
+};
 
 const AdminAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -299,10 +322,10 @@ const AdminAnalytics = () => {
                 {dailyRevenue.slice(-7).map((day, idx) => (
                   <div key={idx} className="flex-1 text-center overflow-hidden">
                     <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 block">
-                      {new Date(day.date).toLocaleDateString('en', { weekday: 'short' })}
+                      {safeDatePart(day.date, { weekday: 'short' })}
                     </span>
                     <span className="text-[9px] sm:text-[10px] text-gray-400 dark:text-gray-500 block">
-                      {new Date(day.date).getDate()}
+                      {safeGetDate(day.date)}
                     </span>
                   </div>
                 ))}
@@ -435,7 +458,7 @@ const AdminAnalytics = () => {
                       </span>
                     </td>
                     <td className="py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(order.date).toLocaleDateString()}
+                      {safeToLocaleDateString(order.date)}
                     </td>
                   </tr>
                 ))}

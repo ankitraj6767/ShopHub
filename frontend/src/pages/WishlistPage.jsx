@@ -11,7 +11,7 @@ import {
 } from '../store/slices/wishlistSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import Spinner from '../components/ui/Spinner';
-import { formatPrice } from '../utils/helpers';
+import { formatPrice, safeToLocaleDateString } from '../utils/helpers';
 
 const WishlistPage = () => {
   const dispatch = useDispatch();
@@ -164,7 +164,7 @@ const WishlistPage = () => {
                     )}
                     <div className="mt-2 flex items-center text-xs text-gray-400 dark:text-gray-500">
                       <span>
-                        Added {new Date(item.addedAt).toLocaleDateString()}
+                        Added {safeToLocaleDateString(item.addedAt)}
                       </span>
                       {item.priority && item.priority !== 'medium' && (
                         <span

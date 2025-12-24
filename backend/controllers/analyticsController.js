@@ -3,6 +3,7 @@ import Product from '../models/Product.js';
 import User from '../models/User.js';
 import Review from '../models/Review.js';
 import Revenue from '../models/Revenue.js';
+import Return from '../models/Return.js';
 import PremiumSubscription from '../models/PremiumSubscription.js';
 import asyncHandler from 'express-async-handler';
 
@@ -700,6 +701,239 @@ export const getRevenueStats = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get return analytics
+// @route   GET /api/analytics/returns
+// @access  Private/Admin
+export const getReturnAnalytics = asyncHandler(async (req, res) => {
+  const { days = 30 } = req.query;
+  const daysNum = parseInt(days);
+  
+  const now = new Date();
+  const currentPeriodStart = new Date(now.getTime() - daysNum * 24 * 60 * 60 * 1000);
+  const previousPeriodStart = new Date(currentPeriodStart.getTime() - daysNum * 24 * 60 * 60 * 1000);
+
+  // Current period returns
+  const currentReturns = await Return.find({
+    createdAt: { $gte: currentPeriodStart }
+  });
+
+  // Previous period returns
+  const previousReturns = await Return.find({
+    createdAt: { $gte: previousPeriodStart, $lt: currentPeriodStart }
+  });
+
+  // Calculate metrics
+  const totalReturns = currentReturns.length;
+  const previousTotalReturns = previousReturns.length;
+  const returnChange = previousTotalReturns 
+    ? ((totalReturns - previousTotalReturns) / previousTotalReturns * 100) 
+    : (totalReturns > 0 ? 100 : 0);
+
+  // Total refund amount
+  const totalRefundAmount = currentReturns
+    .filter(r => r.refund?.status === 'completed')
+    .reduce((sum, r) => sum + (r.refund?.amount || 0), 0);
+  const previousRefundAmount = previousReturns
+    .filter(r => r.refund?.status === 'completed')
+    .reduce((sum, r) => sum + (r.refund?.amount || 0), 0);
+  const refundChange = previousRefundAmount 
+    ? ((totalRefundAmount - previousRefundAmount) / previousRefundAmount * 100) 
+    : (totalRefundAmount > 0 ? 100 : 0);
+
+  // Status distribution
+  const statusDistribution = await Return.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: currentPeriodStart }
+      }
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  // Reason distribution
+  const reasonDistribution = await Return.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: currentPeriodStart }
+      }
+    },
+    {
+      $group: {
+        _id: '$reason',
+        count: { $sum: 1 },
+        totalRefund: { $sum: '$refund.amount' }
+      }
+    },
+    { $sort: { count: -1 } }
+  ]);
+
+  // Daily returns trend
+  const dailyReturns = await Return.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: currentPeriodStart }
+      }
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        count: { $sum: 1 },
+        refundAmount: { $sum: '$refund.amount' }
+      }
+    },
+    { $sort: { _id: 1 } }
+  ]);
+
+  // Fill missing days
+  const dailyReturnsFilled = [];
+  const returnMap = new Map(dailyReturns.map(d => [d._id, d]));
+  for (let i = 0; i < daysNum; i++) {
+    const date = new Date(currentPeriodStart.getTime() + i * 24 * 60 * 60 * 1000);
+    const dateStr = date.toISOString().split('T')[0];
+    const dayData = returnMap.get(dateStr);
+    dailyReturnsFilled.push({
+      date: dateStr,
+      count: dayData?.count || 0,
+      refundAmount: dayData?.refundAmount || 0
+    });
+  }
+
+  // Average processing time (completed returns only)
+  const completedReturns = currentReturns.filter(r => r.status === 'completed');
+  const avgProcessingTime = completedReturns.length > 0
+    ? completedReturns.reduce((sum, r) => {
+        const created = new Date(r.createdAt);
+        const completed = r.statusHistory?.find(s => s.status === 'completed')?.changedAt || new Date();
+        return sum + (new Date(completed) - created) / (1000 * 60 * 60 * 24); // days
+      }, 0) / completedReturns.length
+    : 0;
+
+  // Return rate (returns / orders)
+  const totalOrders = await Order.countDocuments({
+    createdAt: { $gte: currentPeriodStart }
+  });
+  const returnRate = totalOrders > 0 ? (totalReturns / totalOrders * 100) : 0;
+
+  // Pending returns requiring attention
+  const pendingReturns = await Return.countDocuments({
+    status: { $in: ['requested', 'pending_approval'] }
+  });
+
+  // Processing returns
+  const processingReturns = await Return.countDocuments({
+    status: { $in: ['approved', 'pickup_scheduled', 'in_transit', 'received', 'inspecting'] }
+  });
+
+  // Top returned products
+  const topReturnedProducts = await Return.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: currentPeriodStart }
+      }
+    },
+    { $unwind: '$items' },
+    {
+      $group: {
+        _id: '$items.product',
+        name: { $first: '$items.name' },
+        quantity: { $sum: '$items.quantity' },
+        returnCount: { $sum: 1 },
+        totalRefund: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
+      }
+    },
+    { $sort: { quantity: -1 } },
+    { $limit: 10 }
+  ]);
+
+  // Refund method distribution
+  const refundMethodDistribution = await Return.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: currentPeriodStart },
+        'refund.status': 'completed'
+      }
+    },
+    {
+      $group: {
+        _id: '$refund.method',
+        count: { $sum: 1 },
+        totalAmount: { $sum: '$refund.amount' }
+      }
+    }
+  ]);
+
+  // Quality check results
+  const qualityCheckResults = await Return.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: currentPeriodStart },
+        'qualityCheck.result': { $exists: true }
+      }
+    },
+    {
+      $group: {
+        _id: '$qualityCheck.result',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  res.json({
+    success: true,
+    data: {
+      summary: {
+        totalReturns,
+        returnChange: Math.round(returnChange * 10) / 10,
+        totalRefundAmount,
+        refundChange: Math.round(refundChange * 10) / 10,
+        avgProcessingTime: Math.round(avgProcessingTime * 10) / 10,
+        returnRate: Math.round(returnRate * 100) / 100,
+        pendingReturns,
+        processingReturns,
+        completedReturns: completedReturns.length
+      },
+      charts: {
+        dailyReturns: dailyReturnsFilled,
+        statusDistribution: statusDistribution.reduce((acc, item) => {
+          acc[item._id] = item.count;
+          return acc;
+        }, {}),
+        reasonDistribution: reasonDistribution.map(r => ({
+          reason: r._id,
+          count: r.count,
+          totalRefund: r.totalRefund
+        })),
+        refundMethodDistribution: refundMethodDistribution.map(m => ({
+          method: m._id || 'original_payment',
+          count: m.count,
+          totalAmount: m.totalAmount
+        })),
+        qualityCheckResults: qualityCheckResults.reduce((acc, item) => {
+          acc[item._id] = item.count;
+          return acc;
+        }, {})
+      },
+      topReturnedProducts: topReturnedProducts.map(p => ({
+        id: p._id,
+        name: p.name || 'Unknown Product',
+        quantity: p.quantity,
+        returnCount: p.returnCount,
+        totalRefund: p.totalRefund
+      })),
+      period: {
+        days: daysNum,
+        startDate: currentPeriodStart,
+        endDate: now
+      }
+    }
+  });
+});
+
 export default {
   getDashboardAnalytics,
   getRevenueBreakdown,
@@ -708,4 +942,5 @@ export default {
   getRevenueAnalytics,
   getRevenueStats,
   getTransactions,
+  getReturnAnalytics,
 };

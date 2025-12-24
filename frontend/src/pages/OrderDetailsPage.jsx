@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiArrowLeft, FiX, FiRefreshCw, FiTruck, FiDownload } from 'react-icons/fi';
 import { fetchOrder, cancelOrder, requestReturn, clearSuccess } from '../store/slices/orderSlice';
@@ -11,6 +11,7 @@ import api from '../utils/api';
 const OrderDetailsPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const ordersState = useSelector((state) => state.orders) || {};
   const { 
     order = null, 
@@ -87,10 +88,33 @@ const OrderDetailsPage = () => {
   };
 
   const canCancel = order && ['Pending', 'Paid', 'Processing'].includes(order.status);
-  const canReturn = order && order.status === 'Delivered' && !order.returnRequest?.status;
+  // Allow return if delivered and no return request exists (or status is 'none')
+  const hasActiveReturn = order?.returnRequest?.status && order.returnRequest.status !== 'none';
+  const canReturn = order && order.status === 'Delivered' && !hasActiveReturn;
   // Check if within 30-day return window, default to true if deliveredAt is not set (for backward compatibility)
-  const isWithinReturnWindow = !order?.deliveredAt || 
-    (Date.now() - new Date(order.deliveredAt).getTime()) < (30 * 24 * 60 * 60 * 1000);
+  const isWithinReturnWindow = (() => {
+    if (!order?.deliveredAt) return true;
+    try {
+      const deliveredDate = new Date(order.deliveredAt);
+      if (isNaN(deliveredDate.getTime())) return true;
+      return (Date.now() - deliveredDate.getTime()) < (30 * 24 * 60 * 60 * 1000);
+    } catch {
+      return true;
+    }
+  })();
+  
+  // Calculate days remaining for return
+  const daysRemainingForReturn = (() => {
+    if (!order?.deliveredAt) return 30;
+    try {
+      const deliveredDate = new Date(order.deliveredAt);
+      if (isNaN(deliveredDate.getTime())) return 30;
+      const daysSinceDelivery = Math.floor((Date.now() - deliveredDate.getTime()) / (1000 * 60 * 60 * 24));
+      return Math.max(0, 30 - daysSinceDelivery);
+    } catch {
+      return 30;
+    }
+  })();
 
   if (isLoading || !order) {
     return (
@@ -319,47 +343,111 @@ const OrderDetailsPage = () => {
       )}
 
       {/* Return Request Info */}
-      {order.returnRequest?.status && (
+      {order.returnRequest?.status && order.returnRequest.status !== 'none' && (
         <div className={`rounded-lg shadow-sm p-6 mb-6 ${
-          order.returnRequest.status === 'approved' ? 'bg-green-50' :
-          order.returnRequest.status === 'rejected' ? 'bg-red-50' : 'bg-yellow-50'
+          order.returnRequest.status === 'approved' || order.returnRequest.status === 'completed' ? 'bg-green-50 dark:bg-green-900/20' :
+          order.returnRequest.status === 'rejected' || order.returnRequest.status === 'cancelled' ? 'bg-red-50 dark:bg-red-900/20' : 'bg-yellow-50 dark:bg-yellow-900/20'
         }`}>
           <h2 className={`font-semibold mb-4 ${
-            order.returnRequest.status === 'approved' ? 'text-green-800' :
-            order.returnRequest.status === 'rejected' ? 'text-red-800' : 'text-yellow-800'
+            order.returnRequest.status === 'approved' || order.returnRequest.status === 'completed' ? 'text-green-800 dark:text-green-400' :
+            order.returnRequest.status === 'rejected' || order.returnRequest.status === 'cancelled' ? 'text-red-800 dark:text-red-400' : 'text-yellow-800 dark:text-yellow-400'
           }`}>
-            Return Request - {order.returnRequest.status.charAt(0).toUpperCase() + order.returnRequest.status.slice(1)}
+            Return Request - {order.returnRequest.status.charAt(0).toUpperCase() + order.returnRequest.status.slice(1).replace(/_/g, ' ')}
           </h2>
-          <p className="mb-2"><span className="font-medium">Reason:</span> {order.returnRequest.reason}</p>
-          <p className="mb-2"><span className="font-medium">Requested At:</span> {formatDateTime(order.returnRequest.requestedAt)}</p>
-          {order.returnRequest.processedAt && (
-            <p className="mb-2"><span className="font-medium">Processed At:</span> {formatDateTime(order.returnRequest.processedAt)}</p>
+          {order.returnRequest.reason && (
+            <p className="mb-2 text-gray-700 dark:text-gray-300"><span className="font-medium">Reason:</span> {order.returnRequest.reason}</p>
           )}
-          {order.returnRequest.refundAmount && (
-            <p><span className="font-medium">Refund Amount:</span> {formatPrice(order.returnRequest.refundAmount)}</p>
+          {order.returnRequest.requestedAt && (
+            <p className="mb-2 text-gray-700 dark:text-gray-300"><span className="font-medium">Requested At:</span> {formatDateTime(order.returnRequest.requestedAt)}</p>
+          )}
+          {order.returnRequest.processedAt && (
+            <p className="mb-2 text-gray-700 dark:text-gray-300"><span className="font-medium">Processed At:</span> {formatDateTime(order.returnRequest.processedAt)}</p>
+          )}
+          {order.returnRequest.refundAmount > 0 && (
+            <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Refund Amount:</span> {formatPrice(order.returnRequest.refundAmount)}</p>
+          )}
+          {order.returnRequest.returnId && (
+            <Link 
+              to={`/returns/${order.returnRequest.returnId}`}
+              className="inline-flex items-center mt-3 text-primary-600 hover:text-primary-700 font-medium"
+            >
+              View Return Details →
+            </Link>
           )}
         </div>
       )}
 
-      {/* Action Buttons */}
-      {(canCancel || (canReturn && isWithinReturnWindow)) && (
-        <div className="flex flex-wrap gap-4">
-          {canCancel && (
-            <button
-              onClick={() => setShowCancelModal(true)}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center"
-            >
-              <FiX className="mr-2" /> Cancel Order
-            </button>
-          )}
-          {canReturn && isWithinReturnWindow && (
-            <button
-              onClick={() => setShowReturnModal(true)}
-              className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition flex items-center"
+      {/* Return Eligibility Section - Show when delivered and can return */}
+      {order.status === 'Delivered' && canReturn && isWithinReturnWindow && (
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg shadow-sm p-6 mb-6 border border-orange-200 dark:border-orange-800">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-full">
+                <FiRefreshCw className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Need to Return?</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  You have <span className="font-semibold text-orange-600 dark:text-orange-400">{daysRemainingForReturn} days</span> remaining to request a return for this order.
+                </p>
+                <ul className="mt-2 text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                    Free pickup from your address
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                    Full refund to original payment method
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                    Process completed in 5-7 business days
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <Link
+              to={`/orders/${id}/return`}
+              className="inline-flex items-center justify-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium shadow-lg shadow-orange-600/25"
             >
               <FiRefreshCw className="mr-2" /> Request Return
-            </button>
-          )}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Return Window Expired Notice */}
+      {order.status === 'Delivered' && !isWithinReturnWindow && !hasActiveReturn && (
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-gray-200 dark:bg-gray-700 rounded-full">
+              <FiRefreshCw className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Return Window Expired</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                The 30-day return window for this order has expired. If you have any issues with your order, please contact our support team.
+              </p>
+              <Link
+                to="/help"
+                className="inline-flex items-center mt-3 text-primary-600 hover:text-primary-700 text-sm font-medium"
+              >
+                Contact Support →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons - Cancel only (Return moved to section above) */}
+      {canCancel && (
+        <div className="flex flex-wrap gap-4 mb-6">
+          <button
+            onClick={() => setShowCancelModal(true)}
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center"
+          >
+            <FiX className="mr-2" /> Cancel Order
+          </button>
         </div>
       )}
 

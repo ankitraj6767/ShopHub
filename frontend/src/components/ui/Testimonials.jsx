@@ -53,8 +53,14 @@ const Testimonials = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    } catch {
+      return '';
+    }
   };
 
   // Loading state

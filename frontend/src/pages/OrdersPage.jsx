@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { FiEye, FiPackage } from 'react-icons/fi';
+import { FiEye, FiPackage, FiRefreshCw } from 'react-icons/fi';
 import { fetchMyOrders } from '../store/slices/orderSlice';
 import { formatPrice, formatDate, getOrderStatusColor } from '../utils/helpers';
 import Spinner from '../components/ui/Spinner';
@@ -42,7 +42,15 @@ const OrdersPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8">My Orders</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">My Orders</h1>
+        <Link
+          to="/returns"
+          className="inline-flex items-center px-4 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition"
+        >
+          <FiRefreshCw className="mr-2" /> My Returns
+        </Link>
+      </div>
 
       <div className="space-y-4">
         {orders.map((order) => (

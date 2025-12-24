@@ -18,6 +18,7 @@ import referralReducer from './slices/referralSlice';
 import premiumReducer from './slices/premiumSlice';
 import activityReducer from './slices/activitySlice';
 import testimonialReducer from './slices/testimonialSlice';
+import returnReducer from './slices/returnSlice';
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const store = configureStore({
     premium: premiumReducer,
     activity: activityReducer,
     testimonials: testimonialReducer,
+    returns: returnReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

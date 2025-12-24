@@ -18,6 +18,18 @@ import {
 import Spinner from '../components/ui/Spinner';
 import toast from 'react-hot-toast';
 
+// Safe date formatter helper
+const safeFormatDate = (date) => {
+  if (!date) return 'N/A';
+  try {
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return 'N/A';
+    return dateObj.toLocaleString();
+  } catch {
+    return 'N/A';
+  }
+};
+
 const TicketDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -159,8 +171,8 @@ const TicketDetailPage = () => {
               </p>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              <p>Created: {new Date(ticket.createdAt).toLocaleString()}</p>
-              <p>Updated: {new Date(ticket.updatedAt).toLocaleString()}</p>
+              <p>Created: {safeFormatDate(ticket.createdAt)}</p>
+              <p>Updated: {safeFormatDate(ticket.updatedAt)}</p>
               {ticket.assignedTo && (
                 <p className="mt-2 text-primary-600">
                   Assigned to: {ticket.assignedTo.name}
@@ -209,7 +221,7 @@ const TicketDetailPage = () => {
                       {isAgentMessage ? 'Support Team' : 'You'}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(msg.createdAt || msg.timestamp).toLocaleString()}
+                      {safeFormatDate(msg.createdAt || msg.timestamp)}
                     </span>
                   </div>
                   <div

@@ -16,6 +16,7 @@ import {
   FiDollarSign,
   FiCreditCard,
 } from 'react-icons/fi';
+import { safeToLocaleDateString } from '../utils/helpers';
 
 // Using FiAward for crown, FiHexagon for diamond/gem as alternatives
 import api from '../utils/api';
@@ -293,7 +294,7 @@ const LoyaltyPage = () => {
                           {item.description}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(item.createdAt).toLocaleDateString()}
+                          {safeToLocaleDateString(item.createdAt)}
                         </p>
                       </div>
                     </div>

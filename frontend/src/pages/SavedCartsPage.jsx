@@ -17,7 +17,7 @@ import {
   saveCart,
 } from '../store/slices/activitySlice';
 import { addToCart } from '../store/slices/cartSlice';
-import { formatPrice } from '../utils/helpers';
+import { formatPrice, safeToLocaleDateString } from '../utils/helpers';
 import toast from 'react-hot-toast';
 
 const SavedCartsPage = () => {
@@ -193,7 +193,7 @@ const SavedCartsPage = () => {
                     </span>
                   </div>
                   <p className="text-primary-100 text-sm mt-1">
-                    Saved on {new Date(cart.createdAt).toLocaleDateString()}
+                    Saved on {safeToLocaleDateString(cart.createdAt)}
                   </p>
                 </div>
 

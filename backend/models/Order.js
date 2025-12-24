@@ -144,6 +144,56 @@ const orderSchema = new mongoose.Schema(
     deliveryTimeSlot: { type: String },
     deliveryInstructions: { type: String },
     leaveAtDoor: { type: Boolean, default: false },
+    // Return tracking
+    returnRequest: {
+      status: {
+        type: String,
+        enum: ['none', 'requested', 'approved', 'rejected', 'pickup_scheduled', 'in_transit', 'received', 'inspecting', 'refund_processing', 'completed', 'cancelled'],
+        default: 'none',
+      },
+      returnId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Return',
+      },
+      reason: { type: String },
+      requestedAt: { type: Date },
+      items: [{
+        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        name: { type: String },
+        quantity: { type: Number },
+        price: { type: Number },
+      }],
+      refundAmount: { type: Number, default: 0 },
+      refundStatus: {
+        type: String,
+        enum: ['none', 'pending', 'processing', 'completed', 'failed'],
+        default: 'none',
+      },
+      processedAt: { type: Date },
+      processedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      rejectionReason: { type: String },
+    },
+    // Cancellation tracking
+    cancellation: {
+      reason: { type: String },
+      cancelledAt: { type: Date },
+      cancelledBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      refundAmount: { type: Number, default: 0 },
+      refundStatus: {
+        type: String,
+        enum: ['not_applicable', 'pending', 'processing', 'completed', 'failed'],
+        default: 'not_applicable',
+      },
+      refundedAt: { type: Date },
+      refundMethod: { type: String },
+      refundTransactionId: { type: String },
+    },
   },
   {
     timestamps: true,

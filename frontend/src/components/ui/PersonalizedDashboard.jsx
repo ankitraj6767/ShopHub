@@ -15,7 +15,7 @@ import {
   FiDollarSign,
 } from 'react-icons/fi';
 import { fetchDashboardSummary } from '../../store/slices/activitySlice';
-import { formatPrice } from '../../utils/helpers';
+import { formatPrice, safeToLocaleDateString } from '../../utils/helpers';
 
 const PersonalizedDashboard = () => {
   const dispatch = useDispatch();
@@ -204,7 +204,7 @@ const PersonalizedDashboard = () => {
                       #{order.orderNumber}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {safeToLocaleDateString(order.createdAt)}
                     </p>
                   </div>
                   <div className="text-right">

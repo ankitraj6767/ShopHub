@@ -34,6 +34,7 @@ import premiumRoutes from './routes/premiumRoutes.js';
 import dealRoutes from './routes/dealRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
+import returnRoutes from './routes/returnRoutes.js';
 
 dotenv.config();
 
@@ -146,6 +147,7 @@ app.use('/api/premium', premiumRoutes);
 app.use('/api/deals', dealRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/returns', returnRoutes);
 
 // Health check - detailed for debugging mobile issues
 app.get('/api/health', (req, res) => {

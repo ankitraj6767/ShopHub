@@ -11,6 +11,18 @@ import {
 import Spinner from './Spinner';
 import Pagination from './Pagination';
 
+// Safe date format helper
+const safeFormatDistanceToNow = (date, options = {}) => {
+  if (!date) return '';
+  try {
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
+    return formatDistanceToNow(dateObj, options);
+  } catch {
+    return '';
+  }
+};
+
 const ProductQuestions = ({ productId }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -160,7 +172,7 @@ const ProductQuestions = ({ productId }) => {
                   <p className="text-gray-900 dark:text-white">{question.question}</p>
                   <p className="text-sm text-gray-500 mt-1">
                     Asked by {question.user?.name || 'Anonymous'} •{' '}
-                    {formatDistanceToNow(new Date(question.createdAt), { addSuffix: true })}
+                    {safeFormatDistanceToNow(question.createdAt, { addSuffix: true })}
                   </p>
                 </div>
               </div>
@@ -187,7 +199,7 @@ const ProductQuestions = ({ productId }) => {
                                 </span>
                               )}
                               By {answer.user?.name || 'Anonymous'} •{' '}
-                              {formatDistanceToNow(new Date(answer.createdAt), { addSuffix: true })}
+                              {safeFormatDistanceToNow(answer.createdAt, { addSuffix: true })}
                             </p>
                             {user && (
                               <div className="flex items-center gap-4 text-sm">

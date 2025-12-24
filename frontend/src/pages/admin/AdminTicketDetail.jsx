@@ -15,6 +15,7 @@ import {
 import api from '../../utils/api';
 import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
+import { safeToLocaleString } from '../../utils/helpers';
 
 const AdminTicketDetail = () => {
   const { id } = useParams();
@@ -219,7 +220,7 @@ const AdminTicketDetail = () => {
                           {isAgentMessage ? 'Support Team' : ticket.user?.name || 'Customer'}
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(msg.createdAt || msg.timestamp).toLocaleString()}
+                          {safeToLocaleString(msg.createdAt || msg.timestamp)}
                         </span>
                       </div>
                       <div
@@ -301,11 +302,11 @@ const AdminTicketDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
-                <p className="font-medium dark:text-white">{new Date(ticket.createdAt).toLocaleString()}</p>
+                <p className="font-medium dark:text-white">{safeToLocaleString(ticket.createdAt)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
-                <p className="font-medium dark:text-white">{new Date(ticket.updatedAt).toLocaleString()}</p>
+                <p className="font-medium dark:text-white">{safeToLocaleString(ticket.updatedAt)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Assigned To</p>
