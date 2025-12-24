@@ -15,7 +15,8 @@ console.log('API Configuration:', {
 // Memory fallback for tokens when localStorage isn't available (e.g., iOS private browsing)
 let memoryTokens = {
   accessToken: null,
-  refreshToken: null
+  refreshToken: null,
+  user: null
 };
 
 // Safe storage utility that falls back to memory if localStorage fails
@@ -50,11 +51,33 @@ export const tokenStorage = {
       console.warn('localStorage not available, using memory storage');
     }
   },
+  // Store user data for persistence across page reloads
+  getUser: () => {
+    try {
+      const userData = localStorage.getItem('userData');
+      return userData ? JSON.parse(userData) : memoryTokens.user;
+    } catch {
+      return memoryTokens.user;
+    }
+  },
+  setUser: (user) => {
+    memoryTokens.user = user;
+    try {
+      if (user) {
+        localStorage.setItem('userData', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('userData');
+      }
+    } catch (e) {
+      console.warn('localStorage not available for user data');
+    }
+  },
   clearTokens: () => {
-    memoryTokens = { accessToken: null, refreshToken: null };
+    memoryTokens = { accessToken: null, refreshToken: null, user: null };
     try {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userData');
     } catch (e) {
       // Ignore
     }

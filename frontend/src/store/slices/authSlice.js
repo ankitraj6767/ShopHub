@@ -1,12 +1,50 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api, { tokenStorage } from '../../utils/api';
 
+// Helper function to refresh the access token
+const refreshAccessToken = async () => {
+  const refreshToken = tokenStorage.getRefreshToken();
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+  
+  // Use raw axios to avoid interceptors during refresh
+  const API_URL = import.meta.env.VITE_API_URL || 
+    (import.meta.env.PROD ? 'https://shophub-production-e2cc.up.railway.app/api' : '/api');
+  
+  const response = await fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ refreshToken }),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Token refresh failed');
+  }
+  
+  const data = await response.json();
+  const { accessToken } = data.data;
+  
+  if (accessToken) {
+    tokenStorage.setAccessToken(accessToken);
+    return accessToken;
+  }
+  
+  throw new Error('No access token in refresh response');
+};
+
 // Check if user is authenticated
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
-  // Skip if no token exists - no need to make API call
-  const token = tokenStorage.getAccessToken();
-  if (!token) {
-    console.log('checkAuth: No access token in storage');
+  // Skip if no refresh token exists - no need to make API call
+  const refreshToken = tokenStorage.getRefreshToken();
+  const accessToken = tokenStorage.getAccessToken();
+  const cachedUser = tokenStorage.getUser();
+  
+  if (!refreshToken && !accessToken) {
+    console.log('checkAuth: No tokens in storage');
     return rejectWithValue(null);
   }
   
@@ -14,9 +52,32 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
     console.log('checkAuth: Attempting to verify token...');
     const response = await api.get('/auth/me');
     console.log('checkAuth: Token verified successfully');
+    // Update cached user data
+    tokenStorage.setUser(response.data.data);
     return response.data.data;
   } catch (error) {
     console.log('checkAuth: Token verification failed:', error.response?.status, error.message);
+    
+    // If access token expired (401) but we have refresh token, try to refresh
+    if (error.response?.status === 401 && refreshToken) {
+      try {
+        console.log('checkAuth: Attempting token refresh...');
+        await refreshAccessToken();
+        console.log('checkAuth: Token refreshed, retrying /auth/me...');
+        
+        // Retry with new access token
+        const retryResponse = await api.get('/auth/me');
+        console.log('checkAuth: Retry successful');
+        // Update cached user data
+        tokenStorage.setUser(retryResponse.data.data);
+        return retryResponse.data.data;
+      } catch (refreshError) {
+        console.log('checkAuth: Token refresh failed:', refreshError.message);
+        tokenStorage.clearTokens();
+        return rejectWithValue(null);
+      }
+    }
+    
     // Clear invalid tokens
     tokenStorage.clearTokens();
     return rejectWithValue(null);
@@ -31,6 +92,8 @@ export const register = createAsyncThunk('auth/register', async (userData, { rej
     if (response.data.data.refreshToken) {
       tokenStorage.setRefreshToken(response.data.data.refreshToken);
     }
+    // Store user data for persistence
+    tokenStorage.setUser(response.data.data);
     return response.data.data;
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || 'Registration failed');
@@ -68,6 +131,9 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
       console.log('login: Refresh token stored:', !!stored, stored === refreshToken ? 'matches' : 'MISMATCH');
     }
     
+    // Store user data for persistence
+    tokenStorage.setUser(response.data.data);
+    
     return response.data.data;
   } catch (error) {
     console.error('login: Login failed:', {
@@ -95,6 +161,8 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
 export const updateProfile = createAsyncThunk('auth/updateProfile', async (userData, { rejectWithValue }) => {
   try {
     const response = await api.put('/users/profile', userData);
+    // Update cached user data
+    tokenStorage.setUser(response.data.data);
     return response.data.data;
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || 'Update failed');
@@ -131,10 +199,24 @@ export const resetPassword = createAsyncThunk('auth/resetPassword', async ({ ema
   }
 });
 
+// Load cached user data for initial state (instant UI while verifying)
+const getCachedAuthState = () => {
+  const cachedUser = tokenStorage.getUser();
+  const hasTokens = tokenStorage.getRefreshToken() || tokenStorage.getAccessToken();
+  
+  return {
+    user: cachedUser,
+    isAuthenticated: !!(cachedUser && hasTokens),
+    isLoading: !!(hasTokens), // Only show loading if we have tokens to verify
+  };
+};
+
+const cachedState = getCachedAuthState();
+
 const initialState = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
+  user: cachedState.user,
+  isAuthenticated: cachedState.isAuthenticated,
+  isLoading: cachedState.isLoading,
   error: null,
   // Forgot password state
   forgotPasswordLoading: false,
