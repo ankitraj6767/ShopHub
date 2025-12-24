@@ -1061,37 +1061,57 @@ export const processRefund = asyncHandler(async (req, res) => {
     ? adjustedAmount 
     : returnRequest.refund.amount;
   
+  // Get the actual refund method (from request body or from return request)
+  const actualRefundMethod = refundMethod || returnRequest.preferredRefundMethod || 'original_payment';
+  
   // Update refund status
   returnRequest.refund.status = 'processing';
-  returnRequest.refund.method = refundMethod || returnRequest.refund.method;
+  returnRequest.refund.method = actualRefundMethod;
   returnRequest.addStatusHistory('processing_refund', req.user._id, note || 'Processing refund');
   
   await returnRequest.save();
   
-  // Simulate refund processing (in production, this would integrate with payment gateway)
+  // Process the refund based on the method
   try {
     // Handle wallet refund
-    if (refundMethod === 'wallet') {
+    if (actualRefundMethod === 'wallet') {
       const user = await User.findById(returnRequest.user);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      // Add to wallet balance
       user.walletBalance = (user.walletBalance || 0) + finalRefundAmount;
-      if (!user.walletHistory) user.walletHistory = [];
+      
+      // Initialize walletHistory if not exists
+      if (!user.walletHistory) {
+        user.walletHistory = [];
+      }
+      
+      // Add to wallet history with proper tracking
       user.walletHistory.push({
         type: 'credit',
         amount: finalRefundAmount,
         description: `Refund for return #${returnRequest.returnNumber}`,
         returnId: returnRequest._id,
+        orderId: returnRequest.order._id,
+        source: 'refund',
         createdAt: new Date(),
       });
+      
       await user.save();
+      
+      console.log(`Wallet refund processed: ₹${finalRefundAmount} added to user ${user._id}`);
     }
     
     // Update refund as completed
     returnRequest.refund.status = 'completed';
     returnRequest.refund.amount = finalRefundAmount;
+    returnRequest.refund.method = actualRefundMethod;
     returnRequest.refund.transactionId = transactionId || `REF-${Date.now()}`;
     returnRequest.refund.processedAt = new Date();
     returnRequest.refund.processedBy = req.user._id;
-    returnRequest.addStatusHistory('refund_completed', req.user._id, `Refund of ₹${finalRefundAmount} processed via ${refundMethod || 'original payment method'}`);
+    returnRequest.addStatusHistory('refund_completed', req.user._id, `Refund of ₹${finalRefundAmount} processed via ${actualRefundMethod === 'wallet' ? 'Wallet' : actualRefundMethod === 'original_payment' ? 'Original Payment Method' : actualRefundMethod}`);
     returnRequest.status = 'completed';
     returnRequest.completedAt = new Date();
     
@@ -1101,6 +1121,7 @@ export const processRefund = asyncHandler(async (req, res) => {
     const order = await Order.findById(returnRequest.order._id);
     if (order) {
       order.returnRequest.refundStatus = 'completed';
+      order.returnRequest.refundAmount = finalRefundAmount;
       order.returnRequest.processedAt = new Date();
       order.returnRequest.processedBy = req.user._id;
       order.status = 'Returned';
@@ -1127,12 +1148,12 @@ export const processRefund = asyncHandler(async (req, res) => {
         status: 'Refunded',
         changedAt: new Date(),
         changedBy: req.user._id,
-        note: `Refund of ₹${finalRefundAmount} processed`,
+        note: `Refund of ₹${finalRefundAmount} processed via ${actualRefundMethod === 'wallet' ? 'Wallet' : 'Original Payment'}`,
       });
       
       await order.save();
       
-      // Update revenue tracking
+      // Update revenue tracking - create negative revenue entry
       await updateRevenueAfterRefund(order, finalRefundAmount, returnRequest._id);
       
       // Deduct loyalty points
@@ -1151,18 +1172,22 @@ export const processRefund = asyncHandler(async (req, res) => {
       }
     }
     
-    // Notify customer
+    // Notify customer with specific message based on refund method
+    const refundMethodText = actualRefundMethod === 'wallet' 
+      ? 'your wallet. You can use it for your next purchase!' 
+      : 'your original payment method. It may take 5-7 business days to reflect.';
+    
     await Notification.create({
       user: returnRequest.user,
       type: 'success',
       title: 'Refund Completed! 💰',
-      message: `Your refund of ₹${finalRefundAmount} has been processed to your ${refundMethod === 'wallet' ? 'wallet' : 'original payment method'}.`,
-      link: `/returns/${returnRequest._id}`,
+      message: `Your refund of ₹${finalRefundAmount} has been credited to ${refundMethodText}`,
+      link: actualRefundMethod === 'wallet' ? '/profile?tab=wallet' : `/returns/${returnRequest._id}`,
     });
     
     res.json({
       success: true,
-      message: 'Refund processed successfully',
+      message: `Refund of ₹${finalRefundAmount} processed successfully${actualRefundMethod === 'wallet' ? ' to wallet' : ''}`,
       data: returnRequest,
     });
     

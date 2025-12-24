@@ -104,6 +104,7 @@ const AdminReturnDetailPage = () => {
   const [newStatus, setNewStatus] = useState('');
   const [statusNote, setStatusNote] = useState('');
   const [refundAmount, setRefundAmount] = useState('');
+  const [refundMethod, setRefundMethod] = useState('');
   const [refundNotes, setRefundNotes] = useState('');
   const [adminNote, setAdminNote] = useState('');
   const [qualityResult, setQualityResult] = useState('good');
@@ -136,6 +137,10 @@ const AdminReturnDetailPage = () => {
   useEffect(() => {
     if (currentReturn?.refund?.amount) {
       setRefundAmount(currentReturn.refund.amount.toString());
+    }
+    // Pre-fill preferred refund method
+    if (currentReturn?.preferredRefundMethod) {
+      setRefundMethod(currentReturn.preferredRefundMethod);
     }
   }, [currentReturn]);
   
@@ -170,7 +175,16 @@ const AdminReturnDetailPage = () => {
       toast.error('Please enter a valid refund amount');
       return;
     }
-    dispatch(processReturnRefund({ returnId: id, amount, notes: refundNotes }));
+    if (!refundMethod) {
+      toast.error('Please select a refund method');
+      return;
+    }
+    dispatch(processReturnRefund({ 
+      returnId: id, 
+      refundMethod,
+      adjustedAmount: amount, 
+      note: refundNotes 
+    }));
   };
   
   const handleAddNote = () => {
@@ -766,10 +780,30 @@ const AdminReturnDetailPage = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Refund Method <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={refundMethod}
+                  onChange={(e) => setRefundMethod(e.target.value)}
+                  className="input w-full"
+                >
+                  <option value="">Select refund method</option>
+                  <option value="wallet">💳 Wallet (Instant)</option>
+                  <option value="original_payment">💰 Original Payment Method (5-7 days)</option>
+                  <option value="bank_transfer">🏦 Bank Transfer (3-5 days)</option>
+                </select>
+                {currentReturn?.preferredRefundMethod && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Customer preferred: <span className="font-medium capitalize">{currentReturn.preferredRefundMethod.replace(/_/g, ' ')}</span>
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Refund Amount
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     step="0.01"
@@ -779,9 +813,16 @@ const AdminReturnDetailPage = () => {
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Original amount: {formatPrice(currentReturn.refund?.amount || 0)}
+                  Original amount: {formatPrice(currentReturn?.refund?.amount || 0)}
                 </p>
               </div>
+              {refundMethod === 'wallet' && (
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                  <p className="text-sm text-green-700 dark:text-green-400">
+                    <span className="font-medium">Wallet Refund:</span> The amount will be instantly credited to the customer's wallet and can be used for future purchases.
+                  </p>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Notes
@@ -798,7 +839,7 @@ const AdminReturnDetailPage = () => {
               <button onClick={() => setShowRefundModal(false)} className="btn btn-outline flex-1">
                 Cancel
               </button>
-              <button onClick={handleProcessRefund} disabled={isProcessing} className="btn btn-success flex-1">
+              <button onClick={handleProcessRefund} disabled={isProcessing || !refundMethod} className="btn btn-success flex-1">
                 {isProcessing ? <Spinner size="sm" /> : 'Process Refund'}
               </button>
             </div>

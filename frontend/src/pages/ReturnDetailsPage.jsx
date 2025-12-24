@@ -241,6 +241,69 @@ const ReturnDetailsPage = () => {
         </div>
       )}
       
+      {/* Approved Banner - Awaiting Pickup */}
+      {currentReturn.status === 'approved' && (
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <FiCheckCircle className="w-8 h-8 text-green-500 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-green-800 dark:text-green-300 mb-1">
+                Return Approved! ✓
+              </h3>
+              <p className="text-green-700 dark:text-green-400">
+                Your return request has been approved. Please wait for pickup scheduling or drop off the item at the nearest service center.
+              </p>
+              <div className="mt-3 text-sm text-green-600 dark:text-green-500">
+                <p className="font-medium">Next Steps:</p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>Our pickup partner will contact you soon</li>
+                  <li>Keep the item in its original packaging</li>
+                  <li>Refund will be processed after quality inspection</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Processing Refund Banner */}
+      {currentReturn.status === 'processing_refund' && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <FiDollarSign className="w-8 h-8 text-blue-500 flex-shrink-0 animate-pulse" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                Refund Being Processed 💳
+              </h3>
+              <p className="text-blue-700 dark:text-blue-400">
+                Your refund of {formatPrice(currentReturn.refund?.amount || 0)} is being processed to your{' '}
+                {currentReturn.preferredRefundMethod === 'wallet' ? 'wallet' : 'original payment method'}.
+              </p>
+              <p className="text-sm text-blue-600 dark:text-blue-500 mt-2">
+                This usually takes 1-3 business days.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Inspection Passed Banner */}
+      {currentReturn.status === 'inspection_passed' && (
+        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <FiCheckCircle className="w-8 h-8 text-emerald-500 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-emerald-800 dark:text-emerald-300 mb-1">
+                Quality Check Passed! ✓
+              </h3>
+              <p className="text-emerald-700 dark:text-emerald-400">
+                Your returned item has passed quality inspection. Refund will be initiated shortly.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Pickup Information */}
       {['pickup_scheduled', 'approved'].includes(currentReturn.status) && currentReturn.shipping && (
         <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-6">
@@ -288,17 +351,30 @@ const ReturnDetailsPage = () => {
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-6">
           <div className="flex items-start gap-4">
             <FiDollarSign className="w-8 h-8 text-green-500 flex-shrink-0" />
-            <div>
+            <div className="flex-1">
               <h3 className="font-semibold text-green-800 dark:text-green-300 mb-1">
                 Refund Completed! 🎉
               </h3>
               <p className="text-green-700 dark:text-green-400">
                 {formatPrice(currentReturn.refund.amount)} has been refunded to your{' '}
-                {currentReturn.refund.method === 'wallet' ? 'store wallet' : 'original payment method'}.
+                {currentReturn.refund.method === 'wallet' 
+                  ? 'store wallet' 
+                  : currentReturn.refund.method === 'bank_transfer'
+                  ? 'bank account'
+                  : 'original payment method'}.
               </p>
               <p className="text-sm text-green-600 dark:text-green-500 mt-2">
                 Processed on {formatDateTime(currentReturn.refund.processedAt)}
               </p>
+              {currentReturn.refund.method === 'wallet' && (
+                <Link
+                  to="/loyalty"
+                  className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-green-700 dark:text-green-300 hover:text-green-800 dark:hover:text-green-200"
+                >
+                  <FiDollarSign className="w-4 h-4" />
+                  View Wallet Balance →
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -527,9 +603,39 @@ const ReturnDetailsPage = () => {
                     ? 'text-green-600'
                     : currentReturn.refund?.status === 'failed'
                     ? 'text-red-600'
+                    : currentReturn.status === 'processing_refund'
+                    ? 'text-blue-600'
+                    : currentReturn.status === 'rejected' || currentReturn.status === 'inspection_failed'
+                    ? 'text-red-600'
+                    : currentReturn.status === 'cancelled'
+                    ? 'text-gray-600'
                     : 'text-yellow-600'
                 }`}>
-                  {currentReturn.refund?.status || 'Pending'}
+                  {currentReturn.refund?.status === 'completed'
+                    ? 'Completed'
+                    : currentReturn.refund?.status === 'failed'
+                    ? 'Failed'
+                    : currentReturn.status === 'processing_refund'
+                    ? 'Processing'
+                    : currentReturn.status === 'rejected'
+                    ? 'Rejected'
+                    : currentReturn.status === 'inspection_failed'
+                    ? 'Inspection Failed'
+                    : currentReturn.status === 'cancelled'
+                    ? 'Cancelled'
+                    : currentReturn.status === 'approved'
+                    ? 'Awaiting Pickup'
+                    : currentReturn.status === 'pickup_scheduled'
+                    ? 'Pickup Scheduled'
+                    : currentReturn.status === 'in_transit'
+                    ? 'Item In Transit'
+                    : currentReturn.status === 'received'
+                    ? 'Awaiting Inspection'
+                    : currentReturn.status === 'inspecting'
+                    ? 'Under Inspection'
+                    : currentReturn.status === 'inspection_passed'
+                    ? 'Ready to Process'
+                    : 'Pending Approval'}
                 </span>
               </div>
             </div>

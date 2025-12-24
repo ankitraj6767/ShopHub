@@ -253,6 +253,98 @@ const LoyaltyPage = () => {
             )}
           </div>
 
+          {/* Wallet Transaction History */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">
+              <FiCreditCard className="w-5 h-5 text-emerald-600" />
+              Wallet History
+            </h2>
+            <div className="space-y-3">
+              {wallet?.history?.length > 0 ? (
+                wallet.history.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          item.source === 'refund'
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+                            : item.source === 'reward' || item.source === 'referral'
+                            ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
+                            : item.source === 'gift_card'
+                            ? 'bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-400'
+                            : item.type === 'credit'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                            : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
+                        }`}
+                      >
+                        {item.source === 'refund' ? (
+                          <FiPercent className="w-5 h-5" />
+                        ) : item.type === 'credit' ? (
+                          <FiTrendingUp className="w-5 h-5" />
+                        ) : (
+                          <FiDollarSign className="w-5 h-5" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {item.description || (item.type === 'credit' ? 'Added to Wallet' : 'Used from Wallet')}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {safeToLocaleDateString(item.createdAt, 'en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                          {item.source && (
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              item.source === 'refund'
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+                                : item.source === 'reward'
+                                ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400'
+                                : item.source === 'gift_card'
+                                ? 'bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-400'
+                                : item.source === 'referral'
+                                ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            }`}>
+                              {item.source === 'refund' ? '↩ Return Refund' : 
+                               item.source === 'reward' ? '🎁 Points Redeemed' :
+                               item.source === 'gift_card' ? '🎴 Gift Card' :
+                               item.source === 'referral' ? '👥 Referral Bonus' :
+                               item.source === 'order_payment' ? '🛒 Order Payment' :
+                               item.source}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`font-semibold ${
+                      item.type === 'credit' 
+                        ? 'text-green-600 dark:text-green-400' 
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {item.type === 'credit' ? '+' : '-'}₹{(item.amount || 0).toFixed(2)}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <FiCreditCard className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+                  <p className="text-gray-500 dark:text-gray-400">No wallet transactions yet</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                    Redeem points or receive refunds to add funds
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Points History */}
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2 dark:text-white">

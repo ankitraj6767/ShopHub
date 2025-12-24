@@ -148,7 +148,7 @@ const orderSchema = new mongoose.Schema(
     returnRequest: {
       status: {
         type: String,
-        enum: ['none', 'requested', 'approved', 'rejected', 'pickup_scheduled', 'in_transit', 'received', 'inspecting', 'refund_processing', 'completed', 'cancelled'],
+        enum: ['none', 'requested', 'pending_approval', 'approved', 'rejected', 'pickup_scheduled', 'in_transit', 'received', 'inspecting', 'inspection_passed', 'inspection_failed', 'processing_refund', 'refund_processing', 'refund_completed', 'completed', 'cancelled'],
         default: 'none',
       },
       returnId: {

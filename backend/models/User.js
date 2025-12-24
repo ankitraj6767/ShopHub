@@ -89,6 +89,15 @@ const userSchema = new mongoose.Schema(
           type: mongoose.Schema.ObjectId,
           ref: 'Order',
         },
+        returnId: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'Return',
+        },
+        source: {
+          type: String,
+          enum: ['refund', 'reward', 'gift_card', 'referral', 'manual', 'order_payment', 'other'],
+          default: 'other',
+        },
         pointsRedeemed: Number,
         createdAt: {
           type: Date,
