@@ -29,17 +29,46 @@ const FrequentlyBoughtTogether = ({ productId, currentProduct }) => {
   const fetchRelatedProducts = async () => {
     try {
       // Fetch current product if not provided
+      let currentProd = currentProduct;
       if (!currentProduct && productId) {
         const productResponse = await api.get(`/products/${productId}`);
         if (productResponse.data.data) {
-          setCurrentProductData(productResponse.data.data);
+          currentProd = productResponse.data.data;
+          setCurrentProductData(currentProd);
         }
       }
 
-      const response = await api.get(`/products?limit=3&exclude=${productId}`);
-      const relatedProducts = (response.data.data || []).slice(0, 2);
+      // First try to get frequently bought together products (based on order history)
+      let relatedProducts = [];
+      try {
+        const frequentlyBoughtResponse = await api.get(`/products/${productId}/frequently-bought?limit=2`);
+        if (frequentlyBoughtResponse.data.data && frequentlyBoughtResponse.data.data.length > 0) {
+          relatedProducts = frequentlyBoughtResponse.data.data;
+        }
+      } catch (err) {
+        console.log('No frequently bought data, falling back to related products');
+      }
+
+      // Fallback to related products (same category) if no frequently bought data
+      if (relatedProducts.length === 0 && currentProd?.category) {
+        try {
+          const relatedResponse = await api.get(`/products/${productId}/related?limit=2`);
+          if (relatedResponse.data.data) {
+            relatedProducts = relatedResponse.data.data.slice(0, 2);
+          }
+        } catch (err) {
+          console.log('Failed to fetch related products');
+        }
+      }
+
+      // Final fallback - get products from same category
+      if (relatedProducts.length === 0 && currentProd?.category) {
+        const categoryResponse = await api.get(`/products?category=${currentProd.category}&limit=3&exclude=${productId}`);
+        relatedProducts = (categoryResponse.data.data || []).slice(0, 2);
+      }
+
       setProducts(relatedProducts);
-      // Initially select all
+      // Initially select all related products (not the current product by default for better UX)
       const initialSelected = {};
       relatedProducts.forEach(p => {
         initialSelected[p._id] = true;
