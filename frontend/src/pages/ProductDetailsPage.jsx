@@ -909,7 +909,7 @@ const ProductDetailsPage = () => {
       </div>
 
       {/* Frequently Bought Together */}
-      <FrequentlyBoughtTogether productId={id} category={product.category} />
+      <FrequentlyBoughtTogether productId={id} currentProduct={product} />
 
       {/* Customers Also Bought */}
       <CustomersAlsoBought productId={id} />
