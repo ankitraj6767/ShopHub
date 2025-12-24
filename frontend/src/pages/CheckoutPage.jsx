@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiCreditCard, FiTruck, FiCheck, FiLock, FiTag, FiX, FiMapPin, FiPlus, FiEdit2, FiDollarSign, FiGift, FiCalendar } from 'react-icons/fi';
+import { FiCreditCard, FiTruck, FiCheck, FiLock, FiTag, FiX, FiMapPin, FiPlus, FiEdit2, FiDollarSign, FiGift, FiCalendar, FiChevronDown } from 'react-icons/fi';
 import { FaCrown } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { loadStripe } from '@stripe/stripe-js';
@@ -255,6 +255,9 @@ const CheckoutPage = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [discount, setDiscount] = useState(0);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [showAvailableCoupons, setShowAvailableCoupons] = useState(false);
+  const [loadingAvailableCoupons, setLoadingAvailableCoupons] = useState(false);
 
   // Premium discount state
   const [premiumBenefits, setPremiumBenefits] = useState(null);
@@ -504,6 +507,65 @@ const CheckoutPage = () => {
       toast.error(error);
     }
   }, [error]);
+
+  // Fetch available coupons
+  const fetchAvailableCoupons = async () => {
+    setLoadingAvailableCoupons(true);
+    try {
+      const response = await api.get(`/coupons/available?cartTotal=${subtotal}`);
+      if (response.data.success) {
+        setAvailableCoupons(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch available coupons:', error);
+    } finally {
+      setLoadingAvailableCoupons(false);
+    }
+  };
+
+  // Load available coupons when subtotal changes
+  useEffect(() => {
+    if (subtotal > 0) {
+      fetchAvailableCoupons();
+    }
+  }, [subtotal]);
+
+  // Apply a coupon from available list
+  const handleSelectCoupon = (coupon) => {
+    setCouponCode(coupon.code);
+    setShowAvailableCoupons(false);
+    // Automatically apply the coupon
+    handleApplyCouponWithCode(coupon.code);
+  };
+
+  // Apply coupon with specific code (for selecting from list)
+  const handleApplyCouponWithCode = async (code) => {
+    setCouponLoading(true);
+    try {
+      const response = await api.post('/coupons/apply', {
+        code: code,
+        orderTotal: subtotal,
+        cartTotal: subtotal,
+        items: items.map((item) => ({
+          product: item._id,
+          quantity: item.quantity,
+        })),
+      });
+
+      if (response.data.success) {
+        const couponData = response.data.data;
+        setAppliedCoupon(couponData);
+        setDiscount(couponData.discount);
+        toast.success(`Coupon applied! You saved ${formatPrice(couponData.discount)}`);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid coupon code');
+      setAppliedCoupon(null);
+      setDiscount(0);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
 
   // Apply coupon
   const handleApplyCoupon = async () => {
@@ -1400,14 +1462,14 @@ const CheckoutPage = () => {
             
             {/* Coupon Code Input */}
             <div className="mb-4 pb-4 border-b">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <FiTag className="inline mr-1" /> Promo Code
               </label>
               {appliedCoupon ? (
-                <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
                   <div>
-                    <span className="font-medium text-green-700">{appliedCoupon.code}</span>
-                    <p className="text-xs text-green-600">
+                    <span className="font-medium text-green-700 dark:text-green-400">{appliedCoupon.code}</span>
+                    <p className="text-xs text-green-600 dark:text-green-500">
                       {appliedCoupon.discountType === 'percentage' 
                         ? `${appliedCoupon.discountValue}% off`
                         : `${formatPrice(appliedCoupon.discountValue)} off`}
@@ -1421,21 +1483,96 @@ const CheckoutPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter code"
-                    className="input flex-1 text-sm"
-                  />
-                  <button
-                    onClick={handleApplyCoupon}
-                    disabled={couponLoading || !couponCode.trim()}
-                    className="btn-secondary text-sm px-3"
-                  >
-                    {couponLoading ? <Spinner size="sm" /> : 'Apply'}
-                  </button>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Enter code"
+                      className="input flex-1 text-sm"
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="btn-secondary text-sm px-3"
+                    >
+                      {couponLoading ? <Spinner size="sm" /> : 'Apply'}
+                    </button>
+                  </div>
+                  
+                  {/* Available Coupons Toggle */}
+                  {availableCoupons.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAvailableCoupons(!showAvailableCoupons)}
+                      className="w-full flex items-center justify-between text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                    >
+                      <span className="flex items-center gap-1">
+                        <FiGift className="text-lg" />
+                        {availableCoupons.length} coupon{availableCoupons.length > 1 ? 's' : ''} available
+                      </span>
+                      <FiChevronDown className={`transition-transform ${showAvailableCoupons ? 'rotate-180' : ''}`} />
+                    </button>
+                  )}
+                  
+                  {/* Available Coupons List */}
+                  {showAvailableCoupons && (
+                    <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                      {loadingAvailableCoupons ? (
+                        <div className="flex justify-center py-3">
+                          <Spinner size="sm" />
+                        </div>
+                      ) : (
+                        availableCoupons.map((coupon) => (
+                          <div
+                            key={coupon._id}
+                            onClick={() => handleSelectCoupon(coupon)}
+                            className="cursor-pointer p-3 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all group"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-primary-600 dark:text-primary-400 text-sm tracking-wider">
+                                    {coupon.code}
+                                  </span>
+                                  {coupon.isApplicable === false && (
+                                    <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-1.5 py-0.5 rounded">
+                                      Min. {formatPrice(coupon.minPurchaseAmount)}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {coupon.discountType === 'percentage' 
+                                    ? `${coupon.discountValue}% off`
+                                    : `${formatPrice(coupon.discountValue)} off`}
+                                  {coupon.maxDiscountAmount && coupon.discountType === 'percentage' && (
+                                    <span> (max {formatPrice(coupon.maxDiscountAmount)})</span>
+                                  )}
+                                </p>
+                                {coupon.description && (
+                                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-1">
+                                    {coupon.description}
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                className="text-xs font-medium text-primary-600 dark:text-primary-400 group-hover:bg-primary-600 group-hover:text-white px-2 py-1 rounded transition-colors"
+                              >
+                                Apply
+                              </button>
+                            </div>
+                            {coupon.validUntil && (
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                Valid till {new Date(coupon.validUntil).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

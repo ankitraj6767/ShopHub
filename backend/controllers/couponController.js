@@ -360,3 +360,75 @@ export const getCouponStats = asyncHandler(async (req, res) => {
     data: stats,
   });
 });
+
+// @desc    Get available coupons for customer
+// @route   GET /api/coupons/available
+// @access  Private
+export const getAvailableCoupons = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { cartTotal } = req.query;
+  const now = new Date();
+
+  // Find all active, valid coupons
+  const coupons = await Coupon.find({
+    isActive: true,
+    validFrom: { $lte: now },
+    validUntil: { $gte: now },
+    $or: [
+      { usageLimit: null },
+      { $expr: { $lt: ['$usageCount', '$usageLimit'] } }
+    ]
+  }).select('code description discountType discountValue minimumPurchase maximumDiscount validUntil usageLimit usageCount usageLimitPerUser usedBy');
+
+  // Filter coupons that the user can still use
+  const availableCoupons = coupons.filter(coupon => {
+    // Check per-user usage limit
+    const userUsageCount = coupon.usedBy.filter(
+      u => u.user.toString() === userId.toString()
+    ).length;
+    return userUsageCount < coupon.usageLimitPerUser;
+  }).map(coupon => {
+    // Calculate potential discount if cart total provided
+    let potentialDiscount = 0;
+    const total = parseFloat(cartTotal) || 0;
+    
+    if (total >= coupon.minimumPurchase) {
+      if (coupon.discountType === 'percentage') {
+        potentialDiscount = (total * coupon.discountValue) / 100;
+        if (coupon.maximumDiscount && potentialDiscount > coupon.maximumDiscount) {
+          potentialDiscount = coupon.maximumDiscount;
+        }
+      } else {
+        potentialDiscount = coupon.discountValue;
+      }
+      potentialDiscount = Math.min(potentialDiscount, total);
+    }
+
+    return {
+      code: coupon.code,
+      description: coupon.description,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      minimumPurchase: coupon.minimumPurchase,
+      maximumDiscount: coupon.maximumDiscount,
+      validUntil: coupon.validUntil,
+      potentialDiscount: Number(potentialDiscount.toFixed(2)),
+      isApplicable: total >= coupon.minimumPurchase,
+      remainingUses: coupon.usageLimit ? coupon.usageLimit - coupon.usageCount : null
+    };
+  });
+
+  // Sort: applicable coupons first, then by potential discount
+  availableCoupons.sort((a, b) => {
+    if (a.isApplicable !== b.isApplicable) {
+      return b.isApplicable - a.isApplicable;
+    }
+    return b.potentialDiscount - a.potentialDiscount;
+  });
+
+  res.json({
+    success: true,
+    data: availableCoupons,
+    count: availableCoupons.length
+  });
+});

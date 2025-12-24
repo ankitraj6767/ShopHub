@@ -8,6 +8,7 @@ import {
   deleteCoupon,
   toggleCouponStatus,
   getCouponStats,
+  getAvailableCoupons,
 } from '../controllers/couponController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { validate } from '../middleware/validationMiddleware.js';
@@ -17,6 +18,9 @@ const router = express.Router();
 
 // Protected routes (require authentication)
 router.use(protect);
+
+// @route   GET /api/coupons/available - Get available coupons for customer (must be before admin middleware)
+router.get('/available', getAvailableCoupons);
 
 // @route   POST /api/coupons/apply
 router.post(
