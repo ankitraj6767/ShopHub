@@ -135,12 +135,22 @@ export const getOrderStatusColor = (status) => {
   switch (status) {
     case 'Pending':
       return 'badge-warning';
+    case 'Confirmed':
+      return 'badge-info';
+    case 'Processing':
+      return 'badge-info';
     case 'Paid':
       return 'badge-info';
     case 'Shipped':
       return 'badge-info';
+    case 'Out for Delivery':
+      return 'badge-info';
     case 'Delivered':
       return 'badge-success';
+    case 'Return Requested':
+      return 'badge-warning';
+    case 'Returned':
+      return 'badge-danger';
     case 'Cancelled':
       return 'badge-danger';
     default:
