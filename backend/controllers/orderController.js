@@ -579,6 +579,19 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
     if (status === 'Delivered') {
       order.deliveredAt = Date.now();
+      
+      // For COD orders, mark as paid when delivered (payment collected on delivery)
+      if (order.paymentInfo.method === 'Cash on Delivery' && order.paymentInfo.status !== 'paid') {
+        order.paymentInfo.status = 'paid';
+        order.paymentInfo.paidAt = Date.now();
+        
+        // Record revenue for COD orders when delivered
+        const Revenue = (await import('../models/Revenue.js')).default;
+        Revenue.recordOrderPayment(order, {
+          method: 'cod',
+          transactionId: `COD-${order.orderNumber}`,
+        }).catch(err => console.error('Failed to record COD revenue:', err));
+      }
     }
 
     if (status === 'Confirmed' && order.paymentInfo.status !== 'paid') {
@@ -652,6 +665,41 @@ export const getOrderStats = asyncHandler(async (req, res) => {
   const totalOrders = ordersByStatus.reduce((sum, item) => sum + item.count, 0);
   const totalRevenue = ordersByStatus.reduce((sum, item) => sum + item.total, 0);
 
+  // Calculate collected revenue (paid orders) and pending revenue
+  const paidOrders = await Order.aggregate([
+    {
+      $match: {
+        'paymentInfo.status': 'paid'
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: '$totalPrice' },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+  
+  const pendingOrders = await Order.aggregate([
+    {
+      $match: {
+        'paymentInfo.status': { $ne: 'paid' },
+        status: { $nin: ['Cancelled', 'Returned'] }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: '$totalPrice' },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+  
+  const collectedRevenue = paidOrders[0]?.total || 0;
+  const pendingRevenue = pendingOrders[0]?.total || 0;
+
   // Current period stats (last 30 days)
   const currentPeriodOrders = await Order.aggregate([
     { $match: { createdAt: { $gte: thirtyDaysAgo } } },
@@ -689,6 +737,19 @@ export const getOrderStats = asyncHandler(async (req, res) => {
 
   const ordersChange = calculateChange(currentOrders, previousOrders);
   const revenueChange = calculateChange(currentRevenue, previousRevenue);
+
+  // Calculate collected revenue change for the period
+  const currentPaidOrders = await Order.aggregate([
+    { $match: { createdAt: { $gte: thirtyDaysAgo }, 'paymentInfo.status': 'paid' } },
+    { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+  ]);
+  const previousPaidOrders = await Order.aggregate([
+    { $match: { createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }, 'paymentInfo.status': 'paid' } },
+    { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+  ]);
+  const currentCollectedRevenue = currentPaidOrders[0]?.total || 0;
+  const previousCollectedRevenue = previousPaidOrders[0]?.total || 0;
+  const collectedRevenueChange = calculateChange(currentCollectedRevenue, previousCollectedRevenue);
 
   // Get total products count and compare
   const totalProducts = await Product.countDocuments({ isActive: true });
@@ -766,6 +827,9 @@ export const getOrderStats = asyncHandler(async (req, res) => {
     data: {
       totalOrders,
       totalRevenue,
+      collectedRevenue,
+      pendingRevenue,
+      collectedRevenueChange: Math.round(collectedRevenueChange * 10) / 10,
       totalProducts,
       totalUsers,
       // Percentage changes (comparing last 30 days vs previous 30 days)

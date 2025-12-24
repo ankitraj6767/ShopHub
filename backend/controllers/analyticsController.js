@@ -27,10 +27,26 @@ export const getDashboardAnalytics = asyncHandler(async (req, res) => {
     createdAt: { $gte: previousPeriodStart, $lt: currentPeriodStart }
   });
 
-  // Total revenue calculations
+  // Total revenue calculations (all orders)
   const totalRevenue = currentOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
   const previousRevenue = previousOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
   const revenueChange = previousRevenue ? ((totalRevenue - previousRevenue) / previousRevenue * 100) : (totalRevenue > 0 ? 100 : 0);
+
+  // Collected revenue (only paid orders)
+  const collectedRevenue = currentOrders
+    .filter(order => order.paymentInfo?.status === 'paid')
+    .reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+  const previousCollectedRevenue = previousOrders
+    .filter(order => order.paymentInfo?.status === 'paid')
+    .reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+  const collectedRevenueChange = previousCollectedRevenue 
+    ? ((collectedRevenue - previousCollectedRevenue) / previousCollectedRevenue * 100) 
+    : (collectedRevenue > 0 ? 100 : 0);
+
+  // Pending revenue (unpaid/COD orders not yet delivered)
+  const pendingRevenue = currentOrders
+    .filter(order => order.paymentInfo?.status !== 'paid' && order.status !== 'Cancelled' && order.status !== 'Returned')
+    .reduce((sum, order) => sum + (order.totalPrice || 0), 0);
 
   // Order count
   const totalOrders = currentOrders.length;
@@ -233,6 +249,9 @@ export const getDashboardAnalytics = asyncHandler(async (req, res) => {
       summary: {
         totalRevenue,
         revenueChange: Math.round(revenueChange * 10) / 10,
+        collectedRevenue,
+        collectedRevenueChange: Math.round(collectedRevenueChange * 10) / 10,
+        pendingRevenue,
         totalOrders,
         orderChange: Math.round(orderChange * 10) / 10,
         avgOrderValue: Math.round(avgOrderValue * 100) / 100,

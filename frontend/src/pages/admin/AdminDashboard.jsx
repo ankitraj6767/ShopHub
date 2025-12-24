@@ -8,7 +8,9 @@ import {
   FiDollarSign,
   FiTrendingUp,
   FiTrendingDown,
-  FiArrowRight
+  FiArrowRight,
+  FiCheckCircle,
+  FiClock
 } from 'react-icons/fi';
 import { fetchAdminStats } from '../../store/slices/orderSlice';
 import { formatPrice, formatDate, getOrderStatusColor } from '../../utils/helpers';
@@ -39,6 +41,7 @@ const AdminDashboard = () => {
   };
 
   const revenueChange = formatChange(adminStats?.revenueChange);
+  const collectedRevenueChange = formatChange(adminStats?.collectedRevenueChange);
   const ordersChange = formatChange(adminStats?.ordersChange);
   const productsChange = formatChange(adminStats?.productsChange);
   const usersChange = formatChange(adminStats?.usersChange);
@@ -50,7 +53,26 @@ const AdminDashboard = () => {
       icon: FiDollarSign,
       color: 'bg-green-500',
       change: revenueChange.text,
-      isPositive: revenueChange.isPositive
+      isPositive: revenueChange.isPositive,
+      subtitle: 'All orders'
+    },
+    {
+      title: 'Collected Revenue',
+      value: formatPrice(adminStats?.collectedRevenue || 0),
+      icon: FiCheckCircle,
+      color: 'bg-emerald-600',
+      change: collectedRevenueChange.text,
+      isPositive: collectedRevenueChange.isPositive,
+      subtitle: 'Paid orders only'
+    },
+    {
+      title: 'Pending Revenue',
+      value: formatPrice(adminStats?.pendingRevenue || 0),
+      icon: FiClock,
+      color: 'bg-yellow-500',
+      change: null,
+      isPositive: true,
+      subtitle: 'COD orders awaiting delivery'
     },
     {
       title: 'Total Orders',
@@ -58,7 +80,8 @@ const AdminDashboard = () => {
       icon: FiShoppingBag,
       color: 'bg-blue-500',
       change: ordersChange.text,
-      isPositive: ordersChange.isPositive
+      isPositive: ordersChange.isPositive,
+      subtitle: 'vs last 30 days'
     },
     {
       title: 'Total Products',
@@ -66,7 +89,8 @@ const AdminDashboard = () => {
       icon: FiPackage,
       color: 'bg-purple-500',
       change: productsChange.text,
-      isPositive: productsChange.isPositive
+      isPositive: productsChange.isPositive,
+      subtitle: 'vs last 30 days'
     },
     {
       title: 'Total Users',
@@ -74,7 +98,8 @@ const AdminDashboard = () => {
       icon: FiUsers,
       color: 'bg-orange-500',
       change: usersChange.text,
-      isPositive: usersChange.isPositive
+      isPositive: usersChange.isPositive,
+      subtitle: 'vs last 30 days'
     }
   ];
 
@@ -88,21 +113,23 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {stats.map((stat) => (
           <div key={stat.title} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <div className={`${stat.color} p-3 rounded-lg`}>
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
-              <span className={`${stat.isPositive ? 'text-green-500' : 'text-red-500'} text-sm flex items-center`}>
-                {stat.isPositive ? <FiTrendingUp className="mr-1" /> : <FiTrendingDown className="mr-1" />}
-                {stat.change}
-              </span>
+              {stat.change && (
+                <span className={`${stat.isPositive ? 'text-green-500' : 'text-red-500'} text-sm flex items-center`}>
+                  {stat.isPositive ? <FiTrendingUp className="mr-1" /> : <FiTrendingDown className="mr-1" />}
+                  {stat.change}
+                </span>
+              )}
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{stat.title}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">vs last 30 days</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{stat.subtitle}</p>
           </div>
         ))}
       </div>
