@@ -111,6 +111,7 @@ const ProductCard = ({ product, listView = false }) => {
             {/* Action Buttons */}
             <div className="absolute top-2 right-2 flex flex-col gap-2">
               <button
+                aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 onClick={handleToggleWishlist}
                 disabled={wishlistLoading}
                 className={`p-2 rounded-full transition-all ${
@@ -120,6 +121,7 @@ const ProductCard = ({ product, listView = false }) => {
                 <FiHeart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} />
               </button>
               <button
+                aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
                 onClick={handleToggleCompare}
                 className={`p-2 rounded-full transition-all ${
                   isInCompare ? 'bg-purple-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-purple-500'
@@ -162,6 +164,7 @@ const ProductCard = ({ product, listView = false }) => {
               </div>
               <div className="flex items-center gap-2">
                 <button
+                  aria-label="Quick View"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -173,6 +176,7 @@ const ProductCard = ({ product, listView = false }) => {
                   <FiEye className="w-5 h-5" />
                 </button>
                 <button
+                  aria-label="Add to Cart"
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
@@ -204,6 +208,7 @@ const ProductCard = ({ product, listView = false }) => {
         />
         {/* Wishlist Button */}
         <button
+          aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
           onClick={handleToggleWishlist}
           disabled={wishlistLoading}
           className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
@@ -217,6 +222,7 @@ const ProductCard = ({ product, listView = false }) => {
         </button>
         {/* Compare Button */}
         <button
+          aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
           onClick={handleToggleCompare}
           className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 ${
             isInCompare
@@ -231,6 +237,7 @@ const ProductCard = ({ product, listView = false }) => {
         </button>
         {/* Quick View Button */}
         <button
+          aria-label="Quick View"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -277,6 +284,7 @@ const ProductCard = ({ product, listView = false }) => {
             {formatPrice(product.price)}
           </span>
           <button
+            aria-label="Add to Cart"
             onClick={handleAddToCart}
             disabled={product.stock === 0}
             className="p-2 rounded-full bg-primary-600 text-white hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
