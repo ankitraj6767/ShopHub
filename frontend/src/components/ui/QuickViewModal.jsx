@@ -49,12 +49,16 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quick-view-title"
         className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
+          aria-label="Close dialog"
           className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
         >
           <FiX className="w-5 h-5" />
@@ -81,6 +85,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
+                    aria-label={`View image ${idx + 1}`}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
                       selectedImage === idx ? 'border-primary-500' : 'border-transparent'
                     }`}
@@ -106,7 +111,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
               </div>
 
               {/* Name */}
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{product.name}</h2>
+              <h2 id="quick-view-title" className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{product.name}</h2>
 
               {/* Price */}
               <div className="flex items-baseline gap-3 mb-4">
@@ -163,6 +168,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 <div className="flex items-center border dark:border-gray-600 rounded-lg">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    aria-label="Decrease quantity"
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
                     disabled={quantity <= 1}
                   >
@@ -171,6 +177,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                   <span className="w-12 text-center font-medium dark:text-white">{quantity}</span>
                   <button
                     onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    aria-label="Increase quantity"
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
                     disabled={quantity >= product.stock}
                   >
@@ -191,6 +198,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 </button>
                 <button
                   onClick={handleWishlist}
+                  aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                   className={`p-3 rounded-lg border-2 transition-colors ${
                     isInWishlist
                       ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-500'
