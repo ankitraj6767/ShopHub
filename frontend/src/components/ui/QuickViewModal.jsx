@@ -55,7 +55,8 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+          aria-label="Close modal"
+          className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <FiX className="w-5 h-5" />
         </button>
@@ -81,11 +82,12 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                    aria-label={`View image ${idx + 1}`}
+                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                       selectedImage === idx ? 'border-primary-500' : 'border-transparent'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt={`Thumbnail ${idx + 1} for ${product.name}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -163,15 +165,17 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 <div className="flex items-center border dark:border-gray-600 rounded-lg">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                    aria-label="Decrease quantity"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     disabled={quantity <= 1}
                   >
                     <FiMinus className="w-4 h-4" />
                   </button>
-                  <span className="w-12 text-center font-medium dark:text-white">{quantity}</span>
+                  <span className="w-12 text-center font-medium dark:text-white" aria-live="polite">{quantity}</span>
                   <button
                     onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                    aria-label="Increase quantity"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     disabled={quantity >= product.stock}
                   >
                     <FiPlus className="w-4 h-4" />
@@ -184,14 +188,15 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stock <= 0}
-                  className="flex-1 btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                 >
                   <FiShoppingCart />
                   Add to Cart
                 </button>
                 <button
                   onClick={handleWishlist}
-                  className={`p-3 rounded-lg border-2 transition-colors ${
+                  aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                  className={`p-3 rounded-lg border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                     isInWishlist
                       ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-500'
                       : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-red-500 hover:text-red-500'
