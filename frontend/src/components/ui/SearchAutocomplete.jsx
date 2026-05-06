@@ -119,6 +119,7 @@ const SearchAutocomplete = () => {
           <button
             type="button"
             onClick={() => setQuery('')}
+            aria-label="Clear search"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
             <FiX className="w-4 h-4" />
@@ -181,6 +182,7 @@ const SearchAutocomplete = () => {
                       <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
                       <button
                         onClick={(e) => removeRecentSearch(term, e)}
+                        aria-label="Remove recent search"
                         className="text-gray-400 hover:text-red-500"
                       >
                         <FiX className="w-4 h-4" />
