@@ -235,6 +235,8 @@ const NotificationCenter = () => {
             fetchNotifications();
           }
         }}
+        aria-label="Notifications"
+        aria-expanded={isOpen}
         className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
       >
         <FiBell className="w-6 h-6" />
@@ -326,6 +328,7 @@ const NotificationCenter = () => {
                         </div>
                         <button
                           onClick={() => deleteNotification(notifId)}
+                          aria-label="Delete notification"
                           className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500"
                         >
                           <FiTrash2 className="w-4 h-4" />

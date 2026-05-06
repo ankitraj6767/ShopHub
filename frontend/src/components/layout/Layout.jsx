@@ -119,6 +119,7 @@ const Layout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    aria-label="User menu"
                     className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
                   >
                     <FiUser className="w-6 h-6" />
@@ -267,6 +268,7 @@ const Layout = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
               className="md:hidden text-gray-600 dark:text-gray-300"
             >
               {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}

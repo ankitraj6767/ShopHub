@@ -55,6 +55,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
         {/* Close button */}
         <button
           onClick={onClose}
+          aria-label="Close modal"
           className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
         >
           <FiX className="w-5 h-5" />
