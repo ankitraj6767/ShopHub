@@ -1,0 +1,3 @@
+## 2024-05-08 - Accessible Icon-Only Action Buttons
+**Learning:** Icon-only buttons used for floating actions (like chat widgets, open/close modals, send messages) often lack proper accessibility indicators. They might only convey intent visually via icons, which screen readers or keyboard users cannot easily navigate or interpret.
+**Action:** Always ensure that icon-only buttons include `aria-label` or `title` attributes that explicitly describe their function, and add visible focus rings (`focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`) so keyboard users can identify when an element has focus.
