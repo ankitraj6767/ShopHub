@@ -179,12 +179,19 @@ const CartPage = () => {
               <div className="flex items-center border dark:border-gray-600 rounded-lg">
                 <button
                   onClick={() => handleQuantityChange(item._id, item.quantity - 1, item.stock)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition rounded-l-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   disabled={item.quantity <= 1}
+                  aria-label="Decrease quantity"
                 >
                   <FiMinus className="w-4 h-4 dark:text-white" />
                 </button>
-                <span className="px-3 py-1 font-medium dark:text-white">{item.quantity}</span>
+                <span
+                  className="px-3 py-1 font-medium dark:text-white min-w-[2.5rem] text-center"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {item.quantity}
+                </span>
                 <button
                   onClick={() => {
                     if (item.quantity >= item.stock) {
@@ -193,7 +200,8 @@ const CartPage = () => {
                       handleQuantityChange(item._id, item.quantity + 1, item.stock);
                     }
                   }}
-                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition ${item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition rounded-r-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  aria-label="Increase quantity"
                 >
                   <FiPlus className="w-4 h-4 dark:text-white" />
                 </button>
@@ -210,15 +218,17 @@ const CartPage = () => {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => handleSaveForLater(item._id)}
-                  className="p-2 text-gray-400 hover:text-primary-600 transition"
+                  className="p-2 text-gray-400 hover:text-primary-600 transition rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   title="Save for later"
+                  aria-label="Save for later"
                 >
                   <FiBookmark className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => handleRemove(item._id)}
-                  className="p-2 text-gray-400 hover:text-red-500 transition"
+                  className="p-2 text-gray-400 hover:text-red-500 transition rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   title="Remove"
+                  aria-label="Remove item from cart"
                 >
                   <FiTrash2 className="w-5 h-5" />
                 </button>
@@ -321,7 +331,8 @@ const CartPage = () => {
                   </button>
                   <button
                     onClick={() => handleRemoveFromSaved(item._id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition border dark:border-gray-600 rounded-lg"
+                    className="p-2 text-gray-400 hover:text-red-500 transition border dark:border-gray-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    aria-label="Remove saved item"
                   >
                     <FiTrash2 className="w-4 h-4" />
                   </button>
