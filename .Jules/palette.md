@@ -1,0 +1,3 @@
+## 2024-05-13 - [Accessibility] Icon-only Overlay Controls
+**Learning:** Icon-only buttons used in floating widgets and modals (like chat or support buttons) often lack ARIA labels, creating severe navigation issues for screen reader users trying to access fundamental interactive app functionalities. Focus rings on floating items and tight header areas also often lack sufficient contrast without `focus-visible` utility classes and appropriate ring offsets.
+**Action:** Always verify floating widgets, interactive toggles, and modal control buttons contain descriptive `aria-label`s and clear `focus-visible` styling (including `ring-offset` where applicable) during initial component development to prevent overlay entrapment and ensure consistent keyboard operability.
