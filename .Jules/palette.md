@@ -1,0 +1,3 @@
+## 2025-02-18 - Missing ARIA Labels on Repeated Product Cards
+**Learning:** Found that `ProductCard.jsx` components frequently use icon-only buttons (Wishlist, Compare, Quick View, Add to Cart) relying solely on implicit meaning or partial `title` attributes. While tooltips might help mouse users, screen reader users miss crucial context when tabbing through multiple identical grid items without explicit labels.
+**Action:** Always verify that icon-only interactive elements in repeating list/grid components carry explicit `aria-label` attributes, and ensure hover-based interactions (like "Quick View") remain accessible via keyboard.
