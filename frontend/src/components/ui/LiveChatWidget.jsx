@@ -89,6 +89,8 @@ const LiveChatWidget = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
+          aria-label="Open support chat"
+          title="Open support chat"
           className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
         >
           <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
@@ -133,6 +135,8 @@ const LiveChatWidget = () => {
                   e.stopPropagation();
                   setIsMinimized(!isMinimized);
                 }}
+                aria-label={isMinimized ? "Maximize chat" : "Minimize chat"}
+                title={isMinimized ? "Maximize chat" : "Minimize chat"}
                 className="p-1 hover:bg-white/20 rounded transition-colors"
               >
                 <FiMinimize2 className="w-4 h-4" />
@@ -142,6 +146,8 @@ const LiveChatWidget = () => {
                   e.stopPropagation();
                   setIsOpen(false);
                 }}
+                aria-label="Close chat"
+                title="Close chat"
                 className="p-1 hover:bg-white/20 rounded transition-colors"
               >
                 <FiX className="w-4 h-4" />
@@ -199,6 +205,8 @@ const LiveChatWidget = () => {
                   <button
                     type="submit"
                     disabled={isTyping || !message.trim()}
+                    aria-label="Send message"
+                    title="Send message"
                     className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors"
                   >
                     <FiSend className="w-5 h-5" />
