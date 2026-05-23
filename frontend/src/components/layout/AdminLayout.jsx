@@ -80,6 +80,7 @@ const AdminLayout = () => {
           {!isMobile && (
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors hidden lg:block"
             >
               {isCollapsed ? <FiMenu className="w-5 h-5" /> : <FiX className="w-5 h-5" />}
@@ -139,6 +140,7 @@ const AdminLayout = () => {
           <div className={`space-y-1 lg:space-y-2 ${isCollapsed ? 'px-0' : ''}`}>
             <Link
               to="/"
+              aria-label="Back to Store"
               className={`flex items-center ${isCollapsed ? 'justify-center' : ''} px-2 lg:px-3 py-2 lg:py-2.5 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white transition-all group`}
               title="Back to Store"
             >
@@ -147,6 +149,7 @@ const AdminLayout = () => {
             </Link>
             <button
               onClick={handleLogout}
+              aria-label="Logout"
               className={`flex items-center ${isCollapsed ? 'justify-center' : ''} w-full px-2 lg:px-3 py-2 lg:py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all`}
               title="Logout"
             >

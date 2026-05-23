@@ -59,6 +59,7 @@ const Layout = () => {
       {!isHomePage && (
         <Link
           to="/"
+          aria-label="Go to Home"
           className="fixed bottom-6 left-6 z-50 bg-primary-600 hover:bg-primary-700 text-white p-4 rounded-full shadow-lg transition-all hover:scale-110 flex items-center justify-center"
           title="Go to Home"
         >
@@ -88,7 +89,7 @@ const Layout = () => {
               
               {/* Wishlist */}
               {isAuthenticated && (
-                <Link to="/wishlist" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                <Link to="/wishlist" aria-label="Wishlist" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
                   <FiHeart className="w-6 h-6" />
                   {wishlistCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
@@ -105,7 +106,7 @@ const Layout = () => {
               <ThemeToggle />
               
               {/* Cart */}
-              <Link to="/cart" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+              <Link to="/cart" aria-label="Cart" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
                 <FiShoppingCart className="w-6 h-6" />
                 {itemsCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
@@ -119,6 +120,7 @@ const Layout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    aria-label="User menu"
                     className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
                   >
                     <FiUser className="w-6 h-6" />
@@ -267,6 +269,7 @@ const Layout = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
               className="md:hidden text-gray-600 dark:text-gray-300"
             >
               {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
