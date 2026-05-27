@@ -236,8 +236,9 @@ const ProductCard = ({ product, listView = false }) => {
             e.stopPropagation();
             setShowQuickView(true);
           }}
-          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           title="Quick View"
+          aria-label="Quick View"
         >
           <FiEye className="w-5 h-5" />
         </button>
