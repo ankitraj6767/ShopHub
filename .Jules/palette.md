@@ -1,0 +1,3 @@
+## 2026-05-28 - [Invisible Focus Traps]
+**Learning:** Hover-only visible UI elements (e.g., using Tailwind's `opacity-0 group-hover:opacity-100`) become invisible traps for keyboard users when focused via the tab key. They receive focus but remain visually invisible (`opacity-0`), confusing users navigating via keyboard.
+**Action:** Whenever using `group-hover:opacity-100` or similar patterns to reveal elements, always pair it with `focus-visible:opacity-100` (for individual interactive elements) or `focus-within:opacity-100` (for parent containers) so the element is revealed when it or its children gain keyboard focus.
