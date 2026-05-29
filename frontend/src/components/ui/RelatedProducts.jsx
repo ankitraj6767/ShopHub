@@ -61,8 +61,9 @@ const RelatedProducts = ({ productId, title = 'Related Products' }) => {
                 className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
               />
               {/* Quick actions */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button
+                  aria-label={`Add ${product.name} to cart`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleAddToCart(product);
@@ -72,6 +73,7 @@ const RelatedProducts = ({ productId, title = 'Related Products' }) => {
                   <ShoppingCart className="w-5 h-5" />
                 </button>
                 <button
+                  aria-label={`Add ${product.name} to wishlist`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleAddToWishlist(product._id);
@@ -82,6 +84,7 @@ const RelatedProducts = ({ productId, title = 'Related Products' }) => {
                 </button>
                 <Link
                   to={`/products/${product._id}`}
+                  aria-label={`View details of ${product.name}`}
                   className="p-2 bg-white rounded-full text-gray-900 hover:bg-gray-900 hover:text-white transition"
                 >
                   <Eye className="w-5 h-5" />
