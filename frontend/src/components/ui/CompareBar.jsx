@@ -133,7 +133,7 @@ const CompareBar = () => {
                     <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-all hover:shadow-lg">
                       <button
                         onClick={() => dispatch(removeFromCompare(item._id))}
-                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 z-10"
+                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110 z-10"
                       >
                         <FiX className="w-4 h-4" />
                       </button>
