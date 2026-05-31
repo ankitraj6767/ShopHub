@@ -56,6 +56,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+          aria-label="Close modal"
         >
           <FiX className="w-5 h-5" />
         </button>
@@ -84,6 +85,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
                       selectedImage === idx ? 'border-primary-500' : 'border-transparent'
                     }`}
+                    aria-label={`View image ${idx + 1}`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -165,6 +167,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
                     disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
                   >
                     <FiMinus className="w-4 h-4" />
                   </button>
@@ -173,6 +176,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                     onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
                     disabled={quantity >= product.stock}
+                    aria-label="Increase quantity"
                   >
                     <FiPlus className="w-4 h-4" />
                   </button>
@@ -196,6 +200,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                       ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-500'
                       : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-red-500 hover:text-red-500'
                   }`}
+                  aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
                   <FiHeart className={isInWishlist ? 'fill-current' : ''} />
                 </button>
