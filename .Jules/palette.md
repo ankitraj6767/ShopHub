@@ -1,0 +1,3 @@
+## 2024-06-07 - Hover Actions Keyboard Trap Pattern
+**Learning:** Found an accessibility pattern specific to this app's components: using Tailwind's `opacity-0 group-hover:opacity-100` to show/hide action buttons (like Quick View on product cards). This creates a keyboard navigation trap because the element is focusable but invisible to keyboard-only users who can't trigger the hover state.
+**Action:** When using `opacity-0 group-hover:opacity-100` to conditionally reveal interactive elements, always pair it with `focus-visible:opacity-100` (for individual elements) or `focus-within:opacity-100` (for parent containers) to ensure keyboard accessibility.
