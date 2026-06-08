@@ -1,0 +1,142 @@
+<<<<<<< SEARCH
+              <button
+                onClick={handleToggleWishlist}
+                disabled={wishlistLoading}
+                className={`p-2 rounded-full transition-all ${
+                  isInWishlist ? 'bg-red-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-red-500'
+                }`}
+              >
+=======
+              <button
+                onClick={handleToggleWishlist}
+                disabled={wishlistLoading}
+                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                className={`p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                  isInWishlist ? 'bg-red-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-red-500'
+                }`}
+              >
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+              <button
+                onClick={handleToggleCompare}
+                className={`p-2 rounded-full transition-all ${
+                  isInCompare ? 'bg-purple-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-purple-500'
+                }`}
+              >
+=======
+              <button
+                onClick={handleToggleCompare}
+                aria-label={isInCompare ? "Remove from compare" : "Add to compare"}
+                className={`p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                  isInCompare ? 'bg-purple-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-purple-500'
+                }`}
+              >
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowQuickView(true);
+                  }}
+                  className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                  title="Quick View"
+                >
+=======
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowQuickView(true);
+                  }}
+                  className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+                  title="Quick View"
+                  aria-label="Quick View"
+                >
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+        <button
+          onClick={handleToggleWishlist}
+          disabled={wishlistLoading}
+          className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
+            isInWishlist
+              ? 'bg-red-500 text-white'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-red-500'
+          }`}
+          title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+        >
+=======
+        <button
+          onClick={handleToggleWishlist}
+          disabled={wishlistLoading}
+          className={`absolute top-2 right-2 p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+            isInWishlist
+              ? 'bg-red-500 text-white'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-red-500'
+          }`}
+          title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+          aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+        >
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+        <button
+          onClick={handleToggleCompare}
+          className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 ${
+            isInCompare
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg ring-2 ring-purple-300'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-purple-500'
+          }`}
+          title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+        >
+=======
+        <button
+          onClick={handleToggleCompare}
+          className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+            isInCompare
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg ring-2 ring-purple-300'
+              : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-purple-500'
+          }`}
+          title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+          aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+        >
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowQuickView(true);
+          }}
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
+          title="Quick View"
+        >
+=======
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowQuickView(true);
+          }}
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+          title="Quick View"
+          aria-label="Quick View"
+        >
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="p-2 rounded-full bg-primary-600 text-white hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FiShoppingCart className="w-5 h-5" />
+          </button>
+=======
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="p-2 rounded-full bg-primary-600 text-white hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+            aria-label="Add to Cart"
+          >
+            <FiShoppingCart className="w-5 h-5" />
+          </button>
+>>>>>>> REPLACE
