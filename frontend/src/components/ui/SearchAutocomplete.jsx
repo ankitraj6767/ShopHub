@@ -108,6 +108,7 @@ const SearchAutocomplete = () => {
         <input
           ref={inputRef}
           type="text"
+          aria-label="Search products"
           placeholder="Search products..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -118,6 +119,7 @@ const SearchAutocomplete = () => {
         {query && (
           <button
             type="button"
+            aria-label="Clear search query"
             onClick={() => setQuery('')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
@@ -180,6 +182,7 @@ const SearchAutocomplete = () => {
                     >
                       <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
                       <button
+                        aria-label={"Remove " + term + " from recent searches"}
                         onClick={(e) => removeRecentSearch(term, e)}
                         className="text-gray-400 hover:text-red-500"
                       >
