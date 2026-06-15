@@ -113,6 +113,7 @@ const ProductCard = ({ product, listView = false }) => {
               <button
                 onClick={handleToggleWishlist}
                 disabled={wishlistLoading}
+                aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 className={`p-2 rounded-full transition-all ${
                   isInWishlist ? 'bg-red-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-red-500'
                 }`}
@@ -121,6 +122,7 @@ const ProductCard = ({ product, listView = false }) => {
               </button>
               <button
                 onClick={handleToggleCompare}
+                aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
                 className={`p-2 rounded-full transition-all ${
                   isInCompare ? 'bg-purple-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-purple-500'
                 }`}
@@ -167,6 +169,7 @@ const ProductCard = ({ product, listView = false }) => {
                     e.stopPropagation();
                     setShowQuickView(true);
                   }}
+                  aria-label="Quick View"
                   className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                   title="Quick View"
                 >
@@ -175,6 +178,7 @@ const ProductCard = ({ product, listView = false }) => {
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
+                  aria-label="Add to Cart"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   <FiShoppingCart className="w-5 h-5" />
@@ -206,6 +210,7 @@ const ProductCard = ({ product, listView = false }) => {
         <button
           onClick={handleToggleWishlist}
           disabled={wishlistLoading}
+          aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
           className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
             isInWishlist
               ? 'bg-red-500 text-white'
@@ -218,6 +223,7 @@ const ProductCard = ({ product, listView = false }) => {
         {/* Compare Button */}
         <button
           onClick={handleToggleCompare}
+          aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
           className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 ${
             isInCompare
               ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg ring-2 ring-purple-300'
@@ -236,7 +242,8 @@ const ProductCard = ({ product, listView = false }) => {
             e.stopPropagation();
             setShowQuickView(true);
           }}
-          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
+          aria-label="Quick View"
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
           title="Quick View"
         >
           <FiEye className="w-5 h-5" />
@@ -279,6 +286,7 @@ const ProductCard = ({ product, listView = false }) => {
           <button
             onClick={handleAddToCart}
             disabled={product.stock === 0}
+            aria-label="Add to Cart"
             className="p-2 rounded-full bg-primary-600 text-white hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FiShoppingCart className="w-5 h-5" />

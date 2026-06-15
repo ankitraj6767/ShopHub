@@ -1,0 +1,3 @@
+## 2024-05-15 - [ProductCard Opacity Focus Trap]
+**Learning:** In Tailwind CSS, using `opacity-0 group-hover:opacity-100` on interactive elements (like the "Quick View" button in `ProductCard.jsx`) creates an accessibility trap. The button receives keyboard focus when navigating via Tab, but remains completely invisible to the user because the parent container does not have a hover state activated.
+**Action:** Always append `focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none` when using the `opacity-0 group-hover:opacity-100` pattern to ensure the element becomes visible and clearly focused when accessed via keyboard navigation.
