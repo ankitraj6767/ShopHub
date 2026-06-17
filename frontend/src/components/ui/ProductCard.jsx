@@ -113,7 +113,8 @@ const ProductCard = ({ product, listView = false }) => {
               <button
                 onClick={handleToggleWishlist}
                 disabled={wishlistLoading}
-                className={`p-2 rounded-full transition-all ${
+                aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                className={`p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
                   isInWishlist ? 'bg-red-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-red-500'
                 }`}
               >
@@ -121,7 +122,8 @@ const ProductCard = ({ product, listView = false }) => {
               </button>
               <button
                 onClick={handleToggleCompare}
-                className={`p-2 rounded-full transition-all ${
+                aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+                className={`p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
                   isInCompare ? 'bg-purple-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:text-purple-500'
                 }`}
               >
@@ -167,8 +169,9 @@ const ProductCard = ({ product, listView = false }) => {
                     e.stopPropagation();
                     setShowQuickView(true);
                   }}
-                  className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                  className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                   title="Quick View"
+                  aria-label="Quick View"
                 >
                   <FiEye className="w-5 h-5" />
                 </button>
@@ -206,24 +209,26 @@ const ProductCard = ({ product, listView = false }) => {
         <button
           onClick={handleToggleWishlist}
           disabled={wishlistLoading}
-          className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
+          className={`absolute top-2 right-2 p-2 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
             isInWishlist
               ? 'bg-red-500 text-white'
               : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-red-500'
           }`}
           title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+          aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
           <FiHeart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
         </button>
         {/* Compare Button */}
         <button
           onClick={handleToggleCompare}
-          className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 ${
+          className={`absolute top-12 right-2 p-2 rounded-full transition-all transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
             isInCompare
               ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg ring-2 ring-purple-300'
               : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-purple-500'
           }`}
           title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+          aria-label={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -236,8 +241,9 @@ const ProductCard = ({ product, listView = false }) => {
             e.stopPropagation();
             setShowQuickView(true);
           }}
-          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100"
+          className="absolute top-[88px] right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary-500 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
           title="Quick View"
+          aria-label="Quick View"
         >
           <FiEye className="w-5 h-5" />
         </button>
