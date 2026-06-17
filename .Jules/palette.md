@@ -1,0 +1,5 @@
+## 2024-05-24 - Invisible Keyboard Traps with Opacity Hover States
+
+**Learning:** When using CSS utility classes like `opacity-0 group-hover:opacity-100` to reveal interactive elements (like icon buttons) on mouse hover, it creates an accessibility issue for keyboard users. If the element is focused via the Tab key, it remains visually hidden (opacity 0) because the hover state is not triggered. This leads to an "invisible trap" where users tab to an element but cannot see what is currently focused or what action the element performs.
+
+**Action:** Always pair `opacity-0 group-hover:opacity-100` on interactive elements with `focus-visible:opacity-100` (or `focus-within:opacity-100` on parent containers) to ensure the element becomes visually apparent when it receives keyboard focus. Additionally, ensure the element has an explicit `focus-visible:ring` to clearly delineate its boundaries when focused.
