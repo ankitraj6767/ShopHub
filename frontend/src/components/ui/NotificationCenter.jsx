@@ -235,7 +235,9 @@ const NotificationCenter = () => {
             fetchNotifications();
           }
         }}
-        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
+        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+        aria-expanded={isOpen}
       >
         <FiBell className="w-6 h-6" />
         {unreadCount > 0 && (

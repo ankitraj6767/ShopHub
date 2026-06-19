@@ -88,7 +88,8 @@ const Layout = () => {
               
               {/* Wishlist */}
               {isAuthenticated && (
-                <Link to="/wishlist" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                <Link to="/wishlist" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                  aria-label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : "Wishlist"}>
                   <FiHeart className="w-6 h-6" />
                   {wishlistCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
@@ -105,7 +106,8 @@ const Layout = () => {
               <ThemeToggle />
               
               {/* Cart */}
-              <Link to="/cart" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+              <Link to="/cart" className="relative text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                aria-label={itemsCount > 0 ? `Shopping Cart, ${itemsCount} items` : "Shopping Cart"}>
                 <FiShoppingCart className="w-6 h-6" />
                 {itemsCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
@@ -119,7 +121,9 @@ const Layout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
+                    className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                    aria-label="User Menu"
+                    aria-expanded={userMenuOpen}
                   >
                     <FiUser className="w-6 h-6" />
                     <span>{user?.name?.split(' ')[0]}</span>
@@ -267,7 +271,9 @@ const Layout = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-gray-600 dark:text-gray-300"
+              className="md:hidden text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
             </button>
