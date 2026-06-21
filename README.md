@@ -248,12 +248,17 @@ npm run lint    # Run ESLint
 |----------|-------------|---------|
 | NODE_ENV | Environment mode | development |
 | PORT | Server port | 5000 |
-| MONGODB_URI | MongoDB connection string | mongodb://localhost:27017/ecommerce |
-| JWT_SECRET | JWT signing secret | - |
-| JWT_REFRESH_SECRET | Refresh token secret | - |
-| JWT_EXPIRE | Access token expiry | 15m |
+| MONGO_URI | MongoDB connection string | mongodb://localhost:27017/ecommerce |
+| JWT_ACCESS_SECRET | JWT access-token signing secret | - |
+| JWT_REFRESH_SECRET | JWT refresh-token signing secret | - |
+| JWT_ACCESS_EXPIRE | Access token expiry | 15m |
 | JWT_REFRESH_EXPIRE | Refresh token expiry | 7d |
-| CORS_ORIGIN | Allowed CORS origin | http://localhost:5173 |
+| COOKIE_SECURE | Use secure cookies | false |
+| FRONTEND_URL | Frontend URL for CORS and email links | http://localhost:5173 |
+
+## Backend Deployment
+
+Render deployment is configured in `render.yaml`. For the full checklist and exact dashboard values, see [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md).
 
 ## Features Overview
 
