@@ -55,9 +55,10 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          aria-label="Close"
         >
-          <FiX className="w-5 h-5" />
+          <FiX className="w-5 h-5" aria-hidden="true" />
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[90vh]">
@@ -81,9 +82,11 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${
                       selectedImage === idx ? 'border-primary-500' : 'border-transparent'
                     }`}
+                    aria-label={`View image ${idx + 1}`}
+                    aria-current={selectedImage === idx ? 'true' : undefined}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -163,18 +166,22 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 <div className="flex items-center border dark:border-gray-600 rounded-lg">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-l-lg"
                     disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
                   >
-                    <FiMinus className="w-4 h-4" />
+                    <FiMinus className="w-4 h-4" aria-hidden="true" />
                   </button>
-                  <span className="w-12 text-center font-medium dark:text-white">{quantity}</span>
+                  <span className="w-12 text-center font-medium dark:text-white" aria-live="polite" aria-atomic="true">
+                    {quantity}
+                  </span>
                   <button
                     onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-r-lg"
                     disabled={quantity >= product.stock}
+                    aria-label="Increase quantity"
                   >
-                    <FiPlus className="w-4 h-4" />
+                    <FiPlus className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -191,13 +198,14 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 </button>
                 <button
                   onClick={handleWishlist}
-                  className={`p-3 rounded-lg border-2 transition-colors ${
+                  className={`p-3 rounded-lg border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                     isInWishlist
                       ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-500'
                       : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-red-500 hover:text-red-500'
                   }`}
+                  aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
-                  <FiHeart className={isInWishlist ? 'fill-current' : ''} />
+                  <FiHeart className={isInWishlist ? 'fill-current' : ''} aria-hidden="true" />
                 </button>
               </div>
 
