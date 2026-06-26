@@ -24,17 +24,28 @@ const CompareBar = () => {
     <div className="fixed bottom-0 left-0 right-0 z-40">
       {/* Toggle Bar */}
       <motion.div
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen}
+        aria-controls="compare-panel"
+        aria-label={`${isOpen ? 'Collapse' : 'Expand'} Compare Panel, ${products.length} items`}
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-3 px-4 sm:px-6 flex items-center justify-between cursor-pointer shadow-2xl"
+        className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-3 px-4 sm:px-6 flex items-center justify-between cursor-pointer shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         onClick={() => dispatch(toggleComparePanel())}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            dispatch(toggleComparePanel());
+          }
+        }}
       >
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <FiBarChart2 className="w-5 h-5" />
+              <FiBarChart2 className="w-5 h-5" aria-hidden="true" />
             </div>
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full flex items-center justify-center" aria-hidden="true">
               {products.length}
             </span>
           </div>
@@ -83,13 +94,14 @@ const CompareBar = () => {
             </Link>
           )}
           
-          <motion.button
+          <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
             className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition"
+            aria-hidden="true"
           >
             <FiChevronUp className="w-5 h-5" />
-          </motion.button>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -97,6 +109,7 @@ const CompareBar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="compare-panel"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -115,9 +128,10 @@ const CompareBar = () => {
                 </div>
                 <button
                   onClick={() => dispatch(clearCompare())}
-                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition text-sm font-medium"
+                  aria-label="Clear all compare items"
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                 >
-                  <FiTrash2 className="w-4 h-4" /> Clear All
+                  <FiTrash2 className="w-4 h-4" aria-hidden="true" /> Clear All
                 </button>
               </div>
               
@@ -133,9 +147,10 @@ const CompareBar = () => {
                     <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-all hover:shadow-lg">
                       <button
                         onClick={() => dispatch(removeFromCompare(item._id))}
-                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 z-10"
+                        aria-label={`Remove ${item.name} from compare`}
+                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 transition-all transform hover:scale-110 z-10"
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX className="w-4 h-4" aria-hidden="true" />
                       </button>
                       <Link to={`/products/${item._id}`} className="block">
                         <div className="relative w-full aspect-square mb-3 rounded-xl overflow-hidden bg-white dark:bg-gray-600">
@@ -177,10 +192,10 @@ const CompareBar = () => {
                   >
                     <Link
                       to="/products"
-                      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-4 flex flex-col items-center justify-center aspect-[4/5] hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group"
+                      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-4 flex flex-col items-center justify-center aspect-[4/5] hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     >
                       <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/30 transition">
-                        <FiPlus className="w-6 h-6 text-gray-400 group-hover:text-purple-500 transition" />
+                        <FiPlus className="w-6 h-6 text-gray-400 group-hover:text-purple-500 transition" aria-hidden="true" />
                       </div>
                       <span className="text-sm text-gray-400 group-hover:text-purple-500 transition font-medium">
                         Add Product
