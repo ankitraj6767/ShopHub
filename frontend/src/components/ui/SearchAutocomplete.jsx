@@ -114,14 +114,15 @@ const SearchAutocomplete = () => {
           onFocus={() => setIsOpen(true)}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
-        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" aria-hidden="true" />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
           >
-            <FiX className="w-4 h-4" />
+            <FiX className="w-4 h-4" aria-hidden="true" />
           </button>
         )}
       </form>
@@ -144,7 +145,7 @@ const SearchAutocomplete = () => {
                 <button
                   key={product._id}
                   onClick={() => handleSuggestionClick(product)}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-left"
+                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                 >
                   <img
                     src={product.images?.[0]?.url || '/placeholder.jpg'}
@@ -170,20 +171,33 @@ const SearchAutocomplete = () => {
               {recentSearches.length > 0 && (
                 <div className="p-2 border-b dark:border-gray-700">
                   <p className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1">
-                    <FiClock className="w-3 h-3" /> Recent Searches
+                    <FiClock className="w-3 h-3" aria-hidden="true" /> Recent Searches
                   </p>
                   {recentSearches.map((term) => (
                     <div
                       key={term}
-                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
+                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer group"
                       onClick={() => handleRecentClick(term)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.target !== e.currentTarget) return;
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleRecentClick(term);
+                        }
+                      }}
                     >
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300 group-focus-visible:ring-2 group-focus-visible:ring-primary-500 rounded">{term}</span>
                       <button
-                        onClick={(e) => removeRecentSearch(term, e)}
-                        className="text-gray-400 hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeRecentSearch(term, e);
+                        }}
+                        aria-label={`Remove ${term} from recent searches`}
+                        className="text-gray-400 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -193,14 +207,14 @@ const SearchAutocomplete = () => {
               {/* Popular Searches */}
               <div className="p-2">
                 <p className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase flex items-center gap-1">
-                  <FiTrendingUp className="w-3 h-3" /> Popular Categories
+                  <FiTrendingUp className="w-3 h-3" aria-hidden="true" /> Popular Categories
                 </p>
                 <div className="flex flex-wrap gap-2 px-3 py-2">
                   {popularSearches.map((term) => (
                     <button
                       key={term}
                       onClick={() => handlePopularClick(term)}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300 transition"
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     >
                       {term}
                     </button>
@@ -216,7 +230,7 @@ const SearchAutocomplete = () => {
               <p>No products found for "{query}"</p>
               <button
                 onClick={handleSearch}
-                className="mt-2 text-primary-600 hover:underline text-sm"
+                className="mt-2 text-primary-600 hover:underline text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm px-1"
               >
                 Search for "{query}"
               </button>
