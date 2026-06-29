@@ -1,6 +1,3 @@
-## 2024-05-15 - Focus Visibility
-**Learning:** Hidden elements like tooltip badges or action buttons relying purely on `group-hover:opacity-100` are inaccessible for keyboard users.
-**Action:** Always append `focus-within:opacity-100` to the container to ensure that when interactive children receive focus, the parent container makes them visible. Alternatively, `focus-visible:opacity-100` on the item itself.
-## 2024-06-24 - Accessibility on Stateful Buttons
-**Learning:** When adding ARIA labels to buttons containing state (like a notification unread count), dynamically updating the `aria-label` provides much better context to screen readers than a static label. Additionally, applying `aria-hidden="true"` to SVG icons and redundant text badges within the button prevents the screen reader from reading the information twice (e.g., reading the label, then reading the badge number).
-**Action:** Always consider the state of a component when assigning `aria-label` and systematically use `aria-hidden="true"` on non-semantic child elements to create a clean, single-source-of-truth accessibility tree.
+## 2025-06-29 - [Event Bubbling in Custom Interactive Elements]
+**Learning:** When creating custom interactive elements using `div` with `tabIndex={0}` and a nested `button`, a standard click might be cleanly separated via `e.stopPropagation()`, but keyboard events (like 'Enter') on the focused nested button will still bubble up and trigger the parent's `onKeyDown` handler, resulting in duplicate or conflicting actions.
+**Action:** Always include an explicit target check (`if (e.target !== e.currentTarget) return;`) in the `onKeyDown` handler of parent interactive elements to prevent unintended execution from bubbled keyboard events triggered on children. Additionally, ensure `role="button"` and support for both `Enter` and Spacebar keys are implemented for complete keyboard accessibility on custom elements.
