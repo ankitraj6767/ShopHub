@@ -80,9 +80,11 @@ const AdminLayout = () => {
           {!isMobile && (
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors hidden lg:block"
+              className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors hidden lg:block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!isCollapsed}
             >
-              {isCollapsed ? <FiMenu className="w-5 h-5" /> : <FiX className="w-5 h-5" />}
+              {isCollapsed ? <FiMenu className="w-5 h-5" aria-hidden="true" /> : <FiX className="w-5 h-5" aria-hidden="true" />}
             </button>
           )}
         </div>
