@@ -26,8 +26,19 @@ const CompareBar = () => {
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-3 px-4 sm:px-6 flex items-center justify-between cursor-pointer shadow-2xl"
+        className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-3 px-4 sm:px-6 flex items-center justify-between cursor-pointer shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-400 focus-visible:ring-inset"
         onClick={() => dispatch(toggleComparePanel())}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen}
+        aria-controls="compare-panel"
+        onKeyDown={(e) => {
+          if (e.target !== e.currentTarget) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            dispatch(toggleComparePanel());
+          }
+        }}
       >
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -75,21 +86,22 @@ const CompareBar = () => {
           {products.length >= 2 && (
             <Link
               to="/compare"
-              className="bg-white text-purple-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-yellow-400 hover:text-gray-900 transition-all flex items-center gap-2 shadow-lg"
+              className="bg-white text-purple-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-yellow-400 hover:text-gray-900 transition-all flex items-center gap-2 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-purple-500"
               onClick={(e) => e.stopPropagation()}
             >
               <span className="hidden sm:inline">Compare Now</span>
-              <FiArrowRight className="w-4 h-4" />
+              <FiArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
           )}
           
-          <motion.button
+          <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
             className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition"
+            aria-hidden="true"
           >
             <FiChevronUp className="w-5 h-5" />
-          </motion.button>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -97,6 +109,7 @@ const CompareBar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="compare-panel"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -130,12 +143,13 @@ const CompareBar = () => {
                     transition={{ delay: index * 0.1 }}
                     className="relative group"
                   >
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-all hover:shadow-lg">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-all hover:shadow-lg focus-within:opacity-100">
                       <button
                         onClick={() => dispatch(removeFromCompare(item._id))}
-                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 z-10"
+                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 z-10 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                        aria-label={`Remove ${item.name} from compare`}
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX className="w-4 h-4" aria-hidden="true" />
                       </button>
                       <Link to={`/products/${item._id}`} className="block">
                         <div className="relative w-full aspect-square mb-3 rounded-xl overflow-hidden bg-white dark:bg-gray-600">
