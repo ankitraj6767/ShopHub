@@ -81,8 +81,9 @@ const AdminLayout = () => {
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors hidden lg:block"
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {isCollapsed ? <FiMenu className="w-5 h-5" /> : <FiX className="w-5 h-5" />}
+              {isCollapsed ? <FiMenu className="w-5 h-5" aria-hidden="true" /> : <FiX className="w-5 h-5" aria-hidden="true" />}
             </button>
           )}
         </div>
