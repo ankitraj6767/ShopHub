@@ -109,19 +109,21 @@ const SearchAutocomplete = () => {
           ref={inputRef}
           type="text"
           placeholder="Search products..."
+          aria-label="Search products"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
-        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <FiSearch aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
+            aria-label="Clear search"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
-            <FiX className="w-4 h-4" />
+            <FiX aria-hidden="true" className="w-4 h-4" />
           </button>
         )}
       </form>
@@ -181,9 +183,10 @@ const SearchAutocomplete = () => {
                       <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
                       <button
                         onClick={(e) => removeRecentSearch(term, e)}
+                        aria-label={`Remove ${term} from recent searches`}
                         className="text-gray-400 hover:text-red-500"
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX aria-hidden="true" className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
