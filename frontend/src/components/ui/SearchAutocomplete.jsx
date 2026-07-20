@@ -109,19 +109,21 @@ const SearchAutocomplete = () => {
           ref={inputRef}
           type="text"
           placeholder="Search products..."
+          aria-label="Search products"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
-        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" aria-hidden="true" />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full"
           >
-            <FiX className="w-4 h-4" />
+            <FiX className="w-4 h-4" aria-hidden="true" />
           </button>
         )}
       </form>
@@ -144,7 +146,7 @@ const SearchAutocomplete = () => {
                 <button
                   key={product._id}
                   onClick={() => handleSuggestionClick(product)}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-left"
+                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-left focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                 >
                   <img
                     src={product.images?.[0]?.url || '/placeholder.jpg'}
@@ -175,15 +177,28 @@ const SearchAutocomplete = () => {
                   {recentSearches.map((term) => (
                     <div
                       key={term}
-                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
-                      onClick={() => handleRecentClick(term)}
+                      role="button"
+                      tabIndex={0}
+                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+                      onClick={(e) => {
+                        if (e.target.closest('button')) return;
+                        handleRecentClick(term);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.target !== e.currentTarget) return;
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleRecentClick(term);
+                        }
+                      }}
                     >
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300 pointer-events-none">{term}</span>
                       <button
                         onClick={(e) => removeRecentSearch(term, e)}
-                        className="text-gray-400 hover:text-red-500"
+                        aria-label="Remove recent search"
+                        className="text-gray-400 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full p-1"
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -200,7 +215,7 @@ const SearchAutocomplete = () => {
                     <button
                       key={term}
                       onClick={() => handlePopularClick(term)}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300 transition"
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                     >
                       {term}
                     </button>
