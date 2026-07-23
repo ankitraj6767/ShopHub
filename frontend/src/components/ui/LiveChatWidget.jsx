@@ -90,8 +90,9 @@ const LiveChatWidget = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+          aria-label={unreadCount > 0 ? `Open Live Chat, ${unreadCount} unread messages` : 'Open Live Chat'}
         >
-          <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
               {unreadCount}
@@ -134,8 +135,10 @@ const LiveChatWidget = () => {
                   setIsMinimized(!isMinimized);
                 }}
                 className="p-1 hover:bg-white/20 rounded transition-colors"
+                aria-label={isMinimized ? "Expand Chat" : "Minimize Chat"}
+                aria-expanded={!isMinimized}
               >
-                <FiMinimize2 className="w-4 h-4" />
+                <FiMinimize2 className="w-4 h-4" aria-hidden="true" />
               </button>
               <button
                 onClick={(e) => {
@@ -143,8 +146,9 @@ const LiveChatWidget = () => {
                   setIsOpen(false);
                 }}
                 className="p-1 hover:bg-white/20 rounded transition-colors"
+                aria-label="Close Chat"
               >
-                <FiX className="w-4 h-4" />
+                <FiX className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -200,8 +204,9 @@ const LiveChatWidget = () => {
                     type="submit"
                     disabled={isTyping || !message.trim()}
                     className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                    aria-label="Send Message"
                   >
-                    <FiSend className="w-5 h-5" />
+                    <FiSend className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </form>
