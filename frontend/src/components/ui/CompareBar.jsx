@@ -86,9 +86,11 @@ const CompareBar = () => {
           <motion.button
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition"
+            className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label={isOpen ? "Collapse compare panel" : "Expand compare panel"}
+            aria-expanded={isOpen}
           >
-            <FiChevronUp className="w-5 h-5" />
+            <FiChevronUp className="w-5 h-5" aria-hidden="true" />
           </motion.button>
         </div>
       </motion.div>
@@ -115,9 +117,9 @@ const CompareBar = () => {
                 </div>
                 <button
                   onClick={() => dispatch(clearCompare())}
-                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition text-sm font-medium"
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                 >
-                  <FiTrash2 className="w-4 h-4" /> Clear All
+                  <FiTrash2 className="w-4 h-4" aria-hidden="true" /> Clear All
                 </button>
               </div>
               
@@ -133,9 +135,10 @@ const CompareBar = () => {
                     <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-all hover:shadow-lg">
                       <button
                         onClick={() => dispatch(removeFromCompare(item._id))}
-                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 z-10"
+                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all transform hover:scale-110 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                        aria-label={`Remove ${item.name} from comparison`}
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX className="w-4 h-4" aria-hidden="true" />
                       </button>
                       <Link to={`/products/${item._id}`} className="block">
                         <div className="relative w-full aspect-square mb-3 rounded-xl overflow-hidden bg-white dark:bg-gray-600">
