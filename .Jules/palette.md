@@ -1,6 +1,7 @@
-## 2024-05-15 - Focus Visibility
-**Learning:** Hidden elements like tooltip badges or action buttons relying purely on `group-hover:opacity-100` are inaccessible for keyboard users.
-**Action:** Always append `focus-within:opacity-100` to the container to ensure that when interactive children receive focus, the parent container makes them visible. Alternatively, `focus-visible:opacity-100` on the item itself.
-## 2024-06-24 - Accessibility on Stateful Buttons
-**Learning:** When adding ARIA labels to buttons containing state (like a notification unread count), dynamically updating the `aria-label` provides much better context to screen readers than a static label. Additionally, applying `aria-hidden="true"` to SVG icons and redundant text badges within the button prevents the screen reader from reading the information twice (e.g., reading the label, then reading the badge number).
-**Action:** Always consider the state of a component when assigning `aria-label` and systematically use `aria-hidden="true"` on non-semantic child elements to create a clean, single-source-of-truth accessibility tree.
+## 2024-07-29 - Modal Accessibility Polish
+**Learning:** Floating interactive elements (like the QuickViewModal) are particularly prone to accessibility pitfalls when focus indicators are stripped by fixed/absolute positioning. Custom icon-only buttons nested within modals require explicit `aria-label`, `focus-visible` styling, and `aria-hidden="true"` on SVGs to ensure screen readers do not announce redundant/confusing structure.
+**Action:** Always include semantic roles (`role="dialog"`, `aria-modal="true"`, `aria-labelledby`) on the container, and add `focus-visible:ring-2` to all interactive buttons within custom modal components.
+
+## 2024-07-29 - Modal Accessibility Polish
+**Learning:** Floating interactive elements (like the QuickViewModal) are particularly prone to accessibility pitfalls when focus indicators are stripped by fixed/absolute positioning. Custom icon-only buttons nested within modals require explicit `aria-label`, `focus-visible` styling, and `aria-hidden="true"` on SVGs to ensure screen readers do not announce redundant/confusing structure.
+**Action:** Always include semantic roles (`role="dialog"`, `aria-modal="true"`, `aria-labelledby`) on the container, and add `focus-visible:ring-2` to all interactive buttons within custom modal components.
