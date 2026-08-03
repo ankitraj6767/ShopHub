@@ -84,7 +84,7 @@ const SmartSearchBar = ({ className = '' }) => {
   return (
     <div ref={wrapperRef} className={`relative ${className}`}>
       <div className="relative">
-        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
         <input
           ref={inputRef}
           type="text"
@@ -93,6 +93,7 @@ const SmartSearchBar = ({ className = '' }) => {
           onFocus={() => setIsFocused(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search products, brands, categories..."
+          aria-label="Search products, brands, categories"
           className="w-full pl-10 pr-10 py-2.5 bg-gray-100 dark:bg-gray-700 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
         />
         {query && (
@@ -101,9 +102,10 @@ const SmartSearchBar = ({ className = '' }) => {
               setQuery('');
               dispatch(clearSearchSuggestions());
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full p-1"
           >
-            <FiX className="w-5 h-5" />
+            <FiX className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
       </div>
