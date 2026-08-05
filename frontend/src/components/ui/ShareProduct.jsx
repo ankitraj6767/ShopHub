@@ -64,13 +64,20 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
       <div 
         className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-modal-title"
       >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <FiShare2 /> Share this product
+          <h3 id="share-modal-title" className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <FiShare2 aria-hidden="true" /> Share this product
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-            <FiX className="w-5 h-5" />
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+            aria-label="Close share modal"
+          >
+            <FiX className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -93,10 +100,11 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
             <button
               key={link.name}
               onClick={() => handleShare(link.url)}
-              className={`${link.color} text-white p-3 rounded-lg flex items-center justify-center transition`}
+              className={`${link.color} text-white p-3 rounded-lg flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2`}
               title={`Share on ${link.name}`}
+              aria-label={`Share on ${link.name}`}
             >
-              <link.icon className="w-5 h-5" />
+              <link.icon className="w-5 h-5" aria-hidden="true" />
             </button>
           ))}
         </div>
@@ -107,17 +115,19 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
             type="text"
             value={productUrl}
             readOnly
-            className="flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-sm text-gray-600 dark:text-gray-300"
+            aria-label="Product URL"
+            className="flex-1 px-3 py-2 border dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-sm text-gray-600 dark:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           />
           <button
             onClick={copyToClipboard}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
+            aria-label={copied ? "Link copied" : "Copy link"}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
               copied 
                 ? 'bg-green-500 text-white' 
                 : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'
             }`}
           >
-            <FiLink className="w-4 h-4" />
+            <FiLink className="w-4 h-4" aria-hidden="true" />
             {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
