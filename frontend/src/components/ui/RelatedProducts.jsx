@@ -53,41 +53,49 @@ const RelatedProducts = ({ productId, title = 'Related Products' }) => {
             key={product._id}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition"
           >
-            {/* Image */}
-            <Link to={`/products/${product._id}`} className="block relative">
-              <img
-                src={product.images?.[0]?.url || '/placeholder.jpg'}
-                alt={product.name}
-                className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
-              />
-              {/* Quick actions */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            {/* Image Section */}
+            <div className="relative group">
+              <Link to={`/products/${product._id}`} className="block overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                <img
+                  src={product.images?.[0]?.url || '/placeholder.jpg'}
+                  alt={product.name}
+                  className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
+                />
+              </Link>
+
+              {/* Quick actions Overlay */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     handleAddToCart(product);
                   }}
-                  className="p-2 bg-white rounded-full text-gray-900 hover:bg-primary-600 hover:text-white transition"
+                  aria-label={`Add ${product.name} to cart`}
+                  className="p-2 bg-white rounded-full text-gray-900 hover:bg-primary-600 hover:text-white transition pointer-events-auto focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart aria-hidden="true" className="w-5 h-5" />
                 </button>
                 <button
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     handleAddToWishlist(product._id);
                   }}
-                  className="p-2 bg-white rounded-full text-gray-900 hover:bg-red-600 hover:text-white transition"
+                  aria-label={`Add ${product.name} to wishlist`}
+                  className="p-2 bg-white rounded-full text-gray-900 hover:bg-red-600 hover:text-white transition pointer-events-auto focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                 >
-                  <Heart className="w-5 h-5" />
+                  <Heart aria-hidden="true" className="w-5 h-5" />
                 </button>
                 <Link
                   to={`/products/${product._id}`}
-                  className="p-2 bg-white rounded-full text-gray-900 hover:bg-gray-900 hover:text-white transition"
+                  aria-label={`View details for ${product.name}`}
+                  className="p-2 bg-white rounded-full text-gray-900 hover:bg-gray-900 hover:text-white transition pointer-events-auto focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                 >
-                  <Eye className="w-5 h-5" />
+                  <Eye aria-hidden="true" className="w-5 h-5" />
                 </Link>
               </div>
-            </Link>
+            </div>
 
             {/* Info */}
             <div className="p-4">
