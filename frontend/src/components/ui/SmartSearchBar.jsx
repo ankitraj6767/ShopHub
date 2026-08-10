@@ -88,6 +88,7 @@ const SmartSearchBar = ({ className = '' }) => {
         <input
           ref={inputRef}
           type="text"
+          aria-label="Search products, brands, categories"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}

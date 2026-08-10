@@ -532,6 +532,7 @@ const Layout = () => {
               <div className="flex gap-3 w-full md:w-auto">
                 <input
                   type="email"
+                  aria-label="Email address for newsletter"
                   placeholder="Enter your email"
                   className="flex-1 md:w-64 px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
