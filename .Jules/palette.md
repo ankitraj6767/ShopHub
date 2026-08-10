@@ -4,3 +4,7 @@
 ## 2024-06-24 - Accessibility on Stateful Buttons
 **Learning:** When adding ARIA labels to buttons containing state (like a notification unread count), dynamically updating the `aria-label` provides much better context to screen readers than a static label. Additionally, applying `aria-hidden="true"` to SVG icons and redundant text badges within the button prevents the screen reader from reading the information twice (e.g., reading the label, then reading the badge number).
 **Action:** Always consider the state of a component when assigning `aria-label` and systematically use `aria-hidden="true"` on non-semantic child elements to create a clean, single-source-of-truth accessibility tree.
+
+## 2026-08-10 - Accessible Labels for Isolated Inputs
+**Learning:** Relying purely on placeholder text for isolated input fields (like newsletter subscriptions or search bars) is insufficient for accessibility. Screen readers may not announce placeholders reliably, or they may disappear when the user starts typing, leaving the input without context.
+**Action:** Always provide an explicit `aria-label` or `aria-labelledby` attribute for isolated input fields that lack a visual `<label>` element to ensure continuous context for screen reader users.
