@@ -108,20 +108,22 @@ const SearchAutocomplete = () => {
         <input
           ref={inputRef}
           type="text"
+          aria-label="Search products"
           placeholder="Search products..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
-        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" aria-hidden="true" />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded p-1"
           >
-            <FiX className="w-4 h-4" />
+            <FiX className="w-4 h-4" aria-hidden="true" />
           </button>
         )}
       </form>
@@ -181,9 +183,10 @@ const SearchAutocomplete = () => {
                       <span className="text-sm text-gray-700 dark:text-gray-300">{term}</span>
                       <button
                         onClick={(e) => removeRecentSearch(term, e)}
-                        className="text-gray-400 hover:text-red-500"
+                        aria-label={`Remove ${term} from recent searches`}
+                        className="text-gray-400 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded p-1"
                       >
-                        <FiX className="w-4 h-4" />
+                        <FiX className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
