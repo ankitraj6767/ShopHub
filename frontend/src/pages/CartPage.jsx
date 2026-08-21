@@ -179,10 +179,11 @@ const CartPage = () => {
               <div className="flex items-center border dark:border-gray-600 rounded-lg">
                 <button
                   onClick={() => handleQuantityChange(item._id, item.quantity - 1, item.stock)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                   disabled={item.quantity <= 1}
+                  aria-label="Decrease quantity"
                 >
-                  <FiMinus className="w-4 h-4 dark:text-white" />
+                  <FiMinus className="w-4 h-4 dark:text-white" aria-hidden="true" />
                 </button>
                 <span className="px-3 py-1 font-medium dark:text-white">{item.quantity}</span>
                 <button
@@ -193,9 +194,10 @@ const CartPage = () => {
                       handleQuantityChange(item._id, item.quantity + 1, item.stock);
                     }
                   }}
-                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition ${item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  aria-label="Increase quantity"
                 >
-                  <FiPlus className="w-4 h-4 dark:text-white" />
+                  <FiPlus className="w-4 h-4 dark:text-white" aria-hidden="true" />
                 </button>
               </div>
 
@@ -210,17 +212,19 @@ const CartPage = () => {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => handleSaveForLater(item._id)}
-                  className="p-2 text-gray-400 hover:text-primary-600 transition"
+                  className="p-2 text-gray-400 hover:text-primary-600 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                   title="Save for later"
+                  aria-label="Save for later"
                 >
-                  <FiBookmark className="w-5 h-5" />
+                  <FiBookmark className="w-5 h-5" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => handleRemove(item._id)}
-                  className="p-2 text-gray-400 hover:text-red-500 transition"
+                  className="p-2 text-gray-400 hover:text-red-500 transition focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                   title="Remove"
+                  aria-label="Remove item"
                 >
-                  <FiTrash2 className="w-5 h-5" />
+                  <FiTrash2 className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -314,16 +318,18 @@ const CartPage = () => {
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => handleMoveToCart(item._id)}
-                    className="flex-1 btn-primary py-2 text-sm flex items-center justify-center gap-1"
+                    className="flex-1 btn-primary py-2 text-sm flex items-center justify-center gap-1 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
                   >
-                    <FiShoppingCart className="w-4 h-4" />
+                    <FiShoppingCart className="w-4 h-4" aria-hidden="true" />
                     Move to Cart
                   </button>
                   <button
                     onClick={() => handleRemoveFromSaved(item._id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition border dark:border-gray-600 rounded-lg"
+                    className="p-2 text-gray-400 hover:text-red-500 transition border dark:border-gray-600 rounded-lg focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+                    aria-label="Remove from saved items"
+                    title="Remove from saved items"
                   >
-                    <FiTrash2 className="w-4 h-4" />
+                    <FiTrash2 className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
