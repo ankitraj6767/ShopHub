@@ -69,8 +69,8 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <FiShare2 /> Share this product
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-            <FiX className="w-5 h-5" />
+          <button onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <FiX className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -94,9 +94,9 @@ const ShareProduct = ({ product, isOpen, onClose }) => {
               key={link.name}
               onClick={() => handleShare(link.url)}
               className={`${link.color} text-white p-3 rounded-lg flex items-center justify-center transition`}
-              title={`Share on ${link.name}`}
+              aria-label={`Share on ${link.name}`}
             >
-              <link.icon className="w-5 h-5" />
+              <link.icon className="w-5 h-5" aria-hidden="true" />
             </button>
           ))}
         </div>
