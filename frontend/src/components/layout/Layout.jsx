@@ -127,7 +127,10 @@ const Layout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
+                    aria-label="User menu"
+                    aria-expanded={userMenuOpen}
+                    aria-haspopup="true"
+                    className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md p-1 -m-1"
                   >
                     <FiUser className="w-6 h-6" />
                     <span>{user?.name?.split(' ')[0]}</span>
