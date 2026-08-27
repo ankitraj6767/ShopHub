@@ -4,3 +4,6 @@
 ## 2024-06-24 - Accessibility on Stateful Buttons
 **Learning:** When adding ARIA labels to buttons containing state (like a notification unread count), dynamically updating the `aria-label` provides much better context to screen readers than a static label. Additionally, applying `aria-hidden="true"` to SVG icons and redundant text badges within the button prevents the screen reader from reading the information twice (e.g., reading the label, then reading the badge number).
 **Action:** Always consider the state of a component when assigning `aria-label` and systematically use `aria-hidden="true"` on non-semantic child elements to create a clean, single-source-of-truth accessibility tree.
+## 2024-08-27 - Search Autocomplete Accessibility
+**Learning:** Adding keyboard accessibility to nested interactive elements (like a "remove" button inside a clickable "recent search" row) requires careful event propagation handling. Setting `pointer-events-none` on inner text elements and checking `if (e.target !== e.currentTarget) return;` on the parent container successfully prevents event bubbling issues while maintaining a single tab stop for the row.
+**Action:** Use this pattern (`pointer-events-none` on text, strict target checking on parent) when converting `div`s with nested buttons into accessible `role="button"` elements.
