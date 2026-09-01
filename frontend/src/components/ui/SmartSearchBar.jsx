@@ -92,6 +92,7 @@ const SmartSearchBar = ({ className = '' }) => {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onKeyDown={handleKeyDown}
+          aria-label="Search products, brands, categories"
           placeholder="Search products, brands, categories..."
           className="w-full pl-10 pr-10 py-2.5 bg-gray-100 dark:bg-gray-700 border-0 rounded-xl focus:ring-2 focus:ring-primary-500 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
         />

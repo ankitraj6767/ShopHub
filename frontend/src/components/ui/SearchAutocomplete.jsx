@@ -108,6 +108,7 @@ const SearchAutocomplete = () => {
         <input
           ref={inputRef}
           type="text"
+          aria-label="Search for products, brands and more"
           placeholder="Search products..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
