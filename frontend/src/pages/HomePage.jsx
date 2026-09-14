@@ -236,6 +236,7 @@ const HomePage = () => {
           <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
+              aria-label="Email for newsletter"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
