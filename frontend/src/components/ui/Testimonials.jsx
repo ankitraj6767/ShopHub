@@ -18,21 +18,23 @@ const Testimonials = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!isAutoPlaying || testimonials.length === 0) return;
+    if (!isAutoPlaying || !testimonials || testimonials.length === 0) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [isAutoPlaying, testimonials.length]);
+  }, [isAutoPlaying, testimonials?.length]);
 
   const goToPrev = () => {
+    if (!testimonials) return;
     setIsAutoPlaying(false);
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   const goToNext = () => {
+    if (!testimonials) return;
     setIsAutoPlaying(false);
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
@@ -82,7 +84,7 @@ const Testimonials = () => {
   }
 
   // No testimonials state
-  if (!loading && testimonials.length === 0) {
+  if (!loading && (!testimonials || testimonials.length === 0)) {
     return (
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -234,14 +236,14 @@ const Testimonials = () => {
                 </button>
                 
                 <span className="text-xs text-gray-400 dark:text-gray-500">
-                  {currentIndex + 1} of {testimonials.length}
+                  {currentIndex + 1} of {testimonials?.length || 0}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Navigation Buttons */}
-          {testimonials.length > 1 && (
+          {testimonials?.length > 1 && (
             <>
               <button
                 onClick={goToPrev}
@@ -259,7 +261,7 @@ const Testimonials = () => {
           )}
 
           {/* Dots */}
-          {testimonials.length > 1 && (
+          {testimonials?.length > 1 && (
             <div className="flex justify-center gap-2 mt-8">
               {testimonials.map((_, index) => (
                 <button
@@ -283,22 +285,22 @@ const Testimonials = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-16 border-t dark:border-gray-700">
           <div className="text-center">
             <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-              {testimonials.length > 0 ? `${testimonials.length}+` : '0'}
+              {testimonials?.length > 0 ? `${testimonials?.length}+` : '0'}
             </p>
             <p className="text-gray-600 dark:text-gray-300 mt-1">Happy Customers</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-              {testimonials.length > 0 
-                ? (testimonials.reduce((acc, t) => acc + t.rating, 0) / testimonials.length).toFixed(1)
+              {testimonials?.length > 0
+                ? (testimonials.reduce((acc, t) => acc + t.rating, 0) / testimonials?.length).toFixed(1)
                 : '0'}
             </p>
             <p className="text-gray-600 dark:text-gray-300 mt-1">Average Rating</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-              {testimonials.filter(t => t.rating >= 4).length > 0
-                ? Math.round((testimonials.filter(t => t.rating >= 4).length / testimonials.length) * 100)
+              {testimonials?.filter(t => t.rating >= 4).length > 0
+                ? Math.round((testimonials.filter(t => t.rating >= 4).length / testimonials?.length) * 100)
                 : 0}%
             </p>
             <p className="text-gray-600 dark:text-gray-300 mt-1">Satisfaction Rate</p>

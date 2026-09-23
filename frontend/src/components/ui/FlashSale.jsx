@@ -141,7 +141,7 @@ const FlashSale = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {flashSale.products.slice(0, 5).map((item) => {
+          {(flashSale.products || []).slice(0, 5).map((item) => {
             const discount = Math.round(((item.originalPrice - item.salePrice) / item.originalPrice) * 100);
             const remaining = item.quantity - item.sold;
             const soldPercentage = (item.sold / item.quantity) * 100;
