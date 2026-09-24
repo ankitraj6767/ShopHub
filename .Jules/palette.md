@@ -4,3 +4,7 @@
 ## 2024-06-24 - Accessibility on Stateful Buttons
 **Learning:** When adding ARIA labels to buttons containing state (like a notification unread count), dynamically updating the `aria-label` provides much better context to screen readers than a static label. Additionally, applying `aria-hidden="true"` to SVG icons and redundant text badges within the button prevents the screen reader from reading the information twice (e.g., reading the label, then reading the badge number).
 **Action:** Always consider the state of a component when assigning `aria-label` and systematically use `aria-hidden="true"` on non-semantic child elements to create a clean, single-source-of-truth accessibility tree.
+
+## 2026-09-24 - Modal and Icon Controls Accessibility
+**Learning:** Modal dialogs lack native semantic structure unless `role="dialog"`, `aria-modal="true"`, and `aria-labelledby` are explicitly added. Furthermore, modal interactive controls (like close, quantity adjust, and wishlist buttons) often strip default focus visibility and rely on visual icons, rendering them inaccessible to screen readers and keyboard users without explicit ARIA labels and focus rings.
+**Action:** Always wrap custom modal containers with dialog ARIA roles pointing to the main title ID. For any icon-only button inside, ensure it has a descriptive `aria-label`, apply `aria-hidden="true"` to the SVG to prevent redundant reading, and add `focus-visible:ring-2` for keyboard navigation.
