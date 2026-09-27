@@ -7,7 +7,8 @@ const ThemeToggle = ({ className = '' }) => {
   return (
     <button
       onClick={toggleDarkMode}
-      className={`p-2 rounded-lg transition-colors ${
+      aria-pressed={isDarkMode}
+      className={`p-2 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
         isDarkMode
           ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -16,9 +17,9 @@ const ThemeToggle = ({ className = '' }) => {
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {isDarkMode ? (
-        <FiSun className="w-5 h-5" />
+        <FiSun className="w-5 h-5" aria-hidden="true" />
       ) : (
-        <FiMoon className="w-5 h-5" />
+        <FiMoon className="w-5 h-5" aria-hidden="true" />
       )}
     </button>
   );
