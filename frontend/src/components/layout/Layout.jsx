@@ -61,8 +61,9 @@ const Layout = () => {
           to="/"
           className="fixed bottom-6 left-6 z-50 bg-primary-600 hover:bg-primary-700 text-white p-4 rounded-full shadow-lg transition-all hover:scale-110 flex items-center justify-center"
           title="Go to Home"
+          aria-label="Go to Home"
         >
-          <FiHome className="w-6 h-6" />
+          <FiHome className="w-6 h-6" aria-hidden="true" />
         </Link>
       )}
 
