@@ -89,11 +89,16 @@ const LiveChatWidget = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+          aria-label={unreadCount > 0 ? `Open live chat, ${unreadCount} unread messages` : "Open live chat"}
+          aria-expanded={isOpen}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
-          <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            <span
+              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+              aria-hidden="true"
+            >
               {unreadCount}
             </span>
           )}
@@ -107,21 +112,33 @@ const LiveChatWidget = () => {
             ${isMinimized ? 'w-72 h-14' : 'w-[calc(100%-2rem)] sm:w-96 h-[500px] max-h-[80vh]'}
             bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6
           `}
+          role="dialog"
+          aria-label="Live Chat Support"
         >
           {/* Header */}
           <div
-            className="bg-gradient-to-r from-primary-600 to-purple-600 text-white p-4 flex items-center justify-between cursor-pointer"
+            className="bg-gradient-to-r from-primary-600 to-purple-600 text-white p-4 flex items-center justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
             onClick={() => isMinimized && setIsMinimized(false)}
+            role={isMinimized ? "button" : undefined}
+            tabIndex={isMinimized ? 0 : -1}
+            onKeyDown={(e) => {
+              if (isMinimized && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                setIsMinimized(false);
+              }
+            }}
+            aria-expanded={!isMinimized}
+            aria-label={isMinimized ? "Expand chat" : undefined}
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <FiCpu className="w-4 h-4" />
+                <FiCpu className="w-4 h-4" aria-hidden="true" />
               </div>
               <div>
                 <h3 className="font-semibold text-sm">ShopHub Support</h3>
                 {!isMinimized && (
                   <span className="text-xs text-white/80 flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-400 rounded-full" aria-hidden="true"></span>
                     Online
                   </span>
                 )}
@@ -133,18 +150,20 @@ const LiveChatWidget = () => {
                   e.stopPropagation();
                   setIsMinimized(!isMinimized);
                 }}
-                className="p-1 hover:bg-white/20 rounded transition-colors"
+                aria-label={isMinimized ? "Expand chat" : "Minimize chat"}
+                className="p-1 hover:bg-white/20 rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                <FiMinimize2 className="w-4 h-4" />
+                <FiMinimize2 className="w-4 h-4" aria-hidden="true" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsOpen(false);
                 }}
-                className="p-1 hover:bg-white/20 rounded transition-colors"
+                aria-label="Close chat"
+                className="p-1 hover:bg-white/20 rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                <FiX className="w-4 h-4" />
+                <FiX className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -199,9 +218,10 @@ const LiveChatWidget = () => {
                   <button
                     type="submit"
                     disabled={isTyping || !message.trim()}
-                    className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                    aria-label="Send message"
+                    className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                   >
-                    <FiSend className="w-5 h-5" />
+                    <FiSend className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </form>
