@@ -4,3 +4,6 @@
 ## 2024-06-24 - Accessibility on Stateful Buttons
 **Learning:** When adding ARIA labels to buttons containing state (like a notification unread count), dynamically updating the `aria-label` provides much better context to screen readers than a static label. Additionally, applying `aria-hidden="true"` to SVG icons and redundant text badges within the button prevents the screen reader from reading the information twice (e.g., reading the label, then reading the badge number).
 **Action:** Always consider the state of a component when assigning `aria-label` and systematically use `aria-hidden="true"` on non-semantic child elements to create a clean, single-source-of-truth accessibility tree.
+## 2024-10-02 - ARIA Expand and Focus Visibility on Interactive Floating UI
+**Learning:** Floating components like a Live Chat widget frequently lack explicit `aria-expanded` properties and focus visibility states because they use raw icons inside buttons overriding standard focus rings with absolute placement.
+**Action:** Always ensure that toggle buttons specify an explicit `aria-expanded` state that dynamically correlates with the boolean state, properly hide semantic-free SVGs with `aria-hidden="true"`, and enforce `focus-visible:ring-*` styles for keyboard navigation on otherwise boundaryless icons.
