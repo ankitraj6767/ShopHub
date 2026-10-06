@@ -127,9 +127,11 @@ const Layout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    aria-expanded={userMenuOpen}
+                    aria-label="User menu"
                     className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
                   >
-                    <FiUser className="w-6 h-6" />
+                    <FiUser className="w-6 h-6" aria-hidden="true" />
                     <span>{user?.name?.split(' ')[0]}</span>
                   </button>
 
@@ -529,16 +531,17 @@ const Layout = () => {
                 <h4 className="font-semibold text-white mb-2">Subscribe to our newsletter</h4>
                 <p className="text-gray-400 text-sm">Get exclusive offers and updates delivered to your inbox.</p>
               </div>
-              <div className="flex gap-3 w-full md:w-auto">
+              <form onSubmit={(e) => e.preventDefault()} className="flex gap-3 w-full md:w-auto">
                 <input
                   type="email"
+                  aria-label="Email for newsletter"
                   placeholder="Enter your email"
                   className="flex-1 md:w-64 px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
-                <button className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors">
+                <button type="submit" className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors">
                   Subscribe
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
