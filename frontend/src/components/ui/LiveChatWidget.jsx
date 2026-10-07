@@ -89,11 +89,16 @@ const LiveChatWidget = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group outline-none focus-visible:ring-4 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+          aria-label={unreadCount > 0 ? `Open live chat, ${unreadCount} unread messages` : "Open live chat"}
+          aria-expanded={isOpen}
         >
-          <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            <span
+              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+              aria-hidden="true"
+            >
               {unreadCount}
             </span>
           )}
@@ -114,8 +119,8 @@ const LiveChatWidget = () => {
             onClick={() => isMinimized && setIsMinimized(false)}
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <FiCpu className="w-4 h-4" />
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center" aria-hidden="true">
+                <FiCpu className="w-4 h-4" aria-hidden="true" />
               </div>
               <div>
                 <h3 className="font-semibold text-sm">ShopHub Support</h3>
@@ -133,18 +138,20 @@ const LiveChatWidget = () => {
                   e.stopPropagation();
                   setIsMinimized(!isMinimized);
                 }}
-                className="p-1 hover:bg-white/20 rounded transition-colors"
+                className="p-1 hover:bg-white/20 rounded transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label={isMinimized ? "Expand chat window" : "Minimize chat window"}
               >
-                <FiMinimize2 className="w-4 h-4" />
+                <FiMinimize2 className="w-4 h-4" aria-hidden="true" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsOpen(false);
                 }}
-                className="p-1 hover:bg-white/20 rounded transition-colors"
+                className="p-1 hover:bg-white/20 rounded transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label="Close chat window"
               >
-                <FiX className="w-4 h-4" />
+                <FiX className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -199,9 +206,10 @@ const LiveChatWidget = () => {
                   <button
                     type="submit"
                     disabled={isTyping || !message.trim()}
-                    className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                    className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-gray-800"
+                    aria-label="Send message"
                   >
-                    <FiSend className="w-5 h-5" />
+                    <FiSend className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </form>
