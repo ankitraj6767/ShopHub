@@ -529,16 +529,20 @@ const Layout = () => {
                 <h4 className="font-semibold text-white mb-2">Subscribe to our newsletter</h4>
                 <p className="text-gray-400 text-sm">Get exclusive offers and updates delivered to your inbox.</p>
               </div>
-              <div className="flex gap-3 w-full md:w-auto">
+              <form className="flex gap-3 w-full md:w-auto" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="email"
                   placeholder="Enter your email"
+                  aria-label="Email address for newsletter"
                   className="flex-1 md:w-64 px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
-                <button className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors">
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+                >
                   Subscribe
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
